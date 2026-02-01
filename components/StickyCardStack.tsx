@@ -18,10 +18,10 @@ const CARDS: CardData[] = [
                 <h3 className="text-2xl font-bold text-white">Hi, I'm Shem.</h3>
                 <p className="text-[15px] text-white font-medium">A BSIT student & developer looking for my first professional role.</p>
                 <div className="space-y-2 text-[15px] text-white">
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Backend Focused</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Full-Stack Capable</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Based in Iloilo</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Ready to ship code</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Backend Focused</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Full-Stack Capable</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Based in Iloilo</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Ready to ship code</div>
                 </div>
             </div>
         )
@@ -33,10 +33,9 @@ const CARDS: CardData[] = [
                 <h3 className="text-xl font-bold text-white">Logic First.</h3>
                 <p className="text-[15px] text-white font-medium">I love the challenge of the backend, but I can build the frontend too. I’m looking for a team where I can grow.</p>
                 <div className="space-y-2 text-[15px] text-white">
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Languages: JavaScript, Python, SQL</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Focus: APIs, Databases, System Logic</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Interest: Web3 & Crypto</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Soft Skill: Fast Learner</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> APIs, Databases, System Logic</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Web3 & Crypto</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Fast Learner</div>
                 </div>
             </div>
         )
@@ -48,10 +47,9 @@ const CARDS: CardData[] = [
                 <h3 className="text-xl font-bold text-white">AI Trading Analyzer.</h3>
                 <p className="text-[15px] text-white font-medium">I combined my interest in crypto with code to solve a real problem—analysis paralysis.</p>
                 <div className="space-y-2 text-[15px] text-white">
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Integrates AI for market signals</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Analyzes real-time chart data</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Automated decision logic</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Built with Python & Next.js</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Integrates AI for market signals</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Automated decision logic</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Built with n8n & Next.js</div>
                 </div>
             </div>
         )
@@ -63,10 +61,9 @@ const CARDS: CardData[] = [
                 <h3 className="text-xl font-bold text-white">Assumption Iloilo OPAC.</h3>
                 <p className="text-[15px] text-white font-medium">A digital library system I helped build to make finding books easier for students.</p>
                 <div className="space-y-2 text-[15px] text-white">
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Modernized a legacy system</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Fast search & filtering</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Database management</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> User-friendly interface</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Modernized a legacy system</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Fast search & filtering</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Database management</div>
                 </div>
             </div>
         )
@@ -78,10 +75,10 @@ const CARDS: CardData[] = [
                 <h3 className="text-xl font-bold text-white">Let's Work Together.</h3>
                 <p className="text-[15px] text-white font-medium">I have the foundations (from To-Do lists to AI apps) and the drive to contribute immediately.</p>
                 <div className="space-y-2 text-[15px] text-white">
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Available for Internship / Junior Roles</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Passion for clean code</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Eager to be mentored</div>
-                    <div className="flex items-center gap-2"><span className="text-white">•</span> Email: shem.dev@gmail.com</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Available for Internship / Junior Roles</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Passion for clean code</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Eager to be mentored</div>
+                    <div className="flex items-center gap-2"><span className="text-white">-</span> Email: shem.dev@gmail.com</div>
                 </div>
             </div>
         )
@@ -142,7 +139,7 @@ export const StickyCardStack = () => {
             {/* Center the stack */}
             <div className="absolute inset-0 flex items-center justify-center">
                 <div
-                    className="relative w-[340px] md:w-[380px] h-[380px] md:h-[400px] aspect-[3/4]"
+                    className="relative w-[400px] md:w-[460px] h-[300px] md:h-[320px]"
                     style={{ perspective: 1000, transformStyle: 'preserve-3d' }}
                 >
                     {/* Static Floating Header */}
@@ -252,6 +249,15 @@ const Card = ({ card, index, cardProgress, total, activeIndex }: CardProps) => {
         return 1;
     });
 
+    // Content Opacity: Hide text on cards waiting in the stack (pos > 0)
+    // Only show text when card is Active (pos ~ 0) or Leaving (pos < 0)
+    const contentOpacity = useTransform(position, (pos) => {
+        // If card is waiting behind (pos > 0.3), hide text
+        if (pos > 0.3) return 0;
+        // Fade in as it approaches 0 (active)
+        return 1 - (Math.max(0, pos) * 3.33);
+    });
+
     return (
         <motion.div
             style={{
@@ -269,9 +275,12 @@ const Card = ({ card, index, cardProgress, total, activeIndex }: CardProps) => {
             {/* Header removed from here */}
 
             {/* Content - Static and Fixed - Added margin top to account for absolute header */}
-            <div className="flex-1 font-mono text-white text-base md:text-lg leading-relaxed select-none mt-12">
+            <motion.div
+                style={{ opacity: contentOpacity }}
+                className="flex-1 font-mono text-white text-base md:text-lg leading-relaxed select-none mt-6"
+            >
                 {card.content}
-            </div>
+            </motion.div>
         </motion.div>
     );
 };
