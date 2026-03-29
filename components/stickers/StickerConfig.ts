@@ -36,7 +36,7 @@ export interface StickerData {
     tapEffect?: 'flyAround' | 'spotify';
 }
 
-export const STICKER_CONFIG: StickerData[] = [
+export const STICKER_CONFIG: StickerData[] = ([
     // ── HERO — Center Top ──
     {
         id: 'main-me',
@@ -271,4 +271,7 @@ export const STICKER_CONFIG: StickerData[] = [
         delay: 0.36,
         zIndex: 14,
     },
-];
+] as StickerData[]).map((sticker, index) => ({
+    ...sticker,
+    delay: index * 0.12 // Balanced sequential delay override
+}));

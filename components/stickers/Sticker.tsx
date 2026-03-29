@@ -12,8 +12,8 @@ interface StickerProps {
 }
 
 const LOCAL_PLAYLIST = [
-  { src: '/mp3/Hot Mulligan - I Dont Think Its the Right Time for Emojis.mp3', name: "Hot Mulligan - I Don't Think It's the Right Time for Emojis" },
-  { src: '/mp3/The Story So Far Big Blind.mp3', name: 'The Story So Far - Big Blind' },
+    { src: '/mp3/Hot Mulligan - I Dont Think Its the Right Time for Emojis.mp3', name: "Hot Mulligan - I Don't Think It's the Right Time for Emojis" },
+    { src: '/mp3/The Story So Far Big Blind.mp3', name: 'The Story So Far - Big Blind' },
 ];
 
 let globalAudio: HTMLAudioElement | null = null;
@@ -145,17 +145,17 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
             if (controller) {
                 spotifyClickCount.current++;
                 const count = spotifyClickCount.current;
-                
+
                 if (count % 2 === 1) {
                     if (count > 1) {
                         controller.next();
                     }
-                    
+
                     controller.play();
                     toast.success(`Playing ${controller.getSongName()} 🎵`, { id: 'spotify-toast', duration: 3000 });
                 } else {
                     controller.pause();
-                    toast('Radio paused', { 
+                    toast('Radio paused', {
                         id: 'spotify-toast',
                         icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5"><path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" /></svg>
                     });
@@ -165,6 +165,9 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
             }
         }
     };
+
+    const initialScale = useRef(1.4 + Math.random() * 0.4).current; // 1.4x to 1.8x, far softer and less chaotic zoom
+    const initialBlur = useRef(3 + Math.random() * 2).current; // 3px to 5px, much less blurry
 
     return (
         <>
@@ -177,19 +180,31 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     zIndex: isFlying ? 1 : showPopup ? 100 : zIndex,
                     width,
                     cursor: popup || tapEffect ? 'pointer' : 'grab',
+                    willChange: 'transform, opacity',
                 }}
-                initial={{ opacity: 0, scale: 0.3, rotate }}
+                initial={{
+                    opacity: 0,
+                    scale: initialScale,
+                    y: 0,
+                    rotate
+                }}
                 animate={{
-                    opacity: 1,
-                    scale: 1,
+                    opacity: hasEntered ? 1 : [0, 1, 1],
+                    scale: hasEntered ? 1 : [initialScale, 0.94, 1], // Very subtle, gentle soft shrink
+                    y: 0,
                     rotate,
                 }}
                 transition={
                     hasEntered
                         ? { scale: { duration: 0.1 }, opacity: { duration: 0.1 } }
                         : {
-                            opacity: { duration: 0.3, delay },
-                            scale: { type: 'spring', stiffness: 260, damping: 15, delay },
+                            duration: 0.7, // Extracted duration to float gracefully over 700ms instead of slamming
+                            delay: delay,
+                            times: [0, 0.6, 1], // Extend the finishing phase proportionally
+                            ease: [
+                                [0.25, 1, 0.5, 1],    // Smoother, less abrupt ease out
+                                [0.25, 1, 0.5, 1]     // Smooth organic expansion
+                            ]
                         }
                 }
                 onAnimationComplete={() => setHasEntered(true)}
