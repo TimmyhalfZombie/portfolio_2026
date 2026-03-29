@@ -1,3 +1,12 @@
+export interface StickerPopup {
+    /** Text before the link */
+    text: string;
+    /** Linked/underlined text (Optional) */
+    linkText?: string;
+    /** URL the link navigates to (Optional) */
+    linkUrl?: string;
+}
+
 export interface StickerData {
     /** Unique identifier */
     id: string;
@@ -21,6 +30,10 @@ export interface StickerData {
     priority?: boolean;
     /** If true, render behind the card stack (lower z-layer) */
     behindCards?: boolean;
+    /** Optional popup tooltip shown on tap */
+    popup?: StickerPopup;
+    /** Optional tap animation effect */
+    tapEffect?: 'flyAround' | 'spotify';
 }
 
 export const STICKER_CONFIG: StickerData[] = [
@@ -29,9 +42,9 @@ export const STICKER_CONFIG: StickerData[] = [
         id: 'main-me',
         src: '/stickers/main-me.png',
         alt: 'Shem — Main Portrait',
-        width: 300,
+        width: 310,
         top: '0%',
-        left: 'calc(53% - 140px)',   // centered (50% minus half of width)
+        left: 'calc(52% - 140px)',   // centered (50% minus half of width)
         rotate: 0,
         delay: 0,
         zIndex: 5,
@@ -61,6 +74,11 @@ export const STICKER_CONFIG: StickerData[] = [
         rotate: 12,
         delay: 0.15,
         zIndex: 14,
+        popup: {
+            text: 'Contact me on',
+            linkText: 'Facebook',
+            linkUrl: 'https://www.facebook.com/sndieia',
+        },
     },
 
     // ── LEFT SIDE ──
@@ -80,11 +98,16 @@ export const STICKER_CONFIG: StickerData[] = [
         src: '/stickers/linkedin.png',
         alt: 'LinkedIn',
         width: 65,
-        top: '48%',
-        left: '27%',
+        top: '58%',
+        left: '29%',
         rotate: -15,
         delay: 0.18,
         zIndex: 16,
+        popup: {
+            text: 'Find me on',
+            linkText: 'LinkedIn',
+            linkUrl: 'https://www.linkedin.com/in/shemuel-rei-lagrosa-141304322/',
+        },
     },
 
     // ── BOTTOM-LEFT ──
@@ -92,20 +115,21 @@ export const STICKER_CONFIG: StickerData[] = [
         id: 'fazzio',
         src: '/stickers/fazzio.png',
         alt: 'Fazzio Project',
-        width: 120,
-        top: '6%',
-        left: '86%',
+        width: 150,
+        top: '14%',
+        left: '72%',
         rotate: 0,
         delay: 0.25,
         zIndex: 11,
+        tapEffect: 'flyAround',
     },
     {
         id: 'assumption',
         src: '/stickers/assumption.png',
         alt: 'Assumption Iloilo',
         width: 110,
-        top: '30%',
-        left: '13%',
+        top: '53%',
+        left: '17%',
         rotate: -8,
         delay: 0.3,
         zIndex: 10,
@@ -117,19 +141,20 @@ export const STICKER_CONFIG: StickerData[] = [
         src: '/stickers/punk.png',
         alt: 'Punk Sticker',
         width: 100,
-        top: '72%',
-        left: '82%',
+        top: '77%',
+        left: '62%',
         rotate: 3,
         delay: 0.35,
         zIndex: 14,
+        tapEffect: 'spotify',
     },
     {
         id: 'patchup',
         src: '/stickers/patchup.png',
         alt: 'Patch Up Project',
         width: 80,
-        top: '53%',
-        left: '75%',
+        top: '8%',
+        left: '65%',
         rotate: -5,
         delay: 0.38,
         zIndex: 13,
@@ -151,9 +176,9 @@ export const STICKER_CONFIG: StickerData[] = [
         id: 'coursera',
         src: '/stickers/coursera.png',
         alt: 'Coursera Certificate',
-        width: 80,
-        top: '8%',
-        left: '65%',
+        width: 50,
+        top: '58%',
+        left: '67%',
         rotate: -5,
         delay: 0.12,
         zIndex: 14,
@@ -162,9 +187,9 @@ export const STICKER_CONFIG: StickerData[] = [
         id: 'flag',
         src: '/stickers/flag.png',
         alt: 'Philippine Flag',
-        width: 120,
-        top: '27%',
-        left: '82%',
+        width: 170,
+        top: '3%',
+        left: '85%',
         rotate: 10,
         delay: 0.16,
         zIndex: 12,
@@ -177,7 +202,7 @@ export const STICKER_CONFIG: StickerData[] = [
         alt: 'Email Contact',
         width: 100,
         top: '37%',
-        left: '67%',
+        left: '63.7%',
         rotate: 8,
         delay: 0.22,
         zIndex: 14,
@@ -198,21 +223,52 @@ export const STICKER_CONFIG: StickerData[] = [
         src: '/stickers/tool.png',
         alt: 'Dev Tools',
         width: 130,
-        top: '78%',
-        left: '57%',
+        top: '82%',
+        left: '47%',
         rotate: -5,
         delay: 0.28,
         zIndex: 11,
+        popup: {
+            text: "I'm a handyman. I like to build stuff. Both IRL and now with vibe coding."
+        }
     },
     {
         id: 'palawan',
         src: '/stickers/palawan.png',
         alt: 'Palawan Travel',
         width: 135,
-        top: '80%',
+        top: '75%',
         left: '16%',
         rotate: 6,
         delay: 0.32,
         zIndex: 13,
+    },
+
+    {
+        id: 'telegram',
+        src: '/stickers/telegram.png',
+        alt: 'Telegram',
+        width: 60,
+        top: '10%',
+        left: '32%',
+        rotate: 12,
+        delay: 0.25,
+        zIndex: 15,
+        popup: {
+            text: 'Message me on',
+            linkText: 'Telegram',
+            linkUrl: 'https://telegram.org',
+        },
+    },
+    {
+        id: 'fishing',
+        src: '/stickers/fishing.png',
+        alt: 'Fishing',
+        width: 90,
+        top: '45%',
+        left: '90%',
+        rotate: -5,
+        delay: 0.36,
+        zIndex: 14,
     },
 ];
