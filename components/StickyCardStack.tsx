@@ -183,17 +183,25 @@ interface CardProps {
 
 const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) => {
     const [scope, animate] = useAnimate();
+    const hasAnimated = useRef(false);
 
     useEffect(() => {
         if (isActive) {
-            animate(
-                ".char-reveal",
-                { opacity: 1 },
-                {
-                    duration: 0.01,
-                    delay: stagger(0.015),
-                }
-            );
+            if (!hasAnimated.current) {
+                // First time: play the typewriter stagger
+                animate(
+                    ".char-reveal",
+                    { opacity: 1 },
+                    {
+                        duration: 0.01,
+                        delay: stagger(0.015),
+                    }
+                );
+                hasAnimated.current = true;
+            } else {
+                // Already animated before: show instantly
+                animate(".char-reveal", { opacity: 1 }, { duration: 0.05 });
+            }
         } else {
             animate(".char-reveal", { opacity: 0 }, { duration: 0.01, delay: 0.4 });
         }
