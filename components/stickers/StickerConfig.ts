@@ -29,7 +29,7 @@ export const STICKER_CONFIG: StickerData[] = [
         id: 'main-me',
         src: '/stickers/main-me.png',
         alt: 'Shem — Main Portrait',
-        width: 290,
+        width: 300,
         top: '0%',
         left: 'calc(53% - 140px)',   // centered (50% minus half of width)
         rotate: 0,
