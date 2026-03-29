@@ -1,88 +1,76 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, useSpring, useTransform, MotionValue } from 'framer-motion';
+import { motion, useSpring, useTransform, MotionValue, useAnimate, stagger } from 'framer-motion';
 import { ChevronUp, ChevronDown, Home } from 'lucide-react';
 
 // Sample data
 interface CardData {
     id: number;
-    content: React.ReactNode;
+    title: string;
+    titleClass?: string;
+    description: string;
+    bullets: string[];
 }
 
 const CARDS: CardData[] = [
     {
         id: 1,
-        content: (
-            <div className="space-y-4">
-                <h3 className="text-2xl font-bold text-white">Hi, I'm Shem.</h3>
-                <p className="text-[15px] text-white font-medium">A BSIT student & developer looking for my first professional role.</p>
-                <div className="space-y-2 text-[15px] text-white">
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Backend Focused</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Full-Stack Capable</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Based in Iloilo</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Ready to ship code</div>
-                </div>
-            </div>
-        )
+        title: "Hi, I'm Shem.",
+        titleClass: "text-2xl",
+        description: "A BSIT student & developer looking for my first professional role.",
+        bullets: [
+            "Backend Focused",
+            "Full-Stack Capable",
+            "Based in Iloilo",
+            "Ready to ship code"
+        ]
     },
     {
         id: 2,
-        content: (
-            <div className="space-y-4">
-                <h3 className="text-xl font-bold text-white">Logic First.</h3>
-                <p className="text-[15px] text-white font-medium">I love the challenge of the backend, but I can build the frontend too. I’m looking for a team where I can grow.</p>
-                <div className="space-y-2 text-[15px] text-white">
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> APIs, Databases, System Logic</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Web3 & Crypto</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Fast Learner</div>
-                </div>
-            </div>
-        )
+        title: "Logic First.",
+        titleClass: "text-xl",
+        description: "I love the challenge of the backend, but I can build the frontend too. I’m looking for a team where I can grow.",
+        bullets: [
+            "APIs, Databases, System Logic",
+            "Web3 & Crypto",
+            "Fast Learner"
+        ]
     },
     {
         id: 3,
-        content: (
-            <div className="space-y-4">
-                <h3 className="text-xl font-bold text-white">AI Trading Analyzer.</h3>
-                <p className="text-[15px] text-white font-medium">I combined my interest in crypto with code to solve a real problem—analysis paralysis.</p>
-                <div className="space-y-2 text-[15px] text-white">
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Integrates AI for market signals</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Automated decision logic</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Built with n8n & Next.js</div>
-                </div>
-            </div>
-        )
+        title: "AI Trading Analyzer.",
+        titleClass: "text-xl",
+        description: "I combined my interest in crypto with code to solve a real problem—analysis paralysis.",
+        bullets: [
+            "Integrates AI for market signals",
+            "Automated decision logic",
+            "Built with n8n & Next.js"
+        ]
     },
     {
         id: 4,
-        content: (
-            <div className="space-y-4">
-                <h3 className="text-xl font-bold text-white">Assumption Iloilo OPAC.</h3>
-                <p className="text-[15px] text-white font-medium">A digital library system I helped build to make finding books easier for students.</p>
-                <div className="space-y-2 text-[15px] text-white">
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Modernized a legacy system</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Fast search & filtering</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Database management</div>
-                </div>
-            </div>
-        )
+        title: "Assumption Iloilo OPAC.",
+        titleClass: "text-xl",
+        description: "A digital library system I helped build to make finding books easier for students.",
+        bullets: [
+            "Modernized a legacy system",
+            "Fast search & filtering",
+            "Database management"
+        ]
     },
     {
         id: 5,
-        content: (
-            <div className="space-y-4">
-                <h3 className="text-xl font-bold text-white">Let's Work Together.</h3>
-                <p className="text-[15px] text-white font-medium">I have the foundations (from To-Do lists to AI apps) and the drive to contribute immediately.</p>
-                <div className="space-y-2 text-[15px] text-white">
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Available for Internship / Junior Roles</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Passion for clean code</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Eager to be mentored</div>
-                    <div className="flex items-center gap-2"><span className="text-white">-</span> Email: shem.dev@gmail.com</div>
-                </div>
-            </div>
-        )
-    },
+        title: "Let's Work Together.",
+        titleClass: "text-xl",
+        description: "I have the foundations (from To-Do lists to AI apps) and the drive to contribute immediately.",
+        bullets: [
+            "Available for Internship / Junior Roles",
+            "Passion for clean code",
+            "Eager to be mentored",
+            "Email: shem.dev@gmail.com"
+        ]
+    }
 ];
 
 export const StickyCardStack = () => {
@@ -135,7 +123,7 @@ export const StickyCardStack = () => {
     }, [handleWheel]);
 
     return (
-        <div className="h-screen w-full relative overflow-hidden bg-transparent">
+        <div className="h-screen w-full relative overflow-hidden bg-transparent pointer-events-none">
             {/* Center the stack */}
             <div className="absolute inset-0 flex items-center justify-center">
                 <div
@@ -143,7 +131,7 @@ export const StickyCardStack = () => {
                     style={{ perspective: 1000, transformStyle: 'preserve-3d' }}
                 >
                     {/* Static Floating Header */}
-                    <div className="absolute top-6 right-6 md:top-8 md:right-8 z-[200] flex justify-end items-center space-x-3">
+                    <div className="absolute top-6 right-6 md:top-8 md:right-8 z-[200] flex justify-end items-center space-x-3 pointer-events-auto">
                         <button
                             onClick={() => setActiveIndex(Math.min(CARDS.length - 1, activeIndex + 1))}
                             className="w-6 h-6 rounded-full border border-neutral-800 flex items-center justify-center text-neutral-400 bg-black hover:bg-neutral-900 transition-colors cursor-pointer"
@@ -192,6 +180,67 @@ interface CardProps {
     total: number;
     activeIndex: number;
 }
+
+const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) => {
+    const [scope, animate] = useAnimate();
+
+    useEffect(() => {
+        if (isActive) {
+            animate(
+                ".char-reveal",
+                { opacity: 1 },
+                {
+                    duration: 0.01,
+                    delay: stagger(0.015),
+                }
+            );
+        } else {
+            animate(".char-reveal", { opacity: 0 }, { duration: 0.01, delay: 0.4 });
+        }
+    }, [isActive, animate]);
+
+    const splitText = (text: string) => {
+        return text.split(/(\s+)/).map((word, wordIndex) => {
+            if (word.match(/\s+/)) {
+                return (
+                    <span key={wordIndex} className="char-reveal opacity-0 whitespace-pre">
+                        {word}
+                    </span>
+                );
+            }
+            return (
+                <span key={wordIndex} className="inline-block">
+                    {word.split("").map((char, charIndex) => (
+                        <span key={charIndex} className="char-reveal opacity-0">
+                            {char}
+                        </span>
+                    ))}
+                </span>
+            );
+        });
+    };
+
+    return (
+        <div ref={scope} className="space-y-4">
+            <h3 className={`font-bold text-white ${card.titleClass || 'text-xl'}`}>
+                {splitText(card.title)}
+            </h3>
+            <p className="text-[15px] text-white font-medium">
+                {splitText(card.description)}
+            </p>
+            <div className="space-y-2 text-[15px] text-white">
+                {card.bullets.map((bullet, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                        <span className="char-reveal opacity-0 text-white mt-[2px]">-</span>
+                        <div className="flex-1">
+                            {splitText(bullet)}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 const Card = ({ card, index, cardProgress, total, activeIndex }: CardProps) => {
     // Same Logic as before, but driven by the Spring Value 'cardProgress'
@@ -249,13 +298,17 @@ const Card = ({ card, index, cardProgress, total, activeIndex }: CardProps) => {
         return 1;
     });
 
-    // Content Opacity: Hide text on cards waiting in the stack (pos > 0)
-    // Only show text when card is Active (pos ~ 0) or Leaving (pos < 0)
+
     const contentOpacity = useTransform(position, (pos) => {
-        // If card is waiting behind (pos > 0.3), hide text
-        if (pos > 0.3) return 0;
-        // Fade in as it approaches 0 (active)
-        return 1 - (Math.max(0, pos) * 3.33);
+        // If card is active (0) or leaving (<0), it's fully visible.
+        if (pos <= 0) return 1;
+
+        // As it moves back (pos > 0), fade it out smoothly.
+        // Fully hidden by 0.5 distance to prevent bleed-through but allow smooth transition.
+        if (pos >= 0.5) return 0;
+
+        // Linear fade: 1 at 0, 0 at 0.5
+        return 1 - (pos / 0.5);
     });
 
     return (
@@ -270,7 +323,7 @@ const Card = ({ card, index, cardProgress, total, activeIndex }: CardProps) => {
                 filter,
                 opacity
             }}
-            className="absolute inset-0 bg-black rounded-2xl border-transparent shadow-2xl flex flex-col p-6 md:p-8"
+            className="absolute inset-0 bg-black rounded-2xl border-transparent shadow-2xl flex flex-col p-6 md:p-8 pointer-events-auto"
         >
             {/* Header removed from here */}
 
@@ -279,7 +332,7 @@ const Card = ({ card, index, cardProgress, total, activeIndex }: CardProps) => {
                 style={{ opacity: contentOpacity }}
                 className="flex-1 font-mono text-white text-base md:text-lg leading-relaxed select-none mt-6"
             >
-                {card.content}
+                <CardContent card={card} isActive={activeIndex === index} />
             </motion.div>
         </motion.div>
     );
