@@ -166,8 +166,17 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
         }
     };
 
-    const initialScale = useRef(1.4 + Math.random() * 0.4).current; // 1.4x to 1.8x, far softer and less chaotic zoom
-    const initialBlur = useRef(3 + Math.random() * 2).current; // 3px to 5px, much less blurry
+    // Deterministic pseudo-random based on sticker ID (avoids SSR hydration mismatch)
+    const seededRandom = (seed: string, offset = 0) => {
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+            hash = seed.charCodeAt(i) + ((hash << 5) - hash) + offset;
+            hash |= 0;
+        }
+        return (Math.abs(hash) % 1000) / 1000; // 0..1
+    };
+    const initialScale = 1.4 + seededRandom(data.id, 1) * 0.4; // 1.4x to 1.8x
+
 
     return (
         <>
