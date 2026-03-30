@@ -39,7 +39,7 @@ export interface StickerData {
     /** Optional popup tooltip shown on tap */
     popup?: StickerPopup;
     /** Optional tap animation effect */
-    tapEffect?: 'flyAround' | 'spotify' | 'bounce';
+    tapEffect?: 'flyAround' | 'spotify' | 'bounce' | 'contact';
 }
 
 export const STICKER_CONFIG: StickerData[] = ([
@@ -224,6 +224,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         rotate: 8,
         delay: 0.22,
         zIndex: 14,
+        tapEffect: 'contact',
     },
     {
         id: 'vipscale',
