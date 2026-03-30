@@ -57,7 +57,9 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const { src, alt, width, top, left, rotate, delay, zIndex, priority, popup, tapEffect } = data;
     const [hasEntered, setHasEntered] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
+    const [popupIndex, setPopupIndex] = useState(0);
     const [isFlying, setIsFlying] = useState(false);
+    const [isBouncing, setIsBouncing] = useState(false);
     const [ghostRect, setGhostRect] = useState<DOMRect | null>(null);
     const stickerRef = useRef<HTMLDivElement>(null);
     const flyRef = useRef<HTMLDivElement>(null);
@@ -65,14 +67,14 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const isFlyingGuard = useRef(false);
     const wasDragged = useRef(false);
 
-    // Close popup when clicking outside the sticker or after 3 seconds
+    // Close popup when clicking outside the sticker or after timeout
     useEffect(() => {
         if (!showPopup) return;
 
-        // Auto-close after 3 seconds
+        // Auto-close after custom duration or default 5 seconds
         const timerId = setTimeout(() => {
             setShowPopup(false);
-        }, 3000);
+        }, popup?.duration || 5000);
 
         const handleClickOutside = (e: PointerEvent) => {
             if (stickerRef.current && !stickerRef.current.contains(e.target as Node)) {
@@ -83,9 +85,9 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
         document.addEventListener('pointerdown', handleClickOutside);
         return () => {
             document.removeEventListener('pointerdown', handleClickOutside);
-            clearTimeout(timerId); // Cleanup the timer if it closes before 3 seconds
+            clearTimeout(timerId); // Cleanup the timer if it closes before duration
         };
-    }, [showPopup]);
+    }, [showPopup, popup?.duration]);
 
     // ── Fly-Around: Trigger ──
     // Captures the sticker's current position, then portals a "ghost" copy at z-3
@@ -138,8 +140,26 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     // ── Click handler that works alongside drag ──
     const handleClick = () => {
         if (wasDragged.current) return;
-        if (popup) setShowPopup((prev) => !prev);
+        if (popup) {
+            if (!showPopup && Array.isArray(popup.text)) {
+                 const len = popup.text.length;
+                 if (len > 1) {
+                     setPopupIndex(prev => {
+                         let next = Math.floor(Math.random() * len);
+                         if (next === prev) next = (next + 1) % len;
+                         return next;
+                     });
+                 }
+            }
+            setShowPopup((prev) => !prev);
+        }
         else if (tapEffect === 'flyAround') flyAround();
+        else if (tapEffect === 'bounce') {
+            if (!isBouncing) {
+                setIsBouncing(true);
+                setTimeout(() => setIsBouncing(false), 1500); // 3 bounces total ~1.5s
+            }
+        }
         else if (tapEffect === 'spotify') {
             const controller = getAudioController();
             if (controller) {
@@ -177,6 +197,14 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     };
     const initialScale = 1.4 + seededRandom(data.id, 1) * 0.4; // 1.4x to 1.8x
 
+    // ── Pre-calculate dynamic popup alignment to prevent bleeding off screen ──
+    const leftVal = typeof left === 'string' && left.includes('%') ? parseFloat(left) : 50;
+    const isEdgeLeft = leftVal < 25;
+    const isEdgeRight = leftVal > 75;
+    const popupTranslateX = isEdgeLeft ? '-15%' : isEdgeRight ? '-85%' : '-50%';
+    const caretLeftPos = isEdgeLeft ? '20%' : isEdgeRight ? '80%' : '50%';
+
+
 
     return (
         <>
@@ -187,7 +215,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     top,
                     left,
                     zIndex: isFlying ? 1 : showPopup ? 100 : zIndex,
-                    width,
+                    width: `clamp(${Math.floor(width * 0.75)}px, ${(width / 14.4).toFixed(2)}vw, ${width}px)`,
                     cursor: popup || tapEffect ? 'pointer' : 'grab',
                     willChange: 'transform, opacity',
                 }}
@@ -197,14 +225,25 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     y: 0,
                     rotate
                 }}
-                animate={{
-                    opacity: hasEntered ? 1 : [0, 1, 1],
-                    scale: hasEntered ? 1 : [initialScale, 0.94, 1], // Very subtle, gentle soft shrink
-                    y: 0,
-                    rotate,
-                }}
+                animate={
+                    isBouncing 
+                        ? {
+                              y: [0, -30, 0, -30, 0, -30, 0], // 3 bounces
+                              scale: 1,
+                              opacity: 1,
+                              rotate,
+                          }
+                        : {
+                              opacity: hasEntered ? 1 : [0, 1, 1],
+                              scale: hasEntered ? 1 : [initialScale, 0.94, 1], // Very subtle, gentle soft shrink
+                              y: 0,
+                              rotate,
+                          }
+                }
                 transition={
-                    hasEntered
+                    isBouncing 
+                    ? { y: { duration: 1.5, ease: 'easeOut' } }
+                    : hasEntered
                         ? { scale: { duration: 0.1 }, opacity: { duration: 0.1 } }
                         : {
                             duration: 0.7, // Extracted duration to float gracefully over 700ms instead of slamming
@@ -238,17 +277,24 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         <motion.div
                             key="sticker-popup"
                             className="absolute bottom-full left-1/2 mb-3 pointer-events-auto"
-                            style={{ x: '-50%', rotate: -rotate }}
-                            initial={{ opacity: 0, y: 6, scale: 0.92 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 6, scale: 0.92 }}
+                            style={{ x: popupTranslateX, rotate: -rotate }}
+                            initial={{ opacity: 0, y: (popup.offsetY || 0) + 6, scale: 0.92 }}
+                            animate={{ opacity: 1, y: (popup.offsetY || 0), scale: 1 }}
+                            exit={{ opacity: 0, y: (popup.offsetY || 0) + 6, scale: 0.92 }}
                             transition={{ duration: 0.15, ease: 'easeOut' }}
                             onPointerDown={(e) => e.stopPropagation()}
                             onPointerUp={(e) => e.stopPropagation()}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="relative bg-black border-[1.5px] border-white rounded-xl px-4 py-3 w-[300px] text-center font-mono text-sm font-semibold text-white select-none leading-relaxed">
-                                {popup.text}{' '}
+                            <div
+                                className="relative bg-black border-[1.5px] border-white rounded-xl px-4 py-3 text-center font-mono text-sm sm:text-base font-semibold text-white select-none leading-relaxed"
+                                style={{
+                                    width: 'max-content',
+                                    maxWidth: popup.maxWidth ? `min(${popup.maxWidth}px, calc(100vw - 32px))` : 'min(320px, calc(100vw - 32px))',
+                                    minWidth: '120px',
+                                }}
+                            >
+                                {Array.isArray(popup.text) ? popup.text[popupIndex] : popup.text}{' '}
                                 {popup.linkUrl && popup.linkText && (
                                     <a
                                         href={popup.linkUrl}
@@ -262,8 +308,10 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
 
                                 {/* Downward caret/triangle */}
                                 <div
-                                    className="absolute -bottom-[7px] left-1/2 -translate-x-1/2 w-3 h-3 bg-black rotate-45"
+                                    className="absolute -bottom-[7px] w-3 h-3 bg-black rotate-45"
                                     style={{
+                                        left: caretLeftPos,
+                                        transform: 'translateX(-50%) rotate(45deg)',
                                         borderRight: '1.5px solid white',
                                         borderBottom: '1.5px solid white',
                                     }}

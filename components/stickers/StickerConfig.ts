@@ -1,10 +1,16 @@
 export interface StickerPopup {
-    /** Text before the link */
-    text: string;
+    /** Text before the link. If an array, a random string is picked on each click. */
+    text: string | string[];
     /** Linked/underlined text (Optional) */
     linkText?: string;
     /** URL the link navigates to (Optional) */
     linkUrl?: string;
+    /** Optional max width in pixels for the popup (defaults to auto-fit) */
+    maxWidth?: number;
+    /** Optional custom duration in ms before popup disappears */
+    duration?: number;
+    /** Optional Y offset in pixels to nudge the popup down (default 0) */
+    offsetY?: number;
 }
 
 export interface StickerData {
@@ -33,7 +39,7 @@ export interface StickerData {
     /** Optional popup tooltip shown on tap */
     popup?: StickerPopup;
     /** Optional tap animation effect */
-    tapEffect?: 'flyAround' | 'spotify';
+    tapEffect?: 'flyAround' | 'spotify' | 'bounce';
 }
 
 export const STICKER_CONFIG: StickerData[] = ([
@@ -92,6 +98,19 @@ export const STICKER_CONFIG: StickerData[] = ([
         rotate: 0,
         delay: 0.2,
         zIndex: 40,
+        popup: {
+            text: [
+                "Need to cut down on manual tasks? I can automate your business workflows.",
+                "Looking to scale without hiccups? I containerize applications for reliable deployments.",
+                "I build blazing-fast, SEO-optimized web experiences.",
+                "From complex logic to full APIs, I develop robust backend solutions.",
+                "Want to reach mobile users? I can ship cross-platform mobile apps quickly.",
+                "I treat every codebase like it's my own business—let's build something scalable together."
+            ],
+            duration: 6000,
+            maxWidth: 320,
+            offsetY: 25,
+        }
     },
     {
         id: 'linkedin',
@@ -141,8 +160,8 @@ export const STICKER_CONFIG: StickerData[] = ([
         src: '/stickers/punk.png',
         alt: 'Punk Sticker',
         width: 100,
-        top: '77%',
-        left: '62%',
+        top: '72%',
+        left: '65%',
         rotate: 3,
         delay: 0.35,
         zIndex: 14,
@@ -164,8 +183,8 @@ export const STICKER_CONFIG: StickerData[] = ([
         src: '/stickers/hive.png',
         alt: 'Hive',
         width: 65,
-        top: '77%',
-        left: '34%',
+        top: '79%',
+        left: '32%',
         rotate: 8,
         delay: 0.4,
         zIndex: 12,
@@ -224,12 +243,13 @@ export const STICKER_CONFIG: StickerData[] = ([
         alt: 'Dev Tools',
         width: 130,
         top: '82%',
-        left: '47%',
+        left: '42%',
         rotate: -5,
         delay: 0.28,
         zIndex: 11,
         popup: {
-            text: "I'm a handyman. I like to build stuff. Both IRL and now with vibe coding."
+            text: "Builder at heart — fixing things with my hands and now shipping apps with code.",
+            maxWidth: 340,
         }
     },
     {
@@ -242,6 +262,23 @@ export const STICKER_CONFIG: StickerData[] = ([
         rotate: 6,
         delay: 0.32,
         zIndex: 13,
+        popup: {
+            text: [
+                "I'm from Palawan! Home to the Subterranean River, a New7Wonder of Nature.",
+                "I'm from Palawan! Known as the Philippines' Last Ecological Frontier.",
+                "I'm from Palawan! Our province alone has roughly 1,780 beautiful islands.",
+                "I'm from Palawan! Tubbataha Reefs here is a stunning UNESCO diver's paradise.",
+                "I'm from Palawan! Free-roaming giraffes live here at Calauit Safari.",
+                "I'm from Palawan! El Nido's marble cliffs formed 250 million years ago.",
+                "I'm from Palawan! We have the crystal-clear twin lagoons of Coron.",
+                "I'm from Palawan! Fireflies light up our Iwahig River mangroves at night.",
+                "I'm from Palawan! We are home to the vulnerable dugong, or sea cow.",
+                "I'm from Palawan! The Tabon Caves here are called the Philippines' Cradle of Civilization.",
+                "I'm from Palawan! Our secluded beaches are world-renowned for their pristine white sand."
+            ],
+            maxWidth: 320,
+            duration: 6000,
+        }
     },
 
     {
@@ -265,11 +302,12 @@ export const STICKER_CONFIG: StickerData[] = ([
         src: '/stickers/fishing.png',
         alt: 'Fishing',
         width: 90,
-        top: '45%',
-        left: '90%',
+        top: '80%',
+        left: '56%',
         rotate: -5,
         delay: 0.36,
         zIndex: 14,
+        tapEffect: 'bounce',
     },
 ] as StickerData[]).map((sticker, index) => ({
     ...sticker,
