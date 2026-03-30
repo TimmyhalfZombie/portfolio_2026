@@ -4,7 +4,7 @@ export async function sendContact(formData: FormData) {
   const email = formData.get('email');
   const message = formData.get('message');
 
-  const res = await fetch(process.env.N8N_WEBHOOK_URL!, {
+  const res = await fetch('http://localhost:5678/webhook/email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, message }),
