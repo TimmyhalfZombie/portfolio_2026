@@ -142,14 +142,14 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
         if (wasDragged.current) return;
         if (popup) {
             if (!showPopup && Array.isArray(popup.text)) {
-                 const len = popup.text.length;
-                 if (len > 1) {
-                     setPopupIndex(prev => {
-                         let next = Math.floor(Math.random() * len);
-                         if (next === prev) next = (next + 1) % len;
-                         return next;
-                     });
-                 }
+                const len = popup.text.length;
+                if (len > 1) {
+                    setPopupIndex(prev => {
+                        let next = Math.floor(Math.random() * len);
+                        if (next === prev) next = (next + 1) % len;
+                        return next;
+                    });
+                }
             }
             setShowPopup((prev) => !prev);
         }
@@ -198,12 +198,15 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const initialScale = 1.4 + seededRandom(data.id, 1) * 0.4; // 1.4x to 1.8x
 
     // ── Pre-calculate dynamic popup alignment to prevent bleeding off screen ──
-    const leftVal = typeof left === 'string' && left.includes('%') ? parseFloat(left) : 50;
-    const isEdgeLeft = leftVal < 25;
-    const isEdgeRight = leftVal > 75;
-    const popupTranslateX = isEdgeLeft ? '-15%' : isEdgeRight ? '-85%' : '-50%';
-    const caretLeftPos = isEdgeLeft ? '20%' : isEdgeRight ? '80%' : '50%';
-
+    let rawLeft = 50;
+    if (typeof left === 'string') {
+        const match = left.match(/(-?[\d.]+)%/);
+        if (match) rawLeft = parseFloat(match[1]);
+    }
+    // Smoothly constrain mapping between 12% and 88% so the caret doesn't intersect the tooltip's curved corners
+    const safeLeft = Math.max(12, Math.min(88, rawLeft));
+    const popupTranslateX = `-${safeLeft}%`;
+    const caretLeftPos = `${safeLeft}%`;
 
 
     return (
@@ -226,34 +229,34 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     rotate
                 }}
                 animate={
-                    isBouncing 
+                    isBouncing
                         ? {
-                              y: [0, -30, 0, -30, 0, -30, 0], // 3 bounces
-                              scale: 1,
-                              opacity: 1,
-                              rotate,
-                          }
+                            y: [0, -30, 0, -30, 0, -30, 0], // 3 bounces
+                            scale: 1,
+                            opacity: 1,
+                            rotate,
+                        }
                         : {
-                              opacity: hasEntered ? 1 : [0, 1, 1],
-                              scale: hasEntered ? 1 : [initialScale, 0.94, 1], // Very subtle, gentle soft shrink
-                              y: 0,
-                              rotate,
-                          }
+                            opacity: hasEntered ? 1 : [0, 1, 1],
+                            scale: hasEntered ? 1 : [initialScale, 0.94, 1], // Very subtle, gentle soft shrink
+                            y: 0,
+                            rotate,
+                        }
                 }
                 transition={
-                    isBouncing 
-                    ? { y: { duration: 1.5, ease: 'easeOut' } }
-                    : hasEntered
-                        ? { scale: { duration: 0.1 }, opacity: { duration: 0.1 } }
-                        : {
-                            duration: 0.7, // Extracted duration to float gracefully over 700ms instead of slamming
-                            delay: delay,
-                            times: [0, 0.6, 1], // Extend the finishing phase proportionally
-                            ease: [
-                                [0.25, 1, 0.5, 1],    // Smoother, less abrupt ease out
-                                [0.25, 1, 0.5, 1]     // Smooth organic expansion
-                            ]
-                        }
+                    isBouncing
+                        ? { y: { duration: 1.5, ease: 'easeOut' } }
+                        : hasEntered
+                            ? { scale: { duration: 0.1 }, opacity: { duration: 0.1 } }
+                            : {
+                                duration: 0.7, // Extracted duration to float gracefully over 700ms instead of slamming
+                                delay: delay,
+                                times: [0, 0.6, 1], // Extend the finishing phase proportionally
+                                ease: [
+                                    [0.25, 1, 0.5, 1],    // Smoother, less abrupt ease out
+                                    [0.25, 1, 0.5, 1]     // Smooth organic expansion
+                                ]
+                            }
                 }
                 onAnimationComplete={() => setHasEntered(true)}
                 onClick={handleClick}
@@ -277,7 +280,11 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         <motion.div
                             key="sticker-popup"
                             className="absolute bottom-full left-1/2 mb-3 pointer-events-auto"
-                            style={{ x: popupTranslateX, rotate: -rotate }}
+                            style={{
+                                x: popupTranslateX,
+                                rotate: -rotate,
+                                transformOrigin: `${caretLeftPos} 100%`
+                            }}
                             initial={{ opacity: 0, y: (popup.offsetY || 0) + 6, scale: 0.92 }}
                             animate={{ opacity: 1, y: (popup.offsetY || 0), scale: 1 }}
                             exit={{ opacity: 0, y: (popup.offsetY || 0) + 6, scale: 0.92 }}
@@ -287,7 +294,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div
-                                className="relative bg-black border-[1.5px] border-white rounded-xl px-4 py-3 text-center font-mono text-sm sm:text-base font-semibold text-white select-none leading-relaxed"
+                                className="relative bg-black border-3 border-white rounded-xl px-4 py-3 text-center font-mono text-sm sm:text-base font-semibold text-white select-none leading-relaxed"
                                 style={{
                                     width: 'max-content',
                                     maxWidth: popup.maxWidth ? `min(${popup.maxWidth}px, calc(100vw - 32px))` : 'min(320px, calc(100vw - 32px))',
@@ -308,12 +315,13 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
 
                                 {/* Downward caret/triangle */}
                                 <div
-                                    className="absolute -bottom-[7px] w-3 h-3 bg-black rotate-45"
+                                    className="absolute -bottom-[6.5px] w-[14px] h-[14px] bg-black"
                                     style={{
                                         left: caretLeftPos,
                                         transform: 'translateX(-50%) rotate(45deg)',
-                                        borderRight: '1.5px solid white',
-                                        borderBottom: '1.5px solid white',
+                                        borderRight: '2px solid white',
+                                        borderBottom: '2px solid white',
+                                        borderBottomRightRadius: '2px', // Adds a sleek, premium rounded point
                                     }}
                                 />
                             </div>

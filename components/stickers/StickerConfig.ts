@@ -101,11 +101,10 @@ export const STICKER_CONFIG: StickerData[] = ([
         popup: {
             text: [
                 "Need to cut down on manual tasks? I can automate your business workflows.",
-                "Looking to scale without hiccups? I containerize applications for reliable deployments.",
-                "I build blazing-fast, SEO-optimized web experiences.",
+                "I build fast, SEO-optimized web experiences.",
                 "From complex logic to full APIs, I develop robust backend solutions.",
                 "Want to reach mobile users? I can ship cross-platform mobile apps quickly.",
-                "I treat every codebase like it's my own business—let's build something scalable together."
+                "I treat every codebase like it's my own business, let's build something scalable together."
             ],
             duration: 6000,
             maxWidth: 320,
