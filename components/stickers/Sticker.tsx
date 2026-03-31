@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import { StickerData } from './StickerConfig';
 import { ContactModal } from '../ContactModal';
+import { CertificatesModal } from '../CertificatesModal';
 
 interface StickerProps {
     data: StickerData;
@@ -59,6 +60,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const [hasEntered, setHasEntered] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
+    const [showCertificatesModal, setShowCertificatesModal] = useState(false);
     const [popupIndex, setPopupIndex] = useState(0);
     const [isFlying, setIsFlying] = useState(false);
     const [isBouncing, setIsBouncing] = useState(false);
@@ -164,6 +166,9 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
         }
         else if (tapEffect === 'contact') {
             setShowContactModal(true);
+        }
+        else if (tapEffect === 'certificates') {
+            setShowCertificatesModal(true);
         }
         else if (tapEffect === 'spotify') {
             const controller = getAudioController();
@@ -380,6 +385,12 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
             {/* ── Contact Modal (portaled to body) ── */}
             {showContactModal && typeof window !== 'undefined' && createPortal(
                 <ContactModal onClose={() => setShowContactModal(false)} />,
+                document.body
+            )}
+
+            {/* ── Certificates Modal (portaled to body) ── */}
+            {showCertificatesModal && typeof window !== 'undefined' && createPortal(
+                <CertificatesModal onClose={() => setShowCertificatesModal(false)} />,
                 document.body
             )}
         </>

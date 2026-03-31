@@ -1,13 +1,14 @@
 'use server'
 
 export async function sendContact(formData: FormData) {
+  const name = formData.get('name');
   const email = formData.get('email');
   const message = formData.get('message');
 
   const res = await fetch('http://localhost:5678/webhook/email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, message }),
+    body: JSON.stringify({ name, email, message }),
   });
 
   const data = await res.json();

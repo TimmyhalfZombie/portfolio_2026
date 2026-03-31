@@ -11,13 +11,22 @@ interface ContactModalProps {
 
 export const ContactModal: React.FC<ContactModalProps> = ({ onClose }) => {
     const [isPending, startTransition] = useTransition();
+    const [nameErr, setNameErr] = useState('');
     const [emailErr, setEmailErr] = useState('');
     const [msgErr, setMsgErr] = useState('');
 
     const handleAction = (formData: FormData) => {
+        const name = formData.get('name') as string;
         const email = formData.get('email') as string;
         const message = formData.get('message') as string;
         let isValid = true;
+
+        if (!name || name.trim() === '') {
+            setNameErr('Please enter your name.');
+            isValid = false;
+        } else {
+            setNameErr('');
+        }
 
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             setEmailErr('Please enter a valid email address.');
@@ -83,6 +92,20 @@ export const ContactModal: React.FC<ContactModalProps> = ({ onClose }) => {
                     <p className="font-sans text-sm text-neutral-400 mb-7">I typically respond within a day.</p>
 
                     <form action={handleAction} className="flex flex-col gap-5">
+                        {/* Name */}
+                        <div>
+                            <label htmlFor="contact-name" className="block font-sans font-medium text-sm text-white mb-2 ml-1">Your Name</label>
+                            <input
+                                id="contact-name"
+                                name="name"
+                                type="text"
+                                placeholder="John Doe"
+                                className={`${inputBase} ${nameErr ? 'border-red-500' : 'border-neutral-700'}`}
+                                disabled={isPending}
+                            />
+                            {nameErr && <p className="font-sans text-xs text-red-400 mt-2 ml-2">{nameErr}</p>}
+                        </div>
+
                         {/* Email */}
                         <div>
                             <label htmlFor="contact-email" className="block font-sans font-medium text-sm text-white mb-2 ml-1">Email Address</label>

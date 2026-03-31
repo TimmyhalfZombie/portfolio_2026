@@ -39,7 +39,7 @@ export interface StickerData {
     /** Optional popup tooltip shown on tap */
     popup?: StickerPopup;
     /** Optional tap animation effect */
-    tapEffect?: 'flyAround' | 'spotify' | 'bounce' | 'contact';
+    tapEffect?: 'flyAround' | 'spotify' | 'bounce' | 'contact' | 'certificates';
 }
 
 export const STICKER_CONFIG: StickerData[] = ([
@@ -200,6 +200,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         rotate: -5,
         delay: 0.12,
         zIndex: 14,
+        tapEffect: 'certificates',
     },
     {
         id: 'flag',
@@ -248,7 +249,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         delay: 0.28,
         zIndex: 11,
         popup: {
-            text: "Builder at heart — fixing things with my hands and now shipping apps with code.",
+            text: "Hands-on by habit. Full-stack by choice.",
             maxWidth: 340,
         }
     },
