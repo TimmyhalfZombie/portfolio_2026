@@ -21,6 +21,60 @@ const LOCAL_PLAYLIST = [
 let globalAudio: HTMLAudioElement | null = null;
 let currentAudioIndex = 0;
 
+let sharedAudioCtx: AudioContext | null = null;
+let clickSoundCounter = 0;
+
+function playTickSound() {
+    if (typeof window === 'undefined') return;
+    try {
+        if (!sharedAudioCtx) {
+            const AudioContextFn = window.AudioContext || (window as any).webkitAudioContext;
+            if (AudioContextFn) {
+                sharedAudioCtx = new AudioContextFn();
+            }
+        }
+        if (!sharedAudioCtx) return;
+
+        if (sharedAudioCtx.state === 'suspended') {
+            sharedAudioCtx.resume();
+        }
+
+        const ctx = sharedAudioCtx;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        // Cycle through Tick -> Tack -> Tock
+        const seq = clickSoundCounter % 3;
+        clickSoundCounter++;
+
+        let startFreq = 1800;
+        let endFreq = 900;
+
+        if (seq === 1) { // Tack
+            startFreq = 1400;
+            endFreq = 700;
+        } else if (seq === 2) { // Tock
+            startFreq = 1000;
+            endFreq = 900;
+        }
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + 0.02);
+
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.025);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.03);
+    } catch (e) {
+        // Ignore audio API errors silently
+    }
+}
+
 function getAudioController() {
     if (typeof window === 'undefined') return null;
     if (!globalAudio) {
@@ -144,6 +198,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     // ── Click handler that works alongside drag ──
     const handleClick = () => {
         if (wasDragged.current) return;
+        playTickSound();
+
         if (popup) {
             if (!showPopup && Array.isArray(popup.text)) {
                 const len = popup.text.length;
@@ -278,7 +334,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         wasDragged.current = false;
                     }, 100);
                 }}
-                whileTap={{ scale: 1.03 }}
+                whileTap={{ scale: 1.15, transition: { duration: 0.2 } }}
                 whileDrag={{ zIndex: 70, cursor: 'grabbing' }}
                 drag
                 dragMomentum={false}

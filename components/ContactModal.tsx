@@ -57,88 +57,102 @@ export const ContactModal: React.FC<ContactModalProps> = ({ onClose }) => {
         });
     };
 
-    const inputBase = 'w-full bg-transparent border rounded-lg px-4 py-2.5 text-white font-sans placeholder:text-neutral-500 focus:outline-none focus:border-white transition-colors';
-    const textareaBase = 'w-full bg-transparent border rounded-xl px-4 py-3 text-white font-sans placeholder:text-neutral-500 focus:outline-none focus:border-white transition-colors resize-none';
+    const inputBase = 'w-full bg-white/[0.04] border rounded-xl px-4 py-3 text-white font-mono text-[14px] placeholder:text-neutral-500 focus:outline-none focus:border-white focus:bg-white/[0.08] transition-colors';
+    const textareaBase = 'w-full bg-white/[0.04] border rounded-xl px-4 py-3 text-white font-mono text-[14px] placeholder:text-neutral-500 focus:outline-none focus:border-white focus:bg-white/[0.08] transition-colors resize-none';
 
     return (
         <AnimatePresence>
             <motion.div
-                className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm pointer-events-auto"
+                className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md pointer-events-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
             >
                 <motion.div
-                    className="relative w-full max-w-md bg-[#0c0c0c] border border-white/15 rounded-xl p-6 sm:p-8 shadow-2xl"
+                    className="relative w-full max-w-[480px] bg-black border border-white/70 rounded-2xl shadow-2xl overflow-hidden"
                     initial={{ scale: 0.95, opacity: 0, y: 10 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 10 }}
                     transition={{ type: 'spring', duration: 0.4, bounce: 0.1 }}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <button
-                        onClick={onClose}
-                        className="absolute top-5 right-5 text-neutral-500 hover:text-white transition-colors"
-                        aria-label="Close"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
+                    {/* ── Header ── */}
+                    <div className="px-6 pt-6 pb-5">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <h2 className="font-mono font-bold text-[22px] text-white tracking-tight">
+                                    Get in Touch.
+                                </h2>
+                                <p className="font-mono text-[14px] text-neutral-400 mt-1">
+                                    I typically respond within a day.
+                                </p>
+                            </div>
+                            <button
+                                onClick={onClose}
+                                className="text-neutral-400 hover:text-white transition-colors mt-0.5"
+                                aria-label="Close"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
 
-                    <h2 className="font-sans font-bold text-2xl tracking-tight text-white mb-1">Get in Touch</h2>
-                    <p className="font-sans text-sm text-neutral-400 mb-7">I typically respond within a day.</p>
+                    {/* ── Divider ── */}
+                    <div className="border-t border-white/10" />
 
-                    <form action={handleAction} className="flex flex-col gap-5">
+                    {/* ── Form ── */}
+                    <form action={handleAction} className="px-6 py-5 flex flex-col gap-5">
                         {/* Name */}
                         <div>
-                            <label htmlFor="contact-name" className="block font-sans font-medium text-sm text-white mb-2 ml-1">Your Name</label>
+                            <label htmlFor="contact-name" className="block font-mono font-medium text-[13px] text-neutral-300 mb-2 ml-1">Your Name</label>
                             <input
                                 id="contact-name"
                                 name="name"
                                 type="text"
                                 placeholder="John Doe"
-                                className={`${inputBase} ${nameErr ? 'border-red-500' : 'border-neutral-700'}`}
+                                className={`${inputBase} ${nameErr ? 'border-red-500/50' : 'border-white/10'}`}
                                 disabled={isPending}
                             />
-                            {nameErr && <p className="font-sans text-xs text-red-400 mt-2 ml-2">{nameErr}</p>}
+                            {nameErr && <p className="font-mono text-[11px] text-red-400 mt-1.5 ml-1">{nameErr}</p>}
                         </div>
 
                         {/* Email */}
                         <div>
-                            <label htmlFor="contact-email" className="block font-sans font-medium text-sm text-white mb-2 ml-1">Email Address</label>
+                            <label htmlFor="contact-email" className="block font-mono font-medium text-[13px] text-neutral-300 mb-2 ml-1">Email Address</label>
                             <input
                                 id="contact-email"
                                 name="email"
                                 type="text"
                                 placeholder="hello@yourdomain.com"
-                                className={`${inputBase} ${emailErr ? 'border-red-500' : 'border-neutral-700'}`}
+                                className={`${inputBase} ${emailErr ? 'border-red-500/50' : 'border-white/10'}`}
                                 disabled={isPending}
                             />
-                            {emailErr && <p className="font-sans text-xs text-red-400 mt-2 ml-2">{emailErr}</p>}
+                            {emailErr && <p className="font-mono text-[11px] text-red-400 mt-1.5 ml-1">{emailErr}</p>}
                         </div>
 
                         {/* Message */}
                         <div>
-                            <label htmlFor="contact-message" className="block font-sans font-medium text-sm text-white mb-2 ml-1">How can I help?</label>
+                            <label htmlFor="contact-message" className="block font-mono font-medium text-[13px] text-neutral-300 mb-2 ml-1">How can I help?</label>
                             <textarea
                                 id="contact-message"
                                 name="message"
                                 rows={4}
                                 placeholder="Tell me about your project or inquiry..."
-                                className={`${textareaBase} ${msgErr ? 'border-red-500' : 'border-neutral-700'}`}
+                                className={`${textareaBase} ${msgErr ? 'border-red-500/50' : 'border-white/10'}`}
                                 disabled={isPending}
                             />
-                            {msgErr && <p className="font-sans text-xs text-red-400 mt-2 ml-2">{msgErr}</p>}
+                            {msgErr && <p className="font-mono text-[11px] text-red-400 mt-1.5 ml-1">{msgErr}</p>}
                         </div>
 
-                        <div className="flex justify-end mt-1">
+                        <div className="mt-2">
                             <button
                                 type="submit"
                                 disabled={isPending}
-                                className="bg-white text-black font-semibold font-sans rounded-full px-8 py-2.5 hover:bg-neutral-200 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100"
+                                className="w-full bg-white text-black font-mono font-bold text-[14px] rounded-xl px-8 py-3.5 hover:bg-neutral-200 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
                             >
                                 {isPending ? 'Sending...' : 'Send Message'}
                             </button>
