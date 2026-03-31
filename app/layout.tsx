@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Shem — Developer Portfolio",
   description: "BSIT student & developer looking for my first professional role. Backend focused, full-stack capable.",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 /**

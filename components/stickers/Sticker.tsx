@@ -24,6 +24,8 @@ let currentAudioIndex = 0;
 let sharedAudioCtx: AudioContext | null = null;
 let clickSoundCounter = 0;
 
+let suspendTimeoutId: number | null = null;
+
 function playTickSound() {
     if (typeof window === 'undefined') return;
     try {
@@ -36,7 +38,7 @@ function playTickSound() {
         if (!sharedAudioCtx) return;
 
         if (sharedAudioCtx.state === 'suspended') {
-            sharedAudioCtx.resume();
+            sharedAudioCtx.resume().catch(() => {});
         }
 
         const ctx = sharedAudioCtx;
@@ -70,6 +72,15 @@ function playTickSound() {
 
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + 0.03);
+
+        if (suspendTimeoutId) {
+            window.clearTimeout(suspendTimeoutId);
+        }
+        suspendTimeoutId = window.setTimeout(() => {
+            if (sharedAudioCtx && sharedAudioCtx.state === 'running') {
+                sharedAudioCtx.suspend().catch(() => {});
+            }
+        }, 100);
     } catch (e) {
         // Ignore audio API errors silently
     }
@@ -217,7 +228,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
         else if (tapEffect === 'bounce') {
             if (!isBouncing) {
                 setIsBouncing(true);
-                setTimeout(() => setIsBouncing(false), 1500); // 3 bounces total ~1.5s
+                setTimeout(() => setIsBouncing(false), 1000); // 2 bounces total ~1.0s
             }
         }
         else if (tapEffect === 'contact') {
@@ -297,7 +308,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                 animate={
                     isBouncing
                         ? {
-                            y: [0, -30, 0, -30, 0, -30, 0], // 3 bounces
+                            y: [0, -15, 0, -15, 0], // 2 lighter bounces
                             scale: 1,
                             opacity: 1,
                             rotate,
@@ -311,7 +322,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                 }
                 transition={
                     isBouncing
-                        ? { y: { duration: 1.5, ease: 'easeOut' } }
+                        ? { y: { duration: 1.0, ease: 'easeOut' } }
                         : hasEntered
                             ? { scale: { duration: 0.1 }, opacity: { duration: 0.1 } }
                             : {

@@ -7,16 +7,17 @@ interface Certificate {
     title: string;
     issuer: string;
     grade: number;
+    url: string;
 }
 
 const CERTIFICATES: Certificate[] = [
-    { title: 'Assets, Threats, and Vulnerabilities', issuer: 'Google', grade: 98.75 },
-    { title: 'Tools of the Trade: Linux and SQL', issuer: 'Google', grade: 98.08 },
-    { title: 'Automate Cybersecurity Tasks with Python', issuer: 'Google', grade: 95.84 },
-    { title: 'Sound the Alarm: Detection and Response', issuer: 'Google', grade: 94.65 },
-    { title: 'Connect and Protect: Networks and Network Security', issuer: 'Google', grade: 92.87 },
-    { title: 'Foundations of Cybersecurity', issuer: 'Google', grade: 91.88 },
-    { title: 'Play It Safe: Manage Security Risks', issuer: 'Google', grade: 91.09 },
+    { title: 'Assets, Threats, and Vulnerabilities', issuer: 'Google', grade: 98.75, url: 'https://www.coursera.org/account/accomplishments/certificate/48I0QYS0U3R1' },
+    { title: 'Tools of the Trade: Linux and SQL', issuer: 'Google', grade: 98.08, url: 'https://www.coursera.org/account/accomplishments/certificate/U2ES8MGHF1VV' },
+    { title: 'Automate Cybersecurity Tasks with Python', issuer: 'Google', grade: 95.84, url: 'https://www.coursera.org/account/accomplishments/certificate/LELTU5MH6F44' },
+    { title: 'Sound the Alarm: Detection and Response', issuer: 'Google', grade: 94.65, url: 'https://www.coursera.org/account/accomplishments/certificate/55SYYDCPPKWC' },
+    { title: 'Connect and Protect: Networks and Network Security', issuer: 'Google', grade: 92.87, url: 'https://www.coursera.org/account/accomplishments/certificate/VBPBP78742LP' },
+    { title: 'Foundations of Cybersecurity', issuer: 'Google', grade: 91.88, url: 'https://www.coursera.org/account/accomplishments/certificate/WCYQWEV7JC7P' },
+    { title: 'Play It Safe: Manage Security Risks', issuer: 'Google', grade: 91.09, url: 'https://www.coursera.org/account/accomplishments/certificate/M29AVZFKNS56' },
 ];
 
 interface CertificatesModalProps {
@@ -110,9 +111,12 @@ export const CertificatesModal: React.FC<CertificatesModalProps> = ({ onClose })
                         style={{ scrollbarWidth: 'none' }}
                     >
                         {CERTIFICATES.map((cert, i) => (
-                            <motion.div
+                            <motion.a
                                 key={cert.title}
-                                className="group flex items-center gap-4 px-3 py-3.5 rounded-xl hover:bg-white/[0.04] transition-colors duration-150 cursor-default"
+                                href={cert.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group flex items-center gap-4 px-3 py-3.5 rounded-xl hover:bg-white/[0.04] transition-colors duration-150 cursor-pointer"
                                 initial={{ opacity: 0, x: -8 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: i * 0.05, duration: 0.25 }}
@@ -135,17 +139,21 @@ export const CertificatesModal: React.FC<CertificatesModalProps> = ({ onClose })
                                 </div>
 
                                 {/* Title & Issuer */}
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-mono text-[14px] text-neutral-200 leading-tight truncate">
+                                <div className="flex-1 min-w-0 flex items-center gap-2">
+                                    <p className="font-mono text-[14px] text-neutral-200 leading-tight truncate group-hover:text-white transition-colors duration-150">
                                         {cert.title}
                                     </p>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-0 group-hover:opacity-100 text-neutral-400 transition-opacity duration-150 shrink-0">
+                                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                                        <polyline points="7 7 17 7 17 17"></polyline>
+                                    </svg>
                                 </div>
 
                                 {/* Grade */}
-                                <span className="font-mono text-[13px] text-neutral-400 tabular-nums shrink-0">
+                                <span className="font-mono text-[13px] text-neutral-400 tabular-nums shrink-0 group-hover:text-neutral-300 transition-colors duration-150">
                                     {cert.grade.toFixed(1)}%
                                 </span>
-                            </motion.div>
+                            </motion.a>
                         ))}
                     </div>
 
