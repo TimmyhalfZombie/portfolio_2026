@@ -140,10 +140,13 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     useEffect(() => {
         if (!showPopup) return;
 
-        // Auto-close after custom duration or default 5 seconds
-        const timerId = setTimeout(() => {
-            setShowPopup(false);
-        }, popup?.duration || 5000);
+        // Popups with a link (e.g. "Visit Site") stay open until manually dismissed
+        let timerId: ReturnType<typeof setTimeout> | undefined;
+        if (!popup?.linkUrl) {
+            timerId = setTimeout(() => {
+                setShowPopup(false);
+            }, popup?.duration || 5000);
+        }
 
         const handleClickOutside = (e: PointerEvent) => {
             if (stickerRef.current && !stickerRef.current.contains(e.target as Node)) {
@@ -154,9 +157,9 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
         document.addEventListener('pointerdown', handleClickOutside);
         return () => {
             document.removeEventListener('pointerdown', handleClickOutside);
-            clearTimeout(timerId); // Cleanup the timer if it closes before duration
+            if (timerId) clearTimeout(timerId);
         };
-    }, [showPopup, popup?.duration]);
+    }, [showPopup, popup?.duration, popup?.linkUrl]);
 
     // ── Fly-Around: Trigger ──
     // Captures the sticker's current position, then portals a "ghost" copy at z-3
@@ -284,6 +287,15 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const safeLeft = Math.max(12, Math.min(88, rawLeft));
     const popupTranslateX = `-${safeLeft}%`;
     const caretLeftPos = `${safeLeft}%`;
+    
+    let rawTop = 50;
+    if (typeof top === 'string') {
+        const match = top.match(/(-?[\d.]+)%/);
+        if (match) rawTop = parseFloat(match[1]);
+    }
+    // If the sticker is in the upper 30% of the screen, show the popup below it to avoid cutoff.
+    const isPopupBelow = rawTop < 30;
+
 
 
     return (
@@ -345,7 +357,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         wasDragged.current = false;
                     }, 100);
                 }}
-                whileTap={{ scale: 1.15, transition: { duration: 0.2 } }}
+                whileTap={showPopup ? undefined : { scale: 1.15, transition: { duration: 0.2 } }}
                 whileDrag={{ zIndex: 70, cursor: 'grabbing' }}
                 drag
                 dragMomentum={false}
@@ -356,15 +368,29 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     {showPopup && popup && (
                         <motion.div
                             key="sticker-popup"
-                            className="absolute bottom-full left-1/2 mb-3 pointer-events-auto"
+                            className={`absolute left-1/2 pointer-events-auto ${
+                                isPopupBelow ? 'top-full mt-3' : 'bottom-full mb-3'
+                            }`}
                             style={{
                                 x: popupTranslateX,
                                 rotate: -rotate,
-                                transformOrigin: `${caretLeftPos} 100%`
+                                transformOrigin: `${caretLeftPos} ${isPopupBelow ? '0%' : '100%'}`
                             }}
-                            initial={{ opacity: 0, y: (popup.offsetY || 0) + 6, scale: 0.92 }}
-                            animate={{ opacity: 1, y: (popup.offsetY || 0), scale: 1 }}
-                            exit={{ opacity: 0, y: (popup.offsetY || 0) + 6, scale: 0.92 }}
+                            initial={{ 
+                                opacity: 0, 
+                                y: isPopupBelow ? -((popup.offsetY || 0) + 6) : ((popup.offsetY || 0) + 6), 
+                                scale: 0.92 
+                            }}
+                            animate={{ 
+                                opacity: 1, 
+                                y: isPopupBelow ? -(popup.offsetY || 0) : (popup.offsetY || 0), 
+                                scale: 1 
+                            }}
+                            exit={{ 
+                                opacity: 0, 
+                                y: isPopupBelow ? -((popup.offsetY || 0) + 6) : ((popup.offsetY || 0) + 6), 
+                                scale: 0.92 
+                            }}
                             transition={{ duration: 0.15, ease: 'easeOut' }}
                             onPointerDown={(e) => e.stopPropagation()}
                             onPointerUp={(e) => e.stopPropagation()}
@@ -378,27 +404,33 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                     minWidth: '120px',
                                 }}
                             >
-                                {Array.isArray(popup.text) ? popup.text[popupIndex] : popup.text}{' '}
-                                {popup.linkUrl && popup.linkText && (
-                                    <a
-                                        href={popup.linkUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="underline underline-offset-2 decoration-white/70 hover:decoration-white transition-colors"
-                                    >
-                                        {popup.linkText}
-                                    </a>
-                                )}
+                                <div className="flex flex-col gap-1 items-center w-full">
+                                    <span className="whitespace-pre-wrap text-left inline-block w-full">{Array.isArray(popup.text) ? popup.text[popupIndex] : popup.text}</span>
+                                    {popup.linkUrl && popup.linkText && (
+                                        <a
+                                            href={popup.linkUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="underline underline-offset-2 text-[13px] text-zinc-300 decoration-white/50 uppercase tracking-wider font-bold mt-1"
+                                        >
+                                            {popup.linkText}
+                                        </a>
+                                    )}
+                                </div>
 
-                                {/* Downward caret/triangle */}
+                                {/* Caret/triangle */}
                                 <div
-                                    className="absolute -bottom-[6.5px] w-[14px] h-[14px] bg-black"
+                                    className="absolute w-[14px] h-[14px] bg-black"
                                     style={{
                                         left: caretLeftPos,
+                                        [isPopupBelow ? 'top' : 'bottom']: '-6.5px',
                                         transform: 'translateX(-50%) rotate(45deg)',
-                                        borderRight: '2px solid white',
-                                        borderBottom: '2px solid white',
-                                        borderBottomRightRadius: '2px', // Adds a sleek, premium rounded point
+                                        borderRight: isPopupBelow ? 'none' : '2px solid white',
+                                        borderBottom: isPopupBelow ? 'none' : '2px solid white',
+                                        borderLeft: isPopupBelow ? '2px solid white' : 'none',
+                                        borderTop: isPopupBelow ? '2px solid white' : 'none',
+                                        borderBottomRightRadius: isPopupBelow ? '0' : '2px',
+                                        borderTopLeftRadius: isPopupBelow ? '2px' : '0',
                                     }}
                                 />
                             </div>
