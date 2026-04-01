@@ -321,8 +321,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
         const match = top.match(/(-?[\d.]+)%/);
         if (match) rawTop = parseFloat(match[1]);
     }
-    // If the sticker is in the upper 30% of the screen, show the popup below it to avoid cutoff.
-    const isPopupBelow = rawTop < 30;
+    // If the sticker is in the upper 30% of the screen, show the popup below it to avoid cutoff (unless overridden).
+    const isPopupBelow = popup?.forceTop ? false : rawTop < 30;
 
 
 
@@ -555,7 +555,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                     // Default stacked layout
                                     return (
                                         <div className="flex flex-col gap-1 items-center w-full">
-                                            <span className="whitespace-pre-wrap text-left inline-block w-full">{displayText}</span>
+                                            <span className="whitespace-pre-wrap text-center inline-block w-full">{displayText}</span>
                                             {popup.linkUrl && popup.linkText && (
                                                 <a
                                                     href={popup.linkUrl}

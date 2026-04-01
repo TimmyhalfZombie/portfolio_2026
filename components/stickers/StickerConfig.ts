@@ -15,6 +15,8 @@ export interface StickerPopup {
     title?: string;
     /** Optional tech stack items, toggled by "stack +" button */
     stack?: string[];
+    /** If true, the popup will ALWAYS render above the sticker, ignoring upper-screen collision logic */
+    forceTop?: boolean;
 }
 
 export interface StickerData {
@@ -113,6 +115,7 @@ export const STICKER_CONFIG: StickerData[] = ([
             duration: 6000,
             maxWidth: 320,
             offsetY: 25,
+            forceTop: true,
         }
     },
     {
