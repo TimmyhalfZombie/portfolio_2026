@@ -441,7 +441,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                         return (
                                             <div className="flex flex-col gap-3 w-full text-left">
                                                 <span className="font-bold text-white text-base tracking-wide">{popup.title}</span>
-                                                <span className="text-zinc-400 text-sm leading-relaxed">{displayText}</span>
+                                                <span className="text-white text-sm leading-relaxed">{displayText}</span>
 
                                                 {/* Stack pills container */}
                                                 {popup.stack && (
@@ -453,7 +453,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                             {popup.stack.map((item, i) => (
                                                                 <span
                                                                     key={i}
-                                                                    className="pill whitespace-nowrap text-xs text-zinc-400 border border-zinc-600 rounded-full px-3 py-1"
+                                                                    className="pill whitespace-nowrap text-xs text-emerald-100/90 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-3 py-1"
                                                                 >
                                                                     {item}
                                                                 </span>
@@ -468,7 +468,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                             href={popup.linkUrl}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="underline underline-offset-2 text-[12px] text-zinc-400 decoration-zinc-500 uppercase tracking-wider font-semibold"
+                                                            className="underline underline-offset-2 text-[12px] text-white decoration-zinc-500 uppercase tracking-wider font-semibold"
                                                         >
                                                             {popup.linkText}
                                                         </a>
@@ -524,7 +524,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
 
                                                                 toggle.textContent = open ? 'stack -' : 'stack +';
                                                             }}
-                                                            className="text-[12px] text-zinc-400 uppercase tracking-wider font-semibold cursor-pointer"
+                                                            className="text-[12px] text-white uppercase tracking-wider font-semibold cursor-pointer"
                                                         >
                                                             stack +
                                                         </button>

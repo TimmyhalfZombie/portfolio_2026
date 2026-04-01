@@ -107,7 +107,7 @@ export const STICKER_CONFIG: StickerData[] = ([
                 "Need to cut down on manual tasks? He can automate your business workflows.",
                 "He builds fast, SEO-optimized web experiences.",
                 "From complex logic to full APIs, he develops robust backend solutions.",
-                "Want to reach mobile users? He can ship cross-platform mobile apps quickly.",
+                "Want to reach mobile users? He can ship cross-platform mobile apps.",
                 "He treats every codebase like it's his own business."
             ],
             duration: 6000,
@@ -267,7 +267,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         zIndex: 12,
         popup: {
             title: 'VIPScale',
-            text: 'A productivity dashboard consolidating task management, time tracking, AI prompt generation, and video/copywriting tools.',
+            text: 'A productivity dashboard for task management, time tracking, and AI content tools powered by n8n automations.',
             linkText: "Visit Site",
             linkUrl: "https://tools.vipscaleph.com/",
             maxWidth: 360,
