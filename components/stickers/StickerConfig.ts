@@ -11,6 +11,10 @@ export interface StickerPopup {
     duration?: number;
     /** Optional Y offset in pixels to nudge the popup down (default 0) */
     offsetY?: number;
+    /** Optional project title for card-style popup */
+    title?: string;
+    /** Optional tech stack items, toggled by "stack +" button */
+    stack?: string[];
 }
 
 export interface StickerData {
@@ -152,10 +156,12 @@ export const STICKER_CONFIG: StickerData[] = ([
         delay: 0.3,
         zIndex: 10,
         popup: {
-            text: `A school portal featuring a library system and institutional info pages.\n\n- React\n- TypeScript\n- Firebase\n- Custom REST API`,
+            title: 'Assumption',
+            text: 'A school portal featuring a library system and institutional info pages.',
             linkText: "Visit Site",
             linkUrl: "https://assumptioniloilo.vercel.app/",
             maxWidth: 320,
+            stack: ['React', 'TypeScript', 'Firebase', 'Custom REST API'],
         }
     },
 
@@ -183,10 +189,12 @@ export const STICKER_CONFIG: StickerData[] = ([
         delay: 0.38,
         zIndex: 13,
         popup: {
-            text: `A landing page of two-app platform connecting stranded drivers with nearby tire repair technicians.\n\n- React Native\n- Expo\n- Websockets / REST\n- MongoDB\n- IoT pipeline`,
+            title: 'Patch Up',
+            text: 'A two-app platform connecting stranded drivers with nearby tire repair technicians.',
             linkText: "Visit Site",
             linkUrl: "https://patchup-ph.vercel.app/",
             maxWidth: 320,
+            stack: ['React Native', 'Expo', 'Websockets / REST', 'MongoDB', 'IoT pipeline'],
         }
     },
     {
@@ -200,10 +208,12 @@ export const STICKER_CONFIG: StickerData[] = ([
         delay: 0.4,
         zIndex: 12,
         popup: {
-            text: `Full-stack trading analysis app powered by n8n automation for backend workflow processing.\n\n- Next.js\n- Supabase\n- Tailwind`,
+            title: 'Hive',
+            text: 'Full-stack trading analysis app powered by n8n automation for backend workflow processing.',
             linkText: "Visit Site",
             linkUrl: "https://hivetrading.vercel.app/",
             maxWidth: 320,
+            stack: ['Next.js', 'Supabase', 'Tailwind'],
         }
     },
 
@@ -256,10 +266,12 @@ export const STICKER_CONFIG: StickerData[] = ([
         delay: 0.14,
         zIndex: 12,
         popup: {
-            text: `A productivity dashboard consolidating task management, time tracking, AI prompt generation, and video/copywriting tools.\n\n- Next.js & React 19\n- TypeScript & Supabase\n- Tailwind CSS\n- Shadcn / Radix UI\n- Zod & React Hook Form\n- Recharts\n- FullCalendar & UploadThing`,
+            title: 'VIPScale',
+            text: 'A productivity dashboard consolidating task management, time tracking, AI prompt generation, and video/copywriting tools.',
             linkText: "Visit Site",
             linkUrl: "https://tools.vipscaleph.com/",
             maxWidth: 360,
+            stack: ['Next.js & React 19', 'TypeScript & Supabase', 'Tailwind CSS', 'Shadcn / Radix UI', 'Zod & React Hook Form', 'Recharts', 'FullCalendar & UploadThing'],
         }
     },
     {

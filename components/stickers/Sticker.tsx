@@ -129,16 +129,44 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const [popupIndex, setPopupIndex] = useState(0);
     const [isFlying, setIsFlying] = useState(false);
     const [isBouncing, setIsBouncing] = useState(false);
+    const stackRef = useRef<HTMLDivElement>(null);
+    const toggleRef = useRef<HTMLButtonElement>(null);
+    const stackOpen = useRef(false);
+    const stackAnimating = useRef(false);
     const [ghostRect, setGhostRect] = useState<DOMRect | null>(null);
     const stickerRef = useRef<HTMLDivElement>(null);
     const flyRef = useRef<HTMLDivElement>(null);
     const ghostFlyRef = useRef<HTMLDivElement>(null);
     const isFlyingGuard = useRef(false);
     const wasDragged = useRef(false);
+    const popupRef = useRef<HTMLDivElement>(null);
+
+    // Block framer-motion drag from triggering when interacting with the popup
+    // React's stopPropagation doesn't block framer-motion's native DOM listeners
+    useEffect(() => {
+        const el = popupRef.current;
+        if (!el) return;
+        const block = (e: PointerEvent) => e.stopPropagation();
+        el.addEventListener('pointerdown', block);
+        return () => el.removeEventListener('pointerdown', block);
+    });
 
     // Close popup when clicking outside the sticker or after timeout
     useEffect(() => {
-        if (!showPopup) return;
+        if (!showPopup) {
+            // Reset stack to collapsed when popup closes
+            stackOpen.current = false;
+            stackAnimating.current = false;
+            if (stackRef.current) {
+                stackRef.current.style.opacity = '0';
+                stackRef.current.style.maxHeight = '0';
+                stackRef.current.style.marginTop = '0';
+            }
+            if (toggleRef.current) {
+                toggleRef.current.textContent = 'stack +';
+            }
+            return;
+        }
 
         // Popups with a link (e.g. "Visit Site") stay open until manually dismissed
         let timerId: ReturnType<typeof setTimeout> | undefined;
@@ -392,6 +420,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                 scale: 0.92 
                             }}
                             transition={{ duration: 0.15, ease: 'easeOut' }}
+                            ref={popupRef}
                             onPointerDown={(e) => e.stopPropagation()}
                             onPointerUp={(e) => e.stopPropagation()}
                             onClick={(e) => e.stopPropagation()}
@@ -404,19 +433,142 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                     minWidth: '120px',
                                 }}
                             >
-                                <div className="flex flex-col gap-1 items-center w-full">
-                                    <span className="whitespace-pre-wrap text-left inline-block w-full">{Array.isArray(popup.text) ? popup.text[popupIndex] : popup.text}</span>
-                                    {popup.linkUrl && popup.linkText && (
-                                        <a
-                                            href={popup.linkUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="underline underline-offset-2 text-[13px] text-zinc-300 decoration-white/50 uppercase tracking-wider font-bold mt-1"
-                                        >
-                                            {popup.linkText}
-                                        </a>
-                                    )}
-                                </div>
+                                {(() => {
+                                    const displayText = Array.isArray(popup.text) ? popup.text[popupIndex] : popup.text;
+
+                                    // Card-style layout for project popups (has title)
+                                    if (popup.title) {
+                                        return (
+                                            <div className="flex flex-col gap-3 w-full text-left">
+                                                <span className="font-bold text-white text-base tracking-wide">{popup.title}</span>
+                                                <span className="text-zinc-400 text-sm leading-relaxed">{displayText}</span>
+
+                                                {/* Stack pills container */}
+                                                {popup.stack && (
+                                                    <div
+                                                        ref={stackRef}
+                                                        className="stack-wrap"
+                                                    >
+                                                        <div className="flex flex-wrap gap-2 pt-1 pb-1">
+                                                            {popup.stack.map((item, i) => (
+                                                                <span
+                                                                    key={i}
+                                                                    className="pill whitespace-nowrap text-xs text-zinc-400 border border-zinc-600 rounded-full px-3 py-1"
+                                                                >
+                                                                    {item}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                <div className="flex items-center justify-between mt-1 pt-2 border-t border-zinc-700/50">
+                                                    {popup.linkUrl && popup.linkText ? (
+                                                        <a
+                                                            href={popup.linkUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="underline underline-offset-2 text-[12px] text-zinc-400 decoration-zinc-500 uppercase tracking-wider font-semibold"
+                                                        >
+                                                            {popup.linkText}
+                                                        </a>
+                                                    ) : <span />}
+                                                    {popup.stack && (
+                                                        <button
+                                                            ref={toggleRef}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const stack = stackRef.current;
+                                                                const toggle = toggleRef.current;
+                                                                if (!stack || !toggle || stackAnimating.current) return;
+                                                                stackAnimating.current = true;
+                                                                stackOpen.current = !stackOpen.current;
+                                                                const open = stackOpen.current;
+                                                                const pills = stack.querySelectorAll<HTMLElement>('.pill');
+
+                                                                if (open) {
+                                                                    stack.style.opacity = '0';
+                                                                    stack.style.maxHeight = stack.scrollHeight + 'px';
+                                                                    stack.style.marginTop = '1rem';
+                                                                    pills.forEach((pill) => {
+                                                                        pill.style.opacity = '0';
+                                                                        pill.style.transform = 'translateY(6px)';
+                                                                        pill.style.transition = 'none';
+                                                                    });
+                                                                    requestAnimationFrame(() => {
+                                                                        requestAnimationFrame(() => {
+                                                                            stack.style.opacity = '1';
+                                                                            pills.forEach((pill, i) => {
+                                                                                pill.style.transition = `opacity 0.2s ease ${i * 30 + 60}ms, transform 0.2s ease ${i * 30 + 60}ms`;
+                                                                                pill.style.opacity = '1';
+                                                                                pill.style.transform = 'translateY(0)';
+                                                                            });
+                                                                            setTimeout(() => { stackAnimating.current = false; }, 400);
+                                                                        });
+                                                                    });
+                                                                } else {
+                                                                    const total = pills.length;
+                                                                    pills.forEach((pill, i) => {
+                                                                        const delay = (total - 1 - i) * 30;
+                                                                        pill.style.transition = `opacity 0.15s ease ${delay}ms, transform 0.15s ease ${delay}ms`;
+                                                                        pill.style.opacity = '0';
+                                                                        pill.style.transform = 'translateY(6px)';
+                                                                    });
+                                                                    setTimeout(() => {
+                                                                        stack.style.opacity = '0';
+                                                                        stack.style.maxHeight = '0';
+                                                                        stack.style.marginTop = '0';
+                                                                        setTimeout(() => { stackAnimating.current = false; }, 350);
+                                                                    }, total * 30 + 80);
+                                                                }
+
+                                                                toggle.textContent = open ? 'stack -' : 'stack +';
+                                                            }}
+                                                            className="text-[12px] text-zinc-400 uppercase tracking-wider font-semibold cursor-pointer"
+                                                        >
+                                                            stack +
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+
+                                    // Inline layout for social popups (short text, no newlines)
+                                    const isInline = popup.linkUrl && popup.linkText && !displayText.includes('\n');
+                                    if (isInline) {
+                                        return (
+                                            <span className="whitespace-nowrap">
+                                                {displayText}{' '}
+                                                <a
+                                                    href={popup.linkUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="underline underline-offset-2 decoration-white/50"
+                                                >
+                                                    {popup.linkText}
+                                                </a>
+                                            </span>
+                                        );
+                                    }
+
+                                    // Default stacked layout
+                                    return (
+                                        <div className="flex flex-col gap-1 items-center w-full">
+                                            <span className="whitespace-pre-wrap text-left inline-block w-full">{displayText}</span>
+                                            {popup.linkUrl && popup.linkText && (
+                                                <a
+                                                    href={popup.linkUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="underline underline-offset-2 text-[13px] text-zinc-300 decoration-white/50 uppercase tracking-wider font-bold mt-1"
+                                                >
+                                                    {popup.linkText}
+                                                </a>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
 
                                 {/* Caret/triangle */}
                                 <div
