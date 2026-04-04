@@ -120,6 +120,36 @@ function getAudioController() {
     };
 }
 
+function animatePopupText(popupElement: HTMLElement) {
+    const textNodes = popupElement.querySelectorAll('p, span, li');
+    
+    textNodes.forEach(node => {
+        // Skip anything we don't want to animate
+        if (node.classList.contains('pill') || node.classList.contains('popup-word')) return;
+        const text = node.textContent;
+        if (!text) return;
+        
+        const words = text.split(' ');
+        node.innerHTML = words
+            .map(word => `<span class="popup-word">${word}</span>`)
+            .join(' ');
+    });
+
+    const allWords = popupElement.querySelectorAll('.popup-word');
+    
+    allWords.forEach((wordElement, i) => {
+        const word = wordElement as HTMLElement;
+        word.style.transition = `
+            opacity 0.25s ease ${i * 50}ms, 
+            transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 50}ms
+        `;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            word.style.opacity = '1';
+            word.style.transform = 'scale(1)';
+        }));
+    });
+}
+
 export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const { src, alt, width, top, left, rotate, delay, zIndex, priority, popup, tapEffect } = data;
     const [hasEntered, setHasEntered] = useState(false);
@@ -152,6 +182,13 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
         el.addEventListener('pointerdown', block);
         return () => el.removeEventListener('pointerdown', block);
     });
+
+    // Apply word pop animation when popup opens
+    useEffect(() => {
+        if (showPopup && popupRef.current) {
+            animatePopupText(popupRef.current);
+        }
+    }, [showPopup, popupIndex]);
 
     // Close popup when clicking outside the sticker or after timeout
     useEffect(() => {
@@ -189,7 +226,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
             document.removeEventListener('pointerdown', handleClickOutside);
             if (timerId) clearTimeout(timerId);
         };
-    }, [showPopup, popup?.duration, popup?.linkUrl]);
+    }, [showPopup, popup?.duration, popup?.linkUrl, popupIndex]);
 
     // ── Fly-Around: Trigger ──
     // Captures the sticker's current position, then portals a "ghost" copy at z-3
@@ -245,17 +282,16 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
         playTickSound();
 
         if (popup) {
-            if (!showPopup && Array.isArray(popup.text)) {
-                const len = popup.text.length;
-                if (len > 1) {
-                    setPopupIndex(prev => {
-                        let next = Math.floor(Math.random() * len);
-                        if (next === prev) next = (next + 1) % len;
-                        return next;
-                    });
+            if (Array.isArray(popup.text) && popup.text.length > 1) {
+                if (showPopup) {
+                    setPopupIndex(prev => (prev + 1) % popup.text.length);
+                } else {
+                    setShowPopup(true);
+                    setPopupIndex(prev => (prev + 1) % popup.text.length);
                 }
+            } else {
+                setShowPopup((prev) => !prev);
             }
-            setShowPopup((prev) => !prev);
         }
         else if (tapEffect === 'flyAround') flyAround();
         else if (tapEffect === 'bounce') {
@@ -463,8 +499,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                     if (popup.title) {
                                         return (
                                             <div className="flex flex-col gap-3 w-full text-left">
-                                                <span className="font-bold text-white text-base tracking-wide">{popup.title}</span>
-                                                <span className="text-white text-sm leading-relaxed">{displayText}</span>
+                                                <p className="font-bold text-white text-base tracking-wide m-0">{popup.title}</p>
+                                                <p className="text-white text-sm leading-relaxed m-0">{displayText}</p>
 
                                                 {/* Stack pills container */}
                                                 {popup.stack && (
@@ -474,12 +510,12 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                     >
                                                         <div className="flex flex-wrap gap-2 pt-1 pb-1">
                                                             {popup.stack.map((item, i) => (
-                                                                <span
+                                                                <div
                                                                     key={i}
-                                                                    className="pill whitespace-nowrap text-xs text-emerald-100/90 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-3 py-1"
+                                                                    className="pill whitespace-nowrap text-xs text-emerald-100/90 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-3 py-1 inline-block"
                                                                 >
                                                                     {item}
-                                                                </span>
+                                                                </div>
                                                             ))}
                                                         </div>
                                                     </div>
@@ -561,8 +597,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                     const isInline = popup.linkUrl && popup.linkText && !displayText.includes('\n');
                                     if (isInline) {
                                         return (
-                                            <span className="whitespace-nowrap">
-                                                {displayText}{' '}
+                                            <div className="whitespace-nowrap flex items-center justify-center gap-1">
+                                                <p className="m-0">{displayText}</p>
                                                 <a
                                                     href={popup.linkUrl}
                                                     target="_blank"
@@ -571,14 +607,14 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                 >
                                                     {popup.linkText}
                                                 </a>
-                                            </span>
+                                            </div>
                                         );
                                     }
 
                                     // Default stacked layout
                                     return (
                                         <div className="flex flex-col gap-1 items-center w-full">
-                                            <span className="whitespace-pre-wrap text-center inline-block w-full">{displayText}</span>
+                                            <p className="whitespace-pre-wrap text-center inline-block w-full m-0">{displayText}</p>
                                             {popup.linkUrl && popup.linkText && (
                                                 <a
                                                     href={popup.linkUrl}
