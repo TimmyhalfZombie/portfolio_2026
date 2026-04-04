@@ -38,7 +38,7 @@ function playTickSound() {
         if (!sharedAudioCtx) return;
 
         if (sharedAudioCtx.state === 'suspended') {
-            sharedAudioCtx.resume().catch(() => {});
+            sharedAudioCtx.resume().catch(() => { });
         }
 
         const ctx = sharedAudioCtx;
@@ -78,7 +78,7 @@ function playTickSound() {
         }
         suspendTimeoutId = window.setTimeout(() => {
             if (sharedAudioCtx && sharedAudioCtx.state === 'running') {
-                sharedAudioCtx.suspend().catch(() => {});
+                sharedAudioCtx.suspend().catch(() => { });
             }
         }, 100);
     } catch (e) {
@@ -129,6 +129,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const [popupIndex, setPopupIndex] = useState(0);
     const [isFlying, setIsFlying] = useState(false);
     const [isBouncing, setIsBouncing] = useState(false);
+    const [isShaking, setIsShaking] = useState(false);
+    const [isRotating3d, setIsRotating3d] = useState(false);
     const stackRef = useRef<HTMLDivElement>(null);
     const toggleRef = useRef<HTMLButtonElement>(null);
     const stackOpen = useRef(false);
@@ -262,6 +264,18 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                 setTimeout(() => setIsBouncing(false), 1000); // 2 bounces total ~1.0s
             }
         }
+        else if (tapEffect === 'shake') {
+            if (!isShaking) {
+                setIsShaking(true);
+                setTimeout(() => setIsShaking(false), 2000); // 5 secs
+            }
+        }
+        else if (tapEffect === 'rotate3d') {
+            if (!isRotating3d) {
+                setIsRotating3d(true);
+                setTimeout(() => setIsRotating3d(false), 10000); // 10 secs
+            }
+        }
         else if (tapEffect === 'contact') {
             setShowContactModal(true);
         }
@@ -315,7 +329,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const safeLeft = Math.max(12, Math.min(88, rawLeft));
     const popupTranslateX = `-${safeLeft}%`;
     const caretLeftPos = `${safeLeft}%`;
-    
+
     let rawTop = 50;
     if (typeof top === 'string') {
         const match = top.match(/(-?[\d.]+)%/);
@@ -353,27 +367,37 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                             opacity: 1,
                             rotate,
                         }
-                        : {
-                            opacity: hasEntered ? 1 : [0, 1, 1],
-                            scale: hasEntered ? 1 : [initialScale, 0.94, 1], // Very subtle, gentle soft shrink
-                            y: 0,
-                            rotate,
-                        }
+                        : isShaking
+                            ? {
+                                x: [-2, 2], // extremely narrow shake
+                                scale: 1,
+                                opacity: 1,
+                                rotate,
+                            }
+                            : {
+                                opacity: hasEntered ? 1 : [0, 1, 1],
+                                scale: hasEntered ? 1 : [initialScale, 0.94, 1], // Very subtle, gentle soft shrink
+                                y: 0,
+                                x: 0,
+                                rotate,
+                            }
                 }
                 transition={
                     isBouncing
                         ? { y: { duration: 1.0, ease: 'easeOut' } }
-                        : hasEntered
-                            ? { scale: { duration: 0.1 }, opacity: { duration: 0.1 } }
-                            : {
-                                duration: 0.7, // Extracted duration to float gracefully over 700ms instead of slamming
-                                delay: delay,
-                                times: [0, 0.6, 1], // Extend the finishing phase proportionally
-                                ease: [
-                                    [0.25, 1, 0.5, 1],    // Smoother, less abrupt ease out
-                                    [0.25, 1, 0.5, 1]     // Smooth organic expansion
-                                ]
-                            }
+                        : isShaking
+                            ? { x: { duration: 0.12, repeat: Infinity, repeatType: 'reverse', ease: 'linear' } }
+                            : hasEntered
+                                ? { scale: { duration: 0.1 }, opacity: { duration: 0.1 }, x: { duration: 0.2 }, y: { duration: 0.2 } }
+                                : {
+                                    duration: 0.7, // Extracted duration to float gracefully over 700ms instead of slamming
+                                    delay: delay,
+                                    times: [0, 0.6, 1], // Extend the finishing phase proportionally
+                                    ease: [
+                                        [0.25, 1, 0.5, 1],    // Smoother, less abrupt ease out
+                                        [0.25, 1, 0.5, 1]     // Smooth organic expansion
+                                    ]
+                                }
                 }
                 onAnimationComplete={() => setHasEntered(true)}
                 onClick={handleClick}
@@ -385,7 +409,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         wasDragged.current = false;
                     }, 100);
                 }}
-                whileTap={showPopup ? undefined : { scale: 1.15, transition: { duration: 0.2 } }}
+
                 whileDrag={{ zIndex: 70, cursor: 'grabbing' }}
                 drag
                 dragMomentum={false}
@@ -396,28 +420,27 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     {showPopup && popup && (
                         <motion.div
                             key="sticker-popup"
-                            className={`absolute left-1/2 pointer-events-auto ${
-                                isPopupBelow ? 'top-full mt-3' : 'bottom-full mb-3'
-                            }`}
+                            className={`absolute left-1/2 pointer-events-auto ${isPopupBelow ? 'top-full mt-3' : 'bottom-full mb-3'
+                                }`}
                             style={{
                                 x: popupTranslateX,
                                 rotate: -rotate,
                                 transformOrigin: `${caretLeftPos} ${isPopupBelow ? '0%' : '100%'}`
                             }}
-                            initial={{ 
-                                opacity: 0, 
-                                y: isPopupBelow ? -((popup.offsetY || 0) + 6) : ((popup.offsetY || 0) + 6), 
-                                scale: 0.92 
+                            initial={{
+                                opacity: 0,
+                                y: isPopupBelow ? -((popup.offsetY || 0) + 6) : ((popup.offsetY || 0) + 6),
+                                scale: 0.92
                             }}
-                            animate={{ 
-                                opacity: 1, 
-                                y: isPopupBelow ? -(popup.offsetY || 0) : (popup.offsetY || 0), 
-                                scale: 1 
+                            animate={{
+                                opacity: 1,
+                                y: isPopupBelow ? -(popup.offsetY || 0) : (popup.offsetY || 0),
+                                scale: 1
                             }}
-                            exit={{ 
-                                opacity: 0, 
-                                y: isPopupBelow ? -((popup.offsetY || 0) + 6) : ((popup.offsetY || 0) + 6), 
-                                scale: 0.92 
+                            exit={{
+                                opacity: 0,
+                                y: isPopupBelow ? -((popup.offsetY || 0) + 6) : ((popup.offsetY || 0) + 6),
+                                scale: 0.92
                             }}
                             transition={{ duration: 0.15, ease: 'easeOut' }}
                             ref={popupRef}
@@ -591,7 +614,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                 </AnimatePresence>
 
                 {/* ── Sticker Image ── */}
-                <div ref={flyRef} className="relative w-full h-full" style={{ opacity: isFlying ? 0 : 1 }}>
+                <div ref={flyRef} className="relative w-full h-full flex justify-center items-center" style={{ opacity: isFlying ? 0 : 1 }}>
                     <Image
                         src={src}
                         alt={alt}

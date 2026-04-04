@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { STICKER_CONFIG } from './StickerConfig';
 import { Sticker } from './Sticker';
 
+
 declare global {
   interface Window {
     localAudioController?: {

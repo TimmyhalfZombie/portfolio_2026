@@ -45,7 +45,7 @@ export interface StickerData {
     /** Optional popup tooltip shown on tap */
     popup?: StickerPopup;
     /** Optional tap animation effect */
-    tapEffect?: 'flyAround' | 'spotify' | 'bounce' | 'contact' | 'certificates';
+    tapEffect?: 'flyAround' | 'spotify' | 'bounce' | 'contact' | 'certificates' | 'shake' | 'rotate3d';
 }
 
 export const STICKER_CONFIG: StickerData[] = ([
@@ -245,7 +245,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         zIndex: 12,
     },
 
-    // ── RIGHT SIDE ──
+
     {
         id: 'email',
         src: '/stickers/email.png',
@@ -263,7 +263,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         src: '/stickers/vipscale.png',
         alt: 'VIPScale Project',
         width: 90,
-        top: '8%',
+        top: '3%',
         left: '20%',
         rotate: -10,
         delay: 0.14,
@@ -349,7 +349,20 @@ export const STICKER_CONFIG: StickerData[] = ([
         zIndex: 14,
         tapEffect: 'bounce',
     },
+    // ── BOTTOM-RIGHT ──
+    {
+        id: 'coconut',
+        src: '/stickers/coconut.png',
+        alt: 'Coconut',
+        width: 70,
+        top: '87%',
+        left: '93%',
+        rotate: -10,
+        delay: 0.4,
+        zIndex: 15,
+        tapEffect: 'shake',
+    },
 ] as StickerData[]).map((sticker, index) => ({
     ...sticker,
-    delay: index * 0.12 // Balanced sequential delay override
+    delay: index * 0.05 // Faster sequential delay override
 }));
