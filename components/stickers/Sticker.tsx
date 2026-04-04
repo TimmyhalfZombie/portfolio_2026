@@ -459,7 +459,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                             className={`absolute left-1/2 pointer-events-auto ${isPopupBelow ? 'top-full mt-3' : 'bottom-full mb-3'
                                 }`}
                             style={{
-                                x: popupTranslateX,
+                                x: popup.offsetX ? `calc(${popupTranslateX} + ${popup.offsetX}px)` : popupTranslateX,
                                 rotate: -rotate,
                                 transformOrigin: `${caretLeftPos} ${isPopupBelow ? '0%' : '100%'}`
                             }}
@@ -633,7 +633,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                 <div
                                     className="absolute w-[14px] h-[14px] bg-black"
                                     style={{
-                                        left: caretLeftPos,
+                                        left: popup.offsetX ? `calc(${caretLeftPos} - ${popup.offsetX}px)` : caretLeftPos,
                                         [isPopupBelow ? 'top' : 'bottom']: '-6.5px',
                                         transform: 'translateX(-50%) rotate(45deg)',
                                         borderRight: isPopupBelow ? 'none' : '2px solid white',

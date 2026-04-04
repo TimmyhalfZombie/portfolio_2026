@@ -9,6 +9,8 @@ export interface StickerPopup {
     maxWidth?: number;
     /** Optional custom duration in ms before popup disappears */
     duration?: number;
+    /** Optional X offset in pixels to nudge the popup left/right (default 0) */
+    offsetX?: number;
     /** Optional Y offset in pixels to nudge the popup down (default 0) */
     offsetY?: number;
     /** Optional project title for card-style popup */
@@ -116,6 +118,7 @@ export const STICKER_CONFIG: StickerData[] = ([
             ],
             duration: 6000,
             maxWidth: 320,
+            offsetX: -80,
             offsetY: 25,
             forceTop: true,
         }
