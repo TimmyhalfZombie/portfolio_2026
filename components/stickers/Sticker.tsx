@@ -207,9 +207,9 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
             return;
         }
 
-        // Popups with a link (e.g. "Visit Site") stay open until manually dismissed
+        // Popups with a link (e.g. "Visit Site") or noAutoHide flag stay open until manually dismissed
         let timerId: ReturnType<typeof setTimeout> | undefined;
-        if (!popup?.linkUrl) {
+        if (!popup?.linkUrl && !popup?.noAutoHide) {
             timerId = setTimeout(() => {
                 setShowPopup(false);
             }, popup?.duration || 5000);
@@ -660,6 +660,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
                         draggable={false}
                         priority={priority}
+                        unoptimized={data.id === 'main-me'}
                     />
                 </div>
             </motion.div>

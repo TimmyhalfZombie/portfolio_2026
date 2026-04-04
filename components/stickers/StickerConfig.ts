@@ -17,6 +17,8 @@ export interface StickerPopup {
     stack?: string[];
     /** If true, the popup will ALWAYS render above the sticker, ignoring upper-screen collision logic */
     forceTop?: boolean;
+    /** If true, the popup will NEVER automatically hide. */
+    noAutoHide?: boolean;
 }
 
 export interface StickerData {
@@ -54,7 +56,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         id: 'main-me',
         src: '/stickers/main-me.png',
         alt: 'Shem — Main Portrait',
-        width: 310,
+        width: 320,
         top: '0%',
         left: 'calc(52% - 140px)',   // centered (50% minus half of width)
         rotate: 0,
