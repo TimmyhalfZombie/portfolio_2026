@@ -188,22 +188,23 @@ const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) 
     useEffect(() => {
         if (isActive) {
             if (!hasAnimated.current) {
-                // First time: play the typewriter stagger
+                // First time: play the word pop stagger
                 animate(
-                    ".char-reveal",
-                    { opacity: 1 },
+                    ".word-reveal",
+                    { opacity: 1, scale: 1 },
                     {
-                        duration: 0.01,
-                        delay: stagger(0.015),
+                        duration: 0.25,
+                        delay: stagger(0.05),
+                        ease: [0.34, 1.56, 0.64, 1] // Matches popup word cubic-bezier
                     }
                 );
                 hasAnimated.current = true;
             } else {
-                // Already animated before: show instantly
-                animate(".char-reveal", { opacity: 1 }, { duration: 0.05 });
+                // Already animated before: show fast
+                animate(".word-reveal", { opacity: 1, scale: 1 }, { duration: 0.05 });
             }
         } else {
-            animate(".char-reveal", { opacity: 0 }, { duration: 0.01, delay: 0.4 });
+            animate(".word-reveal", { opacity: 0, scale: 0.6 }, { duration: 0.01, delay: 0.4 });
         }
     }, [isActive, animate]);
 
@@ -211,18 +212,18 @@ const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) 
         return text.split(/(\s+)/).map((word, wordIndex) => {
             if (word.match(/\s+/)) {
                 return (
-                    <span key={wordIndex} className="char-reveal opacity-0 whitespace-pre">
+                    <span key={wordIndex} className="whitespace-pre">
                         {word}
                     </span>
                 );
             }
             return (
-                <span key={wordIndex} className="inline-block">
-                    {word.split("").map((char, charIndex) => (
-                        <span key={charIndex} className="char-reveal opacity-0">
-                            {char}
-                        </span>
-                    ))}
+                <span 
+                    key={wordIndex} 
+                    className="word-reveal inline-block opacity-0" 
+                    style={{ transform: 'scale(0.6)', transformOrigin: 'center bottom' }}
+                >
+                    {word}
                 </span>
             );
         });
@@ -239,7 +240,7 @@ const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) 
             <div className="space-y-2 text-[15px] text-white">
                 {card.bullets.map((bullet, i) => (
                     <div key={i} className="flex items-start gap-2">
-                        <span className="char-reveal opacity-0 text-white mt-[2px]">-</span>
+                        <span className="word-reveal opacity-0 text-white mt-[2px]" style={{ transform: 'scale(0.6)', transformOrigin: 'center bottom' }}>-</span>
                         <div className="flex-1">
                             {splitText(bullet)}
                         </div>
