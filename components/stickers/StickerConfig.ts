@@ -110,11 +110,11 @@ export const STICKER_CONFIG: StickerData[] = ([
         zIndex: 40,
         popup: {
             text: [
-                "Need to cut down on manual tasks? He can automate your business workflows.",
-                "He builds fast, SEO-optimized web experiences.",
-                "From complex logic to full APIs, he develops robust backend solutions.",
-                "Want to reach mobile users? He can ship cross-platform mobile apps.",
-                "He treats every codebase like it's his own business."
+                "Got repetitive tasks? He can probably automate those.",
+                "He can take a design and turn it into a real working site.",
+                "He can wire up APIs and handle the backend logic.",
+                "He can build mobile apps that work on both iOS and Android.",
+                "He learns fast and gets better with every project.",
             ],
             duration: 6000,
             maxWidth: 320,
@@ -309,20 +309,20 @@ export const STICKER_CONFIG: StickerData[] = ([
         zIndex: 13,
         popup: {
             text: [
-                "I'm from Palawan! Home to the Subterranean River, a New7Wonder of Nature.",
-                "I'm from Palawan! Known as the Philippines' Last Ecological Frontier.",
-                "I'm from Palawan! Our province alone has roughly 1,780 beautiful islands.",
-                "I'm from Palawan! Tubbataha Reefs here is a stunning UNESCO diver's paradise.",
-                "I'm from Palawan! Free-roaming giraffes live here at Calauit Safari.",
-                "I'm from Palawan! El Nido's marble cliffs formed 250 million years ago.",
-                "I'm from Palawan! We have the crystal-clear twin lagoons of Coron.",
-                "I'm from Palawan! Fireflies light up our Iwahig River mangroves at night.",
-                "I'm from Palawan! We are home to the vulnerable dugong, or sea cow.",
-                "I'm from Palawan! The Tabon Caves here are called the Philippines' Cradle of Civilization.",
-                "I'm from Palawan! Our secluded beaches are world-renowned for their pristine white sand."
+                "I'm from Palawan, the one that keeps winning 'best island in the world.'",
+                "We literally have a river that disappears underground. It's a UNESCO site.",
+                "Around 1,780 islands in our province. Most of them you've never heard of.",
+                "There's a safari here with free-roaming giraffes. In the Philippines. Crazy right?",
+                "El Nido's cliffs took 250 million years to form. Worth the trip though.",
+                "Coron has twin lagoons so clear it looks fake in photos. It's not.",
+                "The Iwahig River glows with fireflies at night. No filter needed.",
+                "Dugongs actually live here. Like, a whole population of them.",
+                "Oldest human remains in PH were found in our caves. We go way back.",
+                "Tubbataha Reef is a UNESCO dive site. Divers fly across the world for it.",
+                "People save up for years to visit our beaches. We grew up there.",
             ],
             maxWidth: 320,
-            duration: 6000,
+            duration: 9000,
         }
     },
 
