@@ -21,7 +21,7 @@ const CARDS: CardData[] = [
         description: "BSIT student. Full-stack developer. Building things that actually work.",
         bullets: [
             "Full-stack, backend-strong",
-            "Into APIs, databases & Web3",
+            "Into APIs, databases, trading and markets",
             "Ready to ship on day one"
         ]
     },
@@ -40,7 +40,7 @@ const CARDS: CardData[] = [
         id: 3,
         title: "How I got here.",
         titleClass: "text-xl",
-        description: "BSIT was a practical choice. Then something clicked, I started building things just to see if I could.",
+        description: "I took BSIT because it made sense. Somewhere along the way I actually started to love it.",
         bullets: [
             "School gave me the foundation",
             "Side projects kept me going",
@@ -62,7 +62,7 @@ const CARDS: CardData[] = [
         id: 5,
         title: "Let's build something.",
         titleClass: "text-xl",
-        description: "I'm early in my career but not inexperienced. I ship, I learn fast, and I take feedback well.",
+        description: "I'm just getting started but, I show up, I learn fast, and I don't leave things half-done.",
         bullets: [
             "Open for junior roles",
             "Local or remote works for me",
@@ -123,29 +123,42 @@ export const StickyCardStack = () => {
     return (
         <div className="h-screen w-full relative overflow-hidden bg-transparent pointer-events-none">
             {/* Center the stack */}
-            <div className="absolute inset-0 flex items-center justify-center">
-                <div
-                    className="relative w-[400px] md:w-[460px] h-[300px] md:h-[320px]"
-                    style={{ perspective: 1000, transformStyle: 'preserve-3d' }}
-                >
-                    {/* Static Floating Header */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="relative w-[400px] md:w-[460px] h-[300px] md:h-[320px]">
+                    {/* Static Floating Header (Outside 3D context to guarantee pointer events) */}
                     <div className="absolute top-6 right-6 md:top-8 md:right-8 z-[200] flex justify-end items-center space-x-3 pointer-events-auto">
                         <button
-                            onClick={() => setActiveIndex(Math.min(CARDS.length - 1, activeIndex + 1))}
+                            onClick={() => {
+                                if (activeIndex === CARDS.length - 1) {
+                                    // If on the last card, this acts as the "UP/back" button
+                                    setActiveIndex(Math.max(0, activeIndex - 1));
+                                } else {
+                                    // Otherwise, act as the "DOWN/next" button
+                                    setActiveIndex(Math.min(CARDS.length - 1, activeIndex + 1));
+                                }
+                            }}
                             className="w-6 h-6 rounded-full border border-neutral-800 flex items-center justify-center text-neutral-400 bg-black hover:bg-neutral-900 transition-colors cursor-pointer"
                         >
-                            <ChevronDown size={10} />
+                            {activeIndex === CARDS.length - 1 ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
                         </button>
                         <span className="font-mono text-white text-sm font-bold">{activeIndex + 1} / {CARDS.length}</span>
                         <button
                             onClick={() => {
                                 if (activeIndex === CARDS.length - 1) {
-                                    setActiveIndex(0);
+                                    // Rewind sequentially back to the first card
+                                    let current = activeIndex;
+                                    const interval = setInterval(() => {
+                                        current -= 1;
+                                        setActiveIndex(current);
+                                        if (current <= 0) {
+                                            clearInterval(interval);
+                                        }
+                                    }, 180); // Speed of the rewind hop
                                 } else {
                                     setActiveIndex(Math.max(0, activeIndex - 1));
                                 }
                             }}
-                            className="w-6 h-6 rounded-full border border-neutral-800 flex items-center justify-center text-neutral-400 bg-black hover:bg-neutral-900 transition-colors cursor-pointer"
+                            className="w-6 h-6 rounded-full border border-neutral-800 flex items-center justify-center text-neutral-400 bg-black hover:bg-neutral-900 transition-colors cursor-pointer whitespace-nowrap"
                         >
                             {activeIndex === CARDS.length - 1 ? (
                                 <Home size={10} />
@@ -155,16 +168,18 @@ export const StickyCardStack = () => {
                         </button>
                     </div>
 
-                    {CARDS.map((card, index) => (
-                        <Card
-                            key={card.id}
-                            card={card}
-                            index={index}
-                            cardProgress={currentProgress}
-                            total={CARDS.length}
-                            activeIndex={activeIndex}
-                        />
-                    ))}
+                    <div className="absolute inset-0 pointer-events-none" style={{ perspective: 1000, transformStyle: 'preserve-3d' }}>
+                        {CARDS.map((card, index) => (
+                            <Card
+                                key={card.id}
+                                card={card}
+                                index={index}
+                                cardProgress={currentProgress}
+                                total={CARDS.length}
+                                activeIndex={activeIndex}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
