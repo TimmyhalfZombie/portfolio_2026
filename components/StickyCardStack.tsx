@@ -18,57 +18,55 @@ const CARDS: CardData[] = [
         id: 1,
         title: "Hi, I'm Shem.",
         titleClass: "text-2xl",
-        description: "A BSIT student & developer looking for my first professional role.",
+        description: "BSIT student. Full-stack developer. Building things that actually work.",
         bullets: [
-            "Backend Focused",
-            "Full-Stack Capable",
-            "Based in Iloilo",
-            "Ready to ship code"
+            "Full-stack, backend-strong",
+            "Into APIs, databases & Web3",
+            "Ready to ship on day one"
         ]
     },
     {
         id: 2,
-        title: "Logic First.",
+        title: "What I work with.",
         titleClass: "text-xl",
-        description: "I love the challenge of the backend, but I can build the frontend too. I’m looking for a team where I can grow.",
+        description: "I've built with a mix of modern tools, enough to be useful on day one and grow from there.",
         bullets: [
-            "APIs, Databases, System Logic",
-            "Web3 & Crypto",
-            "Fast Learner"
+            "TypeScript, Next.js & React Native",
+            "Supabase, Firebase & MongoDB",
+            "REST, WebSockets & IoT Integration"
         ]
     },
     {
         id: 3,
-        title: "AI Trading Analyzer.",
+        title: "How I got here.",
         titleClass: "text-xl",
-        description: "I combined my interest in crypto with code to solve a real problem—analysis paralysis.",
+        description: "BSIT was a practical choice. Then something clicked, I started building things just to see if I could.",
         bullets: [
-            "Integrates AI for market signals",
-            "Automated decision logic",
-            "Built with n8n & Next.js"
+            "School gave me the foundation",
+            "Side projects kept me going",
+            "Curiosity did the rest",
         ]
     },
     {
         id: 4,
-        title: "Assumption Iloilo OPAC.",
+        title: "Where I thrive.",
         titleClass: "text-xl",
-        description: "A digital library system I helped build to make finding books easier for students.",
+        description: "I want a team I can learn from, one that moves fast but still cares about doing things right.",
         bullets: [
-            "Modernized a legacy system",
-            "Fast search & filtering",
-            "Database management"
+            "I like getting real feedback",
+            "Mentorship I can actually learn from",
+            "Collaborative by default"
         ]
     },
     {
         id: 5,
-        title: "Let's Work Together.",
+        title: "Let's build something.",
         titleClass: "text-xl",
-        description: "I have the foundations (from To-Do lists to AI apps) and the drive to contribute immediately.",
+        description: "I'm early in my career but not inexperienced. I ship, I learn fast, and I take feedback well.",
         bullets: [
-            "Available for Internship / Junior Roles",
-            "Passion for clean code",
-            "Eager to be mentored",
-            "Email: shem.dev@gmail.com"
+            "Open for junior roles",
+            "Local or remote works for me",
+            "Still learning, but I take it seriously",
         ]
     }
 ];
@@ -212,15 +210,15 @@ const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) 
         return text.split(/(\s+)/).map((word, wordIndex) => {
             if (word.match(/\s+/)) {
                 return (
-                    <span key={wordIndex} className="whitespace-pre">
+                    <span key={wordIndex}>
                         {word}
                     </span>
                 );
             }
             return (
-                <span 
-                    key={wordIndex} 
-                    className="word-reveal inline-block opacity-0" 
+                <span
+                    key={wordIndex}
+                    className="word-reveal inline-block opacity-0"
                     style={{ transform: 'scale(0.6)', transformOrigin: 'center bottom' }}
                 >
                     {word}
