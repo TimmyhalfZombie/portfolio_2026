@@ -650,7 +650,12 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                 </AnimatePresence>
 
                 {/* ── Sticker Image ── */}
-                <div ref={flyRef} className="relative w-full h-full flex justify-center items-center" style={{ opacity: isFlying ? 0 : 1 }}>
+                <motion.div 
+                    ref={flyRef} 
+                    className="relative w-full h-full flex justify-center items-center" 
+                    style={{ opacity: isFlying ? 0 : 1 }}
+                    whileTap={{ scale: 0.92 }}
+                >
                     <Image
                         src={src}
                         alt={alt}
@@ -662,7 +667,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         priority={priority}
                         unoptimized={data.id === 'main-me'}
                     />
-                </div>
+                </motion.div>
             </motion.div>
 
             {/* ── Fly-Around Ghost (portaled to body at z-3, behind cards at z-10) ── */}
