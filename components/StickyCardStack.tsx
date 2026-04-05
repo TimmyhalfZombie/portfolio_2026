@@ -18,7 +18,7 @@ const CARDS: CardData[] = [
         id: 1,
         title: "Hi, I'm Shem.",
         titleClass: "text-2xl",
-        description: "BSIT student. Full-stack developer. Building things that actually work.",
+        description: "Full-stack developer. Building things that actually work.",
         bullets: [
             "Full-stack, backend-strong",
             "Into APIs, databases, trading and markets",
@@ -66,7 +66,7 @@ const CARDS: CardData[] = [
         bullets: [
             "Open for junior roles",
             "Local or remote works for me",
-            "Still learning, but I take it seriously",
+            "I know what I don't know yet",
         ]
     }
 ];
