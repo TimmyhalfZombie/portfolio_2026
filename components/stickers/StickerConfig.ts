@@ -60,7 +60,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         alt: 'Shem — Main Portrait',
         width: 320,
         top: '0%',
-        left: 'calc(52% - 140px)',   // centered (50% minus half of width)
+        left: 'calc(52% - 8.75rem)',   // centered (50% minus half of width) — 140/16=8.75rem
         rotate: 0,
         delay: 0,
         zIndex: 5,

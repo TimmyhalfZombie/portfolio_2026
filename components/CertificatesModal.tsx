@@ -51,7 +51,7 @@ export const CertificatesModal: React.FC<CertificatesModalProps> = ({ onClose })
                 onWheel={handleWheel}
             >
                 <motion.div
-                    className="relative w-full max-w-[660px] bg-black border border-white/70 rounded-2xl shadow-2xl overflow-hidden"
+                    className="relative w-full max-w-[41.25rem] bg-black border border-white/70 rounded-2xl shadow-2xl overflow-hidden"
                     initial={{ scale: 0.95, opacity: 0, y: 10 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 10 }}
@@ -62,10 +62,10 @@ export const CertificatesModal: React.FC<CertificatesModalProps> = ({ onClose })
                     <div className="px-6 pt-6 pb-5">
                         <div className="flex items-start justify-between mb-4">
                             <div>
-                                <h2 className="font-mono font-bold text-[22px] text-white tracking-tight">
+                                <h2 className="font-mono font-bold text-[1.375rem] text-white tracking-tight">
                                     Certifications.
                                 </h2>
-                                <p className="font-mono text-[14px] text-neutral-400 mt-1">
+                                <p className="font-mono text-[0.875rem] text-neutral-400 mt-1">
                                     Google Cybersecurity Professional Certificate
                                 </p>
                             </div>
@@ -82,7 +82,7 @@ export const CertificatesModal: React.FC<CertificatesModalProps> = ({ onClose })
                         </div>
 
                         {/* Stats row */}
-                        <div className="flex items-center gap-4 font-mono text-[13px]">
+                        <div className="flex items-center gap-4 font-mono text-[0.8125rem]">
                             <div className="flex items-center gap-1.5">
                                 <span className="text-neutral-400">courses</span>
                                 <span className="text-white font-bold">{CERTIFICATES.length}</span>
@@ -122,12 +122,12 @@ export const CertificatesModal: React.FC<CertificatesModalProps> = ({ onClose })
                                 transition={{ delay: i * 0.05, duration: 0.25 }}
                             >
                                 {/* Rank number */}
-                                <span className="font-mono text-[13px] text-neutral-500 w-4 text-right shrink-0 tabular-nums">
+                                <span className="font-mono text-[0.8125rem] text-neutral-500 w-4 text-right shrink-0 tabular-nums">
                                     {i + 1}
                                 </span>
 
                                 {/* Grade bar */}
-                                <div className="w-[52px] shrink-0">
+                                <div className="w-[3.25rem] shrink-0">
                                     <div className="h-[3px] w-full bg-neutral-800 rounded-full overflow-hidden">
                                         <motion.div
                                             className="h-full bg-neutral-300 rounded-full"
@@ -140,7 +140,7 @@ export const CertificatesModal: React.FC<CertificatesModalProps> = ({ onClose })
 
                                 {/* Title & Issuer */}
                                 <div className="flex-1 min-w-0 flex items-center gap-2">
-                                    <p className="font-mono text-[14px] text-neutral-200 leading-tight truncate group-hover:text-white transition-colors duration-150">
+                                    <p className="font-mono text-[0.875rem] text-neutral-200 leading-tight truncate group-hover:text-white transition-colors duration-150">
                                         {cert.title}
                                     </p>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-0 group-hover:opacity-100 text-neutral-400 transition-opacity duration-150 shrink-0">
@@ -150,7 +150,7 @@ export const CertificatesModal: React.FC<CertificatesModalProps> = ({ onClose })
                                 </div>
 
                                 {/* Grade */}
-                                <span className="font-mono text-[13px] text-neutral-400 tabular-nums shrink-0 group-hover:text-neutral-300 transition-colors duration-150">
+                                <span className="font-mono text-[0.8125rem] text-neutral-400 tabular-nums shrink-0 group-hover:text-neutral-300 transition-colors duration-150">
                                     {cert.grade.toFixed(1)}%
                                 </span>
                             </motion.a>
@@ -160,10 +160,10 @@ export const CertificatesModal: React.FC<CertificatesModalProps> = ({ onClose })
                     {/* ── Footer ── */}
                     <div className="border-t border-white/10" />
                     <div className="px-6 py-4 flex items-center justify-between">
-                        <p className="font-mono text-[12px] text-neutral-500">
+                        <p className="font-mono text-[0.75rem] text-neutral-500">
                             via Coursera · all verified
                         </p>
-                        <div className="flex items-center gap-1.5 font-mono text-[12px] text-neutral-500">
+                        <div className="flex items-center gap-1.5 font-mono text-[0.75rem] text-neutral-500">
                             <span></span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="12" y1="5" x2="12" y2="19" />

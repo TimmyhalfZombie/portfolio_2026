@@ -124,7 +124,7 @@ export const StickyCardStack = () => {
         <div className="h-screen w-full relative overflow-hidden bg-transparent pointer-events-none">
             {/* Center the stack */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="relative w-[460px] h-[320px]">
+                <div className="relative w-[28.75rem] h-[20rem]">
                     {/* Static Floating Header (Outside 3D context to guarantee pointer events) */}
                     <div className="absolute top-8 right-8 z-[200] flex justify-end items-center space-x-3 pointer-events-auto">
                         <button
@@ -247,10 +247,10 @@ const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) 
             <h3 className={`font-bold text-white ${card.titleClass || 'text-xl'}`}>
                 {splitText(card.title)}
             </h3>
-            <p className="text-[15px] text-white font-medium">
+            <p className="text-[0.9375rem] text-white font-medium">
                 {splitText(card.description)}
             </p>
-            <div className="space-y-2 text-[15px] text-white">
+            <div className="space-y-2 text-[0.9375rem] text-white">
                 {card.bullets.map((bullet, i) => (
                     <div key={i} className="flex items-start gap-2">
                         <span className="word-reveal opacity-0 text-white mt-[2px]" style={{ transform: 'scale(0.6)', transformOrigin: 'center bottom' }}>-</span>

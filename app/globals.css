@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* 1.5625vw = 16px at 1024px viewport. All rem-based values scale proportionally. */
+html {
+  font-size: 1.5625vw;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -17,13 +22,11 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
   overflow-x: hidden;
-  /* Force desktop layout on all devices — mobile browsers will zoom out */
-  min-width: 1024px;
 }
 
 /* Custom Grid Pattern */
 .bg-grid-small {
-  background-size: 40px 40px;
+  background-size: 2.5rem 2.5rem;
   background-image: linear-gradient(to right, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
 }
@@ -34,14 +37,17 @@ body {
     transform: translateX(0);
     animation-timing-function: ease-in;
   }
+
   40% {
-    transform: translateX(calc(-100vw - 200px));
+    transform: translateX(calc(-100vw - 12.5rem));
     animation-timing-function: steps(1, end);
   }
+
   41% {
-    transform: translateX(calc(100vw + 200px));
+    transform: translateX(calc(100vw + 12.5rem));
     animation-timing-function: ease-out;
   }
+
   100% {
     transform: translateX(0);
   }
@@ -58,11 +64,11 @@ body {
     opacity 0.25s ease,
     margin-top 0.3s ease;
 }
-  
+
 .popup-word {
   display: inline-block;
   opacity: 0;
   transform: scale(0.6);
   transform-origin: center bottom;
-  margin-right: 4px;
+  margin-right: 0.25rem;
 }

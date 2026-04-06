@@ -57,8 +57,8 @@ export const ContactModal: React.FC<ContactModalProps> = ({ onClose }) => {
         });
     };
 
-    const inputBase = 'w-full bg-white/[0.04] border rounded-xl px-4 py-3 text-white font-mono text-[14px] placeholder:text-neutral-500 focus:outline-none focus:border-white focus:bg-white/[0.08] transition-colors';
-    const textareaBase = 'w-full bg-white/[0.04] border rounded-xl px-4 py-3 text-white font-mono text-[14px] placeholder:text-neutral-500 focus:outline-none focus:border-white focus:bg-white/[0.08] transition-colors resize-none';
+    const inputBase = 'w-full bg-white/[0.04] border rounded-xl px-4 py-3 text-white font-mono text-[0.875rem] placeholder:text-neutral-500 focus:outline-none focus:border-white focus:bg-white/[0.08] transition-colors';
+    const textareaBase = 'w-full bg-white/[0.04] border rounded-xl px-4 py-3 text-white font-mono text-[0.875rem] placeholder:text-neutral-500 focus:outline-none focus:border-white focus:bg-white/[0.08] transition-colors resize-none';
 
     return (
         <AnimatePresence>
@@ -70,7 +70,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ onClose }) => {
                 onClick={onClose}
             >
                 <motion.div
-                    className="relative w-full max-w-[480px] bg-black border border-white/70 rounded-2xl shadow-2xl overflow-hidden"
+                    className="relative w-full max-w-[30rem] bg-black border border-white/70 rounded-2xl shadow-2xl overflow-hidden"
                     initial={{ scale: 0.95, opacity: 0, y: 10 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 10 }}
@@ -81,10 +81,10 @@ export const ContactModal: React.FC<ContactModalProps> = ({ onClose }) => {
                     <div className="px-6 pt-6 pb-5">
                         <div className="flex items-start justify-between">
                             <div>
-                                <h2 className="font-mono font-bold text-[22px] text-white tracking-tight">
+                                <h2 className="font-mono font-bold text-[1.375rem] text-white tracking-tight">
                                     Get in Touch.
                                 </h2>
-                                <p className="font-mono text-[14px] text-neutral-400 mt-1">
+                                <p className="font-mono text-[0.875rem] text-neutral-400 mt-1">
                                     I typically respond within a day.
                                 </p>
                             </div>
@@ -108,7 +108,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ onClose }) => {
                     <form action={handleAction} className="px-6 py-5 flex flex-col gap-5">
                         {/* Name */}
                         <div>
-                            <label htmlFor="contact-name" className="block font-mono font-medium text-[13px] text-neutral-300 mb-2 ml-1">Your Name</label>
+                            <label htmlFor="contact-name" className="block font-mono font-medium text-[0.8125rem] text-neutral-300 mb-2 ml-1">Your Name</label>
                             <input
                                 id="contact-name"
                                 name="name"
@@ -117,12 +117,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({ onClose }) => {
                                 className={`${inputBase} ${nameErr ? 'border-red-500/50' : 'border-white/10'}`}
                                 disabled={isPending}
                             />
-                            {nameErr && <p className="font-mono text-[11px] text-red-400 mt-1.5 ml-1">{nameErr}</p>}
+                            {nameErr && <p className="font-mono text-[0.6875rem] text-red-400 mt-1.5 ml-1">{nameErr}</p>}
                         </div>
 
                         {/* Email */}
                         <div>
-                            <label htmlFor="contact-email" className="block font-mono font-medium text-[13px] text-neutral-300 mb-2 ml-1">Email Address</label>
+                            <label htmlFor="contact-email" className="block font-mono font-medium text-[0.8125rem] text-neutral-300 mb-2 ml-1">Email Address</label>
                             <input
                                 id="contact-email"
                                 name="email"
@@ -131,12 +131,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({ onClose }) => {
                                 className={`${inputBase} ${emailErr ? 'border-red-500/50' : 'border-white/10'}`}
                                 disabled={isPending}
                             />
-                            {emailErr && <p className="font-mono text-[11px] text-red-400 mt-1.5 ml-1">{emailErr}</p>}
+                            {emailErr && <p className="font-mono text-[0.6875rem] text-red-400 mt-1.5 ml-1">{emailErr}</p>}
                         </div>
 
                         {/* Message */}
                         <div>
-                            <label htmlFor="contact-message" className="block font-mono font-medium text-[13px] text-neutral-300 mb-2 ml-1">How can I help?</label>
+                            <label htmlFor="contact-message" className="block font-mono font-medium text-[0.8125rem] text-neutral-300 mb-2 ml-1">How can I help?</label>
                             <textarea
                                 id="contact-message"
                                 name="message"
@@ -145,14 +145,14 @@ export const ContactModal: React.FC<ContactModalProps> = ({ onClose }) => {
                                 className={`${textareaBase} ${msgErr ? 'border-red-500/50' : 'border-white/10'}`}
                                 disabled={isPending}
                             />
-                            {msgErr && <p className="font-mono text-[11px] text-red-400 mt-1.5 ml-1">{msgErr}</p>}
+                            {msgErr && <p className="font-mono text-[0.6875rem] text-red-400 mt-1.5 ml-1">{msgErr}</p>}
                         </div>
 
                         <div className="mt-2">
                             <button
                                 type="submit"
                                 disabled={isPending}
-                                className="w-full bg-white text-black font-mono font-bold text-[14px] rounded-xl px-8 py-3.5 hover:bg-neutral-200 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
+                                className="w-full bg-white text-black font-mono font-bold text-[0.875rem] rounded-xl px-8 py-3.5 hover:bg-neutral-200 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
                             >
                                 {isPending ? 'Sending...' : 'Send Message'}
                             </button>

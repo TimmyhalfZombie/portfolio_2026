@@ -122,13 +122,13 @@ function getAudioController() {
 
 function animatePopupText(popupElement: HTMLElement) {
     const textNodes = popupElement.querySelectorAll('p, span, li');
-    
+
     textNodes.forEach(node => {
         // Skip anything we don't want to animate
         if (node.classList.contains('pill') || node.classList.contains('popup-word')) return;
         const text = node.textContent;
         if (!text) return;
-        
+
         const words = text.split(' ');
         node.innerHTML = words
             .map(word => `<span class="popup-word">${word}</span>`)
@@ -136,7 +136,7 @@ function animatePopupText(popupElement: HTMLElement) {
     });
 
     const allWords = popupElement.querySelectorAll('.popup-word');
-    
+
     allWords.forEach((wordElement, i) => {
         const word = wordElement as HTMLElement;
         word.style.transition = `
@@ -385,7 +385,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     top,
                     left,
                     zIndex: isFlying ? 1 : showPopup ? 100 : zIndex,
-                    width: `${width}px`,
+                    width: `${width / 16}rem`,
                     cursor: popup || tapEffect ? 'pointer' : 'grab',
                     willChange: 'transform, opacity',
                 }}
@@ -459,7 +459,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                             className={`absolute left-1/2 pointer-events-auto ${isPopupBelow ? 'top-full mt-3' : 'bottom-full mb-3'
                                 }`}
                             style={{
-                                x: popup.offsetX ? `calc(${popupTranslateX} + ${popup.offsetX}px)` : popupTranslateX,
+                                x: popup.offsetX ? `calc(${popupTranslateX} + ${popup.offsetX / 16}rem)` : popupTranslateX,
                                 rotate: -rotate,
                                 transformOrigin: `${caretLeftPos} ${isPopupBelow ? '0%' : '100%'}`
                             }}
@@ -488,8 +488,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                 className="relative bg-black border-3 border-white rounded-xl px-4 py-3 text-center font-mono text-base font-semibold text-white select-none leading-relaxed"
                                 style={{
                                     width: 'max-content',
-                                    maxWidth: popup.maxWidth ? `min(${popup.maxWidth}px, calc(100vw - 32px))` : 'min(320px, calc(100vw - 32px))',
-                                    minWidth: '120px',
+                                    maxWidth: popup.maxWidth ? `min(${popup.maxWidth / 16}rem, calc(100vw - 2rem))` : 'min(20rem, calc(100vw - 2rem))',
+                                    minWidth: '7.5rem',
                                 }}
                             >
                                 {(() => {
@@ -527,7 +527,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                             href={popup.linkUrl}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="underline underline-offset-2 text-[12px] text-white decoration-zinc-500 uppercase tracking-wider font-semibold"
+                                                            className="underline underline-offset-2 text-[0.75rem] text-white decoration-zinc-500 uppercase tracking-wider font-semibold"
                                                         >
                                                             {popup.linkText}
                                                         </a>
@@ -583,7 +583,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
 
                                                                 toggle.textContent = open ? 'stack -' : 'stack +';
                                                             }}
-                                                            className="text-[12px] text-white uppercase tracking-wider font-semibold cursor-pointer"
+                                                            className="text-[0.75rem] text-white uppercase tracking-wider font-semibold cursor-pointer"
                                                         >
                                                             stack +
                                                         </button>
@@ -620,7 +620,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                     href={popup.linkUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="underline underline-offset-2 text-[13px] text-zinc-300 decoration-white/50 uppercase tracking-wider font-bold mt-1"
+                                                    className="underline underline-offset-2 text-[0.8125rem] text-zinc-300 decoration-white/50 uppercase tracking-wider font-bold mt-1"
                                                 >
                                                     {popup.linkText}
                                                 </a>
@@ -631,10 +631,10 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
 
                                 {/* Caret/triangle */}
                                 <div
-                                    className="absolute w-[14px] h-[14px] bg-black"
+                                    className="absolute w-[0.875rem] h-[0.875rem] bg-black"
                                     style={{
-                                        left: popup.offsetX ? `calc(${caretLeftPos} - ${popup.offsetX}px)` : caretLeftPos,
-                                        [isPopupBelow ? 'top' : 'bottom']: '-6.5px',
+                                        left: popup.offsetX ? `calc(${caretLeftPos} - ${popup.offsetX / 16}rem)` : caretLeftPos,
+                                        [isPopupBelow ? 'top' : 'bottom']: '-0.406rem',
                                         transform: 'translateX(-50%) rotate(45deg)',
                                         borderRight: isPopupBelow ? 'none' : '2px solid white',
                                         borderBottom: isPopupBelow ? 'none' : '2px solid white',
@@ -650,9 +650,9 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                 </AnimatePresence>
 
                 {/* ── Sticker Image ── */}
-                <motion.div 
-                    ref={flyRef} 
-                    className="relative w-full h-full flex justify-center items-center" 
+                <motion.div
+                    ref={flyRef}
+                    className="relative w-full h-full flex justify-center items-center"
                     style={{ opacity: isFlying ? 0 : 1 }}
                     whileTap={{ scale: 0.92 }}
                 >

@@ -22,13 +22,12 @@ export const metadata: Metadata = {
 };
 
 /**
- * Force minimum viewport width to 1024px.
- * - Desktop (>= 1024px): uses native device width (unaffected)
- * - Tablet (768px–1024px): renders at 1024px, slight zoom-out
- * - Mobile (< 768px): renders at 1024px, browser zooms out to fit → shows desktop layout
+ * Use device-width for responsive scaling.
+ * The root font-size (1.5625vw) handles proportional scaling across all screen sizes.
  */
 export const viewport: Viewport = {
-  width: 1024,
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
