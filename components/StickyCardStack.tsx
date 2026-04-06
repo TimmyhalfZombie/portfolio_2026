@@ -124,9 +124,9 @@ export const StickyCardStack = () => {
         <div className="h-screen w-full relative overflow-hidden bg-transparent pointer-events-none">
             {/* Center the stack */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="relative w-[400px] md:w-[460px] h-[300px] md:h-[320px]">
+                <div className="relative w-[460px] h-[320px]">
                     {/* Static Floating Header (Outside 3D context to guarantee pointer events) */}
-                    <div className="absolute top-6 right-6 md:top-8 md:right-8 z-[200] flex justify-end items-center space-x-3 pointer-events-auto">
+                    <div className="absolute top-8 right-8 z-[200] flex justify-end items-center space-x-3 pointer-events-auto">
                         <button
                             onClick={() => {
                                 if (activeIndex === CARDS.length - 1) {
@@ -345,14 +345,14 @@ const Card = ({ card, index, cardProgress, total, activeIndex }: CardProps) => {
                 filter,
                 opacity
             }}
-            className="absolute inset-0 bg-black rounded-2xl border-transparent shadow-2xl flex flex-col p-6 md:p-8 pointer-events-auto"
+            className="absolute inset-0 bg-black rounded-2xl border-transparent shadow-2xl flex flex-col p-8 pointer-events-auto"
         >
             {/* Header removed from here */}
 
             {/* Content - Static and Fixed - Added margin top to account for absolute header */}
             <motion.div
                 style={{ opacity: contentOpacity }}
-                className="flex-1 font-mono text-white text-base md:text-lg leading-relaxed select-none mt-6"
+                className="flex-1 font-mono text-white text-lg leading-relaxed select-none mt-6"
             >
                 <CardContent card={card} isActive={activeIndex === index} />
             </motion.div>

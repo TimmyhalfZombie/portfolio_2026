@@ -385,7 +385,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     top,
                     left,
                     zIndex: isFlying ? 1 : showPopup ? 100 : zIndex,
-                    width: `clamp(${Math.floor(width * 0.75)}px, ${(width / 14.4).toFixed(2)}vw, ${width}px)`,
+                    width: `${width}px`,
                     cursor: popup || tapEffect ? 'pointer' : 'grab',
                     willChange: 'transform, opacity',
                 }}
@@ -485,7 +485,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div
-                                className="relative bg-black border-3 border-white rounded-xl px-4 py-3 text-center font-mono text-sm sm:text-base font-semibold text-white select-none leading-relaxed"
+                                className="relative bg-black border-3 border-white rounded-xl px-4 py-3 text-center font-mono text-base font-semibold text-white select-none leading-relaxed"
                                 style={{
                                     width: 'max-content',
                                     maxWidth: popup.maxWidth ? `min(${popup.maxWidth}px, calc(100vw - 32px))` : 'min(320px, calc(100vw - 32px))',
