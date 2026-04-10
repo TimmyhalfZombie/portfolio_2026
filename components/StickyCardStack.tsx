@@ -124,7 +124,23 @@ export const StickyCardStack = () => {
         <div className="h-screen w-full relative overflow-hidden bg-transparent pointer-events-none">
             {/* Center the stack */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="relative w-[28.75rem] h-[20rem]">
+                <motion.div 
+                    className="relative w-[28.75rem] h-[20rem]"
+                    initial={{ opacity: 0, scale: 1.4 }}
+                    animate={{
+                        opacity: [0, 1, 1],
+                        scale: [1.4, 0.94, 1]
+                    }}
+                    transition={{
+                        duration: 0.7,
+                        delay: 0,
+                        times: [0, 0.6, 1],
+                        ease: [
+                            [0.25, 1, 0.5, 1],
+                            [0.25, 1, 0.5, 1]
+                        ]
+                    }}
+                >
                     {/* Static Floating Header (Outside 3D context to guarantee pointer events) */}
                     <div className="absolute top-8 right-8 z-[200] flex justify-end items-center space-x-3 pointer-events-auto">
                         <button
@@ -180,7 +196,7 @@ export const StickyCardStack = () => {
                             />
                         ))}
                     </div>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

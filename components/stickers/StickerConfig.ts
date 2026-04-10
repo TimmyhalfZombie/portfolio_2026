@@ -369,5 +369,5 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
 ] as StickerData[]).map((sticker, index) => ({
     ...sticker,
-    delay: index * 0.05 // Faster sequential delay override
+    delay: 0.15 + (index * 0.05) // Base delay of 0.15s, so the card (0 delay) appears first
 }));
