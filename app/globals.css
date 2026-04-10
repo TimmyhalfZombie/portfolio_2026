@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
-/* 1.5625vw = 16px at 1024px viewport. All rem-based values scale proportionally. */
-html {
-  font-size: 1.5625vw;
+/* 1.0417vw = 16px at 1536px viewport. All rem-based values scale proportionally. */
+@layer base {
+  html {
+    font-size: 1.0417vw !important;
+  }
 }
 
 :root {
