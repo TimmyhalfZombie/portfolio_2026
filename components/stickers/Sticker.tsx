@@ -151,7 +151,7 @@ function animatePopupText(popupElement: HTMLElement) {
 }
 
 export const Sticker: React.FC<StickerProps> = ({ data }) => {
-    const { src, alt, width, top, left, rotate, delay, zIndex, priority, popup, tapEffect } = data;
+    const { src, alt, width, widthPx, top, left, rotate, delay, zIndex, priority, popup, tapEffect } = data;
     const [hasEntered, setHasEntered] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
@@ -385,7 +385,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     top,
                     left,
                     zIndex: isFlying ? 1 : showPopup ? 100 : zIndex,
-                    width: `${width / 16}rem`,
+                    width,
                     cursor: popup || tapEffect ? 'pointer' : 'grab',
                     willChange: 'transform, opacity',
                 }}
@@ -485,11 +485,13 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div
-                                className="relative bg-black border-3 border-white rounded-xl px-4 py-3 text-center font-mono text-base font-semibold text-white select-none leading-relaxed"
+                                className="relative bg-black border-2 border-white rounded-xl text-center font-mono font-semibold text-white select-none leading-relaxed"
                                 style={{
+                                    padding: 'clamp(0.5rem, 0.8vw, 0.75rem) clamp(0.625rem, 1.1vw, 1rem)',
+                                    fontSize: 'clamp(0.72rem, 1.2vw, 0.95rem)',
                                     width: 'max-content',
                                     maxWidth: popup.maxWidth ? `min(${popup.maxWidth / 16}rem, calc(100vw - 2rem))` : 'min(20rem, calc(100vw - 2rem))',
-                                    minWidth: '7.5rem',
+                                    minWidth: 'clamp(5rem, 8vw, 7.5rem)',
                                 }}
                             >
                                 {(() => {
@@ -498,9 +500,9 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                     // Card-style layout for project popups (has title)
                                     if (popup.title) {
                                         return (
-                                            <div className="flex flex-col gap-3 w-full text-left">
-                                                <p className="font-bold text-white text-base tracking-wide m-0">{popup.title}</p>
-                                                <p className="text-white text-sm leading-relaxed m-0">{displayText}</p>
+                                            <div className="flex flex-col w-full text-left" style={{ gap: 'clamp(0.5rem, 0.8vw, 0.75rem)' }}>
+                                                <p className="font-bold text-white tracking-wide m-0" style={{ fontSize: 'clamp(0.72rem, 1.2vw, 0.95rem)' }}>{popup.title}</p>
+                                                <p className="text-white leading-relaxed m-0" style={{ fontSize: 'clamp(0.65rem, 1.05vw, 0.85rem)' }}>{displayText}</p>
 
                                                 {/* Stack pills container */}
                                                 {popup.stack && (
@@ -508,11 +510,12 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                         ref={stackRef}
                                                         className="stack-wrap"
                                                     >
-                                                        <div className="flex flex-wrap gap-2 pt-1 pb-1">
+                                                        <div className="flex flex-wrap pt-1 pb-1" style={{ gap: 'clamp(0.25rem, 0.4vw, 0.375rem)' }}>
                                                             {popup.stack.map((item, i) => (
                                                                 <div
                                                                     key={i}
-                                                                    className="pill whitespace-nowrap text-xs text-emerald-100/90 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-3 py-1 inline-block"
+                                                                    className="pill whitespace-nowrap text-emerald-100/90 bg-emerald-500/10 border border-emerald-500/30 rounded-full inline-block"
+                                                                    style={{ fontSize: 'clamp(0.55rem, 0.9vw, 0.75rem)', padding: 'clamp(0.1rem, 0.2vw, 0.125rem) clamp(0.4rem, 0.7vw, 0.75rem)' }}
                                                                 >
                                                                     {item}
                                                                 </div>
@@ -527,7 +530,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                             href={popup.linkUrl}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="underline underline-offset-2 text-[0.75rem] text-white decoration-zinc-500 uppercase tracking-wider font-semibold"
+                                                            className="underline underline-offset-2 text-white decoration-zinc-500 uppercase tracking-wider font-semibold"
+                                                            style={{ fontSize: 'clamp(0.55rem, 0.9vw, 0.75rem)' }}
                                                         >
                                                             {popup.linkText}
                                                         </a>
@@ -583,7 +587,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
 
                                                                 toggle.textContent = open ? 'stack -' : 'stack +';
                                                             }}
-                                                            className="text-[0.75rem] text-white uppercase tracking-wider font-semibold cursor-pointer"
+                                                            className="text-white uppercase tracking-wider font-semibold cursor-pointer"
+                                                            style={{ fontSize: 'clamp(0.55rem, 0.9vw, 0.75rem)' }}
                                                         >
                                                             stack +
                                                         </button>
@@ -620,7 +625,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                     href={popup.linkUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="underline underline-offset-2 text-[0.8125rem] text-zinc-300 decoration-white/50 uppercase tracking-wider font-bold mt-1"
+                                                    className="underline underline-offset-2 text-zinc-300 decoration-white/50 uppercase tracking-wider font-bold mt-1"
+                                                    style={{ fontSize: 'clamp(0.6rem, 1vw, 0.8rem)' }}
                                                 >
                                                     {popup.linkText}
                                                 </a>
@@ -631,8 +637,10 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
 
                                 {/* Caret/triangle */}
                                 <div
-                                    className="absolute w-[0.875rem] h-[0.875rem] bg-black"
+                                    className="absolute bg-black"
                                     style={{
+                                        width: 'clamp(0.625rem, 1vw, 0.875rem)',
+                                        height: 'clamp(0.625rem, 1vw, 0.875rem)',
                                         left: popup.offsetX ? `calc(${caretLeftPos} - ${popup.offsetX / 16}rem)` : caretLeftPos,
                                         [isPopupBelow ? 'top' : 'bottom']: '-0.406rem',
                                         transform: 'translateX(-50%) rotate(45deg)',
@@ -659,8 +667,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     <Image
                         src={src}
                         alt={alt}
-                        width={width}
-                        height={width}
+                        width={widthPx}
+                        height={widthPx}
                         className="object-contain select-none"
                         style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
                         draggable={false}
@@ -687,8 +695,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         <Image
                             src={src}
                             alt={alt}
-                            width={width}
-                            height={width}
+                            width={widthPx}
+                            height={widthPx}
                             className="object-contain select-none"
                             style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
                             draggable={false}
