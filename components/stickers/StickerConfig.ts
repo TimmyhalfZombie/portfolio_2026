@@ -70,7 +70,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     // ── HERO — Center Top ──
     {
         id: 'main-me',
-        src: '/stickers/main-me.png',
+        src: '/stickers/main-me.webp',
         alt: 'Shem — Main Portrait',
         // 320px desktop → min ~144px, scales with 22vw
         width: 'clamp(9rem, 22vw, 20rem)',
@@ -87,7 +87,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     // ── TOP-LEFT ZONE ──
     {
         id: 'me',
-        src: '/stickers/me.png',
+        src: '/stickers/me.webp',
         alt: 'Shem — Secondary',
         // 220px desktop → min ~99px, scales with 15vw
         width: 'clamp(6.2rem, 15vw, 13.75rem)',
@@ -100,7 +100,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'fb',
-        src: '/stickers/fb.png',
+        src: '/stickers/fb.webp',
         alt: 'Facebook',
         // 55px desktop → min ~25px, scales with 3.8vw
         width: 'clamp(1.55rem, 3.8vw, 3.44rem)',
@@ -120,7 +120,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     // ── LEFT SIDE ──
     {
         id: 'cat',
-        src: '/stickers/cat.png',
+        src: '/stickers/cat.webp',
         alt: 'Cat Sticker',
         // 140px desktop → min ~63px, scales with 9.7vw
         width: 'clamp(3.9rem, 9.7vw, 8.75rem)',
@@ -147,7 +147,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'linkedin',
-        src: '/stickers/linkedin.png',
+        src: '/stickers/linkedin.webp',
         alt: 'LinkedIn',
         // 65px desktop → min ~29px, scales with 4.5vw
         width: 'clamp(1.8rem, 4.5vw, 4.06rem)',
@@ -167,7 +167,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     // ── BOTTOM-LEFT ──
     {
         id: 'fazzio',
-        src: '/stickers/fazzio.png',
+        src: '/stickers/fazzio.webp',
         alt: 'Fazzio Project',
         // 150px desktop → min ~68px, scales with 10.4vw
         width: 'clamp(4.2rem, 10.4vw, 9.38rem)',
@@ -181,7 +181,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'assumption',
-        src: '/stickers/assumption.png',
+        src: '/stickers/assumption.webp',
         alt: 'Assumption Iloilo',
         // 110px desktop → min ~50px, scales with 7.6vw
         width: 'clamp(3.1rem, 7.6vw, 6.88rem)',
@@ -204,7 +204,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     // ── BOTTOM CENTER ──
     {
         id: 'punk',
-        src: '/stickers/punk.png',
+        src: '/stickers/punk.webp',
         alt: 'Punk Sticker',
         // 100px desktop → min ~45px, scales with 6.9vw
         width: 'clamp(2.8rem, 6.9vw, 6.25rem)',
@@ -218,7 +218,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'patchup',
-        src: '/stickers/patchup.png',
+        src: '/stickers/patchup.webp',
         alt: 'Patch Up Project',
         // 80px desktop → min ~36px, scales with 5.6vw
         width: 'clamp(2.25rem, 5.6vw, 5rem)',
@@ -239,7 +239,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'hive',
-        src: '/stickers/hive.png',
+        src: '/stickers/hive.webp',
         alt: 'Hive',
         // 65px desktop → min ~29px, scales with 4.5vw
         width: 'clamp(1.8rem, 4.5vw, 4.06rem)',
@@ -262,7 +262,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     // ── TOP-RIGHT ZONE ──
     {
         id: 'coursera',
-        src: '/stickers/coursera.png',
+        src: '/stickers/coursera.webp',
         alt: 'Coursera Certificate',
         // 50px desktop → min ~22px, scales with 3.5vw
         width: 'clamp(1.4rem, 3.5vw, 3.13rem)',
@@ -276,7 +276,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'flag',
-        src: '/stickers/flag.png',
+        src: '/stickers/flag.webp',
         alt: 'Philippine Flag',
         // 125px desktop → min ~56px, scales with 8.7vw
         width: 'clamp(3.5rem, 8.7vw, 7.8rem)',
@@ -291,7 +291,7 @@ export const STICKER_CONFIG: StickerData[] = ([
 
     {
         id: 'email',
-        src: '/stickers/email.png',
+        src: '/stickers/email.webp',
         alt: 'Email Contact',
         // 100px desktop → min ~45px, scales with 6.9vw
         width: 'clamp(2.8rem, 6.9vw, 6.25rem)',
@@ -305,7 +305,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'vipscale',
-        src: '/stickers/vipscale.png',
+        src: '/stickers/vipscale.webp',
         alt: 'VIPScale Project',
         // 90px desktop → min ~40px, scales with 6.3vw
         width: 'clamp(2.5rem, 6.3vw, 5.63rem)',
@@ -326,7 +326,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'tool',
-        src: '/stickers/tool.png',
+        src: '/stickers/tool.webp',
         alt: 'Dev Tools',
         // 90px desktop → min ~40px, scales with 6.3vw
         width: 'clamp(2.9rem, 8.3vw, 6.88rem)',
@@ -343,7 +343,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'palawan',
-        src: '/stickers/palawan.png',
+        src: '/stickers/palawan.webp',
         alt: 'Palawan Travel',
         // 135px desktop → min ~61px, scales with 9.4vw
         width: 'clamp(3.8rem, 9.4vw, 8.44rem)',
@@ -374,7 +374,7 @@ export const STICKER_CONFIG: StickerData[] = ([
 
     {
         id: 'telegram',
-        src: '/stickers/telegram.png',
+        src: '/stickers/telegram.webp',
         alt: 'Telegram',
         // 60px desktop → min ~27px, scales with 4.2vw
         width: 'clamp(1.7rem, 4.2vw, 3.75rem)',
@@ -392,7 +392,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'ltbl',
-        src: '/stickers/ltbl.png',
+        src: '/stickers/ltbl.webp',
         alt: 'Let There Be Lights Project',
         // 80px desktop → min ~36px, scales with 5.6vw
         width: 'clamp(2.25rem, 5.6vw, 5rem)',
@@ -412,7 +412,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'fishing',
-        src: '/stickers/fishing.png',
+        src: '/stickers/fishing.webp',
         alt: 'Fishing',
         // 90px desktop → min ~40px, scales with 6.3vw
         width: 'clamp(2.5rem, 6.3vw, 5.63rem)',
@@ -427,7 +427,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     // ── BOTTOM-RIGHT ──
     {
         id: 'github',
-        src: '/stickers/github.png',
+        src: '/stickers/github.webp',
         alt: 'GitHub',
         // 70px desktop → min ~31px, scales with 4.9vw
         width: 'clamp(1.95rem, 4.9vw, 4.38rem)',
@@ -445,7 +445,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'coconut',
-        src: '/stickers/coconut.png',
+        src: '/stickers/coconut.webp',
         alt: 'Coconut',
         // 70px desktop → min ~31px, scales with 4.9vw
         width: 'clamp(1.95rem, 4.9vw, 4.38rem)',
@@ -460,7 +460,7 @@ export const STICKER_CONFIG: StickerData[] = ([
 
     {
         id: 'crayfish',
-        src: '/stickers/crayfish.png?v=2',
+        src: '/stickers/crayfish.webp',
         alt: 'Crayfish',
         // 140px desktop → min ~63px, scales with 9.7vw
         width: 'clamp(3.9rem, 9.7vw, 8.75rem)',
@@ -474,7 +474,7 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
     {
         id: 'code',
-        src: '/stickers/code.png',
+        src: '/stickers/code.webp',
         alt: 'Code',
         // 65px desktop → min ~29px, scales with 4.5vw
         width: 'clamp(1.8rem, 4.5vw, 4.06rem)',

@@ -738,7 +738,6 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
                         draggable={false}
                         priority={priority}
-                        unoptimized={true}
                     />
                 </motion.div>
             </motion.div>
@@ -765,7 +764,6 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                             className="w-full h-auto object-contain select-none"
                             style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
                             draggable={false}
-                            unoptimized={true}
                         />
                     </div>
                 </div>,
