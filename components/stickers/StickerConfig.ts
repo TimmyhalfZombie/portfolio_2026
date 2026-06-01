@@ -34,7 +34,7 @@ export interface StickerData {
     width: string;
     /** Original width in pixels — used as intrinsic size hint for Next.js Image */
     widthPx: number;
-    /** CSS top position (use %) */
+    /** CSS top position — use calc(50% ± Xrem) for center-relative positioning */
     top: string;
     /** CSS left position (use % or calc()) */
     left: string;
@@ -54,6 +54,15 @@ export interface StickerData {
     tapEffect?: 'flyAround' | 'spotify' | 'bounce' | 'contact' | 'certificates' | 'shake' | 'rotate3d';
 }
 
+/*
+ * Sticker positions use calc(50% ± Xrem) for `top` so that vertical placement
+ * scales with viewport WIDTH (via the vw-based rem in globals.css), matching
+ * the card stack's scaling behavior. This keeps stickers aligned across all
+ * desktop resolutions and aspect ratios.
+ *
+ * Reference: designed at 1920×1080 where 1rem = 20px, viewport center = 540px.
+ * Formula: old top Y% → offset = (Y/100 × 1080 - 540) / 20 rem
+ */
 export const STICKER_CONFIG: StickerData[] = ([
     // ── HERO — Center Top ──
     {
@@ -63,7 +72,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 320px desktop → min ~144px, scales with 22vw
         width: 'clamp(9rem, 22vw, 20rem)',
         widthPx: 320,
-        top: '0%',
+        top: 'calc(50% - 24rem)',
         left: 'clamp(19%, 43vw, 50%)',
         rotate: 0,
         delay: 0,
@@ -80,7 +89,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 220px desktop → min ~99px, scales with 15vw
         width: 'clamp(6.2rem, 15vw, 13.75rem)',
         widthPx: 220,
-        top: '58%',
+        top: 'calc(50% + 4.32rem)',
         left: 'clamp(0.5%, 1vw, 1%)',
         rotate: -8,
         delay: 0.1,
@@ -93,7 +102,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 55px desktop → min ~25px, scales with 3.8vw
         width: 'clamp(1.55rem, 3.8vw, 3.44rem)',
         widthPx: 55,
-        top: '42%',
+        top: 'calc(50% - 4.32rem)',
         left: 'clamp(1%, 3vw, 3%)',
         rotate: 12,
         delay: 0.15,
@@ -113,7 +122,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 140px desktop → min ~63px, scales with 9.7vw
         width: 'clamp(3.9rem, 9.7vw, 8.75rem)',
         widthPx: 140,
-        top: '18.5%',
+        top: 'calc(50% - 17.01rem)',
         left: 'clamp(18%, 35vw, 35%)',
         rotate: 0,
         delay: 0.2,
@@ -140,7 +149,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 65px desktop → min ~29px, scales with 4.5vw
         width: 'clamp(1.8rem, 4.5vw, 4.06rem)',
         widthPx: 65,
-        top: '58%',
+        top: 'calc(50% + 4.32rem)',
         left: 'clamp(14%, 29vw, 29%)',
         rotate: -15,
         delay: 0.18,
@@ -160,7 +169,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 150px desktop → min ~68px, scales with 10.4vw
         width: 'clamp(4.2rem, 10.4vw, 9.38rem)',
         widthPx: 150,
-        top: '14%',
+        top: 'calc(50% - 19.44rem)',
         left: 'clamp(50%, 72vw, 72%)',
         rotate: 0,
         delay: 0.25,
@@ -174,7 +183,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 110px desktop → min ~50px, scales with 7.6vw
         width: 'clamp(3.1rem, 7.6vw, 6.88rem)',
         widthPx: 110,
-        top: '53%',
+        top: 'calc(50% + 1.62rem)',
         left: 'clamp(8%, 17vw, 17%)',
         rotate: -8,
         delay: 0.3,
@@ -197,7 +206,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 100px desktop → min ~45px, scales with 6.9vw
         width: 'clamp(2.8rem, 6.9vw, 6.25rem)',
         widthPx: 100,
-        top: '72%',
+        top: 'calc(50% + 11.88rem)',
         left: 'clamp(42%, 65vw, 65%)',
         rotate: 3,
         delay: 0.35,
@@ -211,7 +220,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 80px desktop → min ~36px, scales with 5.6vw
         width: 'clamp(2.25rem, 5.6vw, 5rem)',
         widthPx: 80,
-        top: '8%',
+        top: 'calc(50% - 22.68rem)',
         left: 'clamp(42%, 65vw, 65%)',
         rotate: -5,
         delay: 0.38,
@@ -232,7 +241,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 65px desktop → min ~29px, scales with 4.5vw
         width: 'clamp(1.8rem, 4.5vw, 4.06rem)',
         widthPx: 65,
-        top: '79%',
+        top: 'calc(50% + 15.66rem)',
         left: 'clamp(16%, 32vw, 32%)',
         rotate: 8,
         delay: 0.4,
@@ -255,7 +264,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 50px desktop → min ~22px, scales with 3.5vw
         width: 'clamp(1.4rem, 3.5vw, 3.13rem)',
         widthPx: 50,
-        top: '58%',
+        top: 'calc(50% + 4.32rem)',
         left: 'clamp(44%, 67vw, 67%)',
         rotate: -5,
         delay: 0.12,
@@ -269,7 +278,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 170px desktop → min ~77px, scales with 11.8vw
         width: 'clamp(4.8rem, 11.8vw, 10.63rem)',
         widthPx: 170,
-        top: '3%',
+        top: 'calc(50% - 22.38rem)',
         left: 'clamp(62%, 85vw, 85%)',
         rotate: 10,
         delay: 0.16,
@@ -284,7 +293,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 100px desktop → min ~45px, scales with 6.9vw
         width: 'clamp(2.8rem, 6.9vw, 6.25rem)',
         widthPx: 100,
-        top: '37%',
+        top: 'calc(50% - 7.02rem)',
         left: 'clamp(40%, 63.7vw, 63.7%)',
         rotate: 8,
         delay: 0.22,
@@ -298,7 +307,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 90px desktop → min ~40px, scales with 6.3vw
         width: 'clamp(2.5rem, 6.3vw, 5.63rem)',
         widthPx: 90,
-        top: '3%',
+        top: 'calc(50% - 22.38rem)',
         left: 'clamp(11%, 22vw, 22%)',
         rotate: -10,
         delay: 0.14,
@@ -319,7 +328,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 90px desktop → min ~40px, scales with 6.3vw
         width: 'clamp(2.9rem, 8.3vw, 6.88rem)',
         widthPx: 130,
-        top: '82%',
+        top: 'calc(50% + 14.28rem)',
         left: 'clamp(22%, 42vw, 42%)',
         rotate: -5,
         delay: 0.28,
@@ -336,7 +345,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 135px desktop → min ~61px, scales with 9.4vw
         width: 'clamp(3.8rem, 9.4vw, 8.44rem)',
         widthPx: 135,
-        top: '75%',
+        top: 'calc(50% + 13.5rem)',
         left: 'clamp(8%, 16vw, 16%)',
         rotate: 6,
         delay: 0.32,
@@ -367,7 +376,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 60px desktop → min ~27px, scales with 4.2vw
         width: 'clamp(1.7rem, 4.2vw, 3.75rem)',
         widthPx: 60,
-        top: '10%',
+        top: 'calc(50% - 21.6rem)',
         left: 'clamp(16%, 32vw, 32%)',
         rotate: 12,
         delay: 0.25,
@@ -385,7 +394,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 90px desktop → min ~40px, scales with 6.3vw
         width: 'clamp(2.5rem, 6.3vw, 5.63rem)',
         widthPx: 90,
-        top: '80%',
+        top: 'calc(50% + 16.2rem)',
         left: 'clamp(34%, 56vw, 56%)',
         rotate: -5,
         delay: 0.36,
@@ -400,7 +409,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 70px desktop → min ~31px, scales with 4.9vw
         width: 'clamp(1.95rem, 4.9vw, 4.38rem)',
         widthPx: 70,
-        top: '87%',
+        top: 'calc(50% + 16.98rem)',
         left: 'clamp(72%, 93vw, 93%)',
         rotate: -10,
         delay: 0.4,

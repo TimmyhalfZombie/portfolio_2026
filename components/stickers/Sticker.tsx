@@ -366,10 +366,21 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const popupTranslateX = `-${safeLeft}%`;
     const caretLeftPos = `${safeLeft}%`;
 
+    // Parse effective screen position from calc(50% ± Xrem) format.
+    // ~27rem from center ≈ edge of viewport, so offset/27 maps to 0-50% from center.
     let rawTop = 50;
     if (typeof top === 'string') {
-        const match = top.match(/(-?[\d.]+)%/);
-        if (match) rawTop = parseFloat(match[1]);
+        const calcMatch = top.match(/calc\(50%\s*([+-])\s*([\d.]+)rem\)/);
+        if (calcMatch) {
+            const sign = calcMatch[1] === '+' ? 1 : -1;
+            const remOffset = parseFloat(calcMatch[2]);
+            // Convert rem offset from center to approximate viewport %
+            // 27rem ≈ 50% of viewport height at 16:9
+            rawTop = 50 + sign * (remOffset / 27) * 50;
+        } else {
+            const match = top.match(/(-?[\d.]+)%/);
+            if (match) rawTop = parseFloat(match[1]);
+        }
     }
     // If the sticker is in the upper 30% of the screen, show the popup below it to avoid cutoff (unless overridden).
     const isPopupBelow = popup?.forceTop ? false : rawTop < 30;
