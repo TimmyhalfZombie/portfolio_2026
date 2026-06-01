@@ -113,7 +113,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 140px desktop → min ~63px, scales with 9.7vw
         width: 'clamp(3.9rem, 9.7vw, 8.75rem)',
         widthPx: 140,
-        top: '14%',
+        top: '18.5%',
         left: 'clamp(18%, 35vw, 35%)',
         rotate: 0,
         delay: 0.2,

@@ -669,7 +669,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         alt={alt}
                         width={widthPx}
                         height={widthPx}
-                        className="object-contain select-none"
+                        className="w-full h-auto object-contain select-none"
                         style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
                         draggable={false}
                         priority={priority}
@@ -697,7 +697,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                             alt={alt}
                             width={widthPx}
                             height={widthPx}
-                            className="object-contain select-none"
+                            className="w-full h-auto object-contain select-none"
                             style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
                             draggable={false}
                         />
