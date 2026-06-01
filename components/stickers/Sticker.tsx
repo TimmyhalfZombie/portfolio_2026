@@ -150,8 +150,17 @@ function animatePopupText(popupElement: HTMLElement) {
     });
 }
 
+let globalMaxZIndex = 100;
+
 export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const { src, alt, width, widthPx, top, left, rotate, delay, zIndex, priority, popup, tapEffect } = data;
+    const [localZIndex, setLocalZIndex] = useState(zIndex);
+
+    const bringToFront = () => {
+        globalMaxZIndex += 1;
+        setLocalZIndex(globalMaxZIndex);
+    };
+
     const [hasEntered, setHasEntered] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
@@ -161,6 +170,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
     const [isBouncing, setIsBouncing] = useState(false);
     const [isShaking, setIsShaking] = useState(false);
     const [isRotating3d, setIsRotating3d] = useState(false);
+    const [isDashing, setIsDashing] = useState(false);
+    const [isFishing, setIsFishing] = useState(false);
     const stackRef = useRef<HTMLDivElement>(null);
     const toggleRef = useRef<HTMLButtonElement>(null);
     const stackOpen = useRef(false);
@@ -312,6 +323,18 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                 setTimeout(() => setIsRotating3d(false), 10000); // 10 secs
             }
         }
+        else if (tapEffect === 'crayfish') {
+            if (!isDashing) {
+                setIsDashing(true);
+                setTimeout(() => setIsDashing(false), 1200); // 1.2s duration
+            }
+        }
+        else if (tapEffect === 'fishing') {
+            if (!isFishing) {
+                setIsFishing(true);
+                setTimeout(() => setIsFishing(false), 2000); // 2s cast + reel
+            }
+        }
         else if (tapEffect === 'contact') {
             setShowContactModal(true);
         }
@@ -383,7 +406,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
         }
     }
     // If the sticker is in the upper 30% of the screen, show the popup below it to avoid cutoff (unless overridden).
-    const isPopupBelow = popup?.forceTop ? false : rawTop < 30;
+    const isPopupBelow = popup?.forceBottom ? true : popup?.forceTop ? false : rawTop < 30;
 
 
 
@@ -395,7 +418,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                 style={{
                     top,
                     left,
-                    zIndex: isFlying ? 1 : showPopup ? 100 : zIndex,
+                    zIndex: isFlying ? 1 : showPopup ? Math.max(200, localZIndex + 10) : localZIndex,
                     width,
                     cursor: popup || tapEffect ? 'pointer' : 'grab',
                     willChange: 'transform, opacity',
@@ -406,50 +429,32 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     y: 0,
                     rotate
                 }}
-                animate={
-                    isBouncing
-                        ? {
-                            y: [0, -15, 0, -15, 0], // 2 lighter bounces
-                            scale: 1,
-                            opacity: 1,
-                            rotate,
-                        }
-                        : isShaking
-                            ? {
-                                x: [-2, 2], // extremely narrow shake
-                                scale: 1,
-                                opacity: 1,
-                                rotate,
-                            }
-                            : {
-                                opacity: hasEntered ? 1 : [0, 1, 1],
-                                scale: hasEntered ? 1 : [initialScale, 0.94, 1], // Very subtle, gentle soft shrink
-                                y: 0,
-                                x: 0,
-                                rotate,
-                            }
-                }
+                animate={{
+                    opacity: hasEntered ? 1 : [0, 1, 1],
+                    scale: hasEntered ? 1 : [initialScale, 0.94, 1],
+                    y: 0,
+                    x: 0,
+                    rotate,
+                }}
                 transition={
-                    isBouncing
-                        ? { y: { duration: 1.0, ease: 'easeOut' } }
-                        : isShaking
-                            ? { x: { duration: 0.12, repeat: Infinity, repeatType: 'reverse', ease: 'linear' } }
-                            : hasEntered
-                                ? { scale: { duration: 0.1 }, opacity: { duration: 0.1 }, x: { duration: 0.2 }, y: { duration: 0.2 } }
-                                : {
-                                    duration: 0.7, // Extracted duration to float gracefully over 700ms instead of slamming
-                                    delay: delay,
-                                    times: [0, 0.6, 1], // Extend the finishing phase proportionally
-                                    ease: [
-                                        [0.25, 1, 0.5, 1],    // Smoother, less abrupt ease out
-                                        [0.25, 1, 0.5, 1]     // Smooth organic expansion
-                                    ]
-                                }
+                    hasEntered
+                        ? { scale: { duration: 0.1 }, opacity: { duration: 0.1 }, x: { duration: 0.2 }, y: { duration: 0.2 } }
+                        : {
+                            duration: 0.7, // Extracted duration to float gracefully over 700ms instead of slamming
+                            delay: delay,
+                            times: [0, 0.6, 1], // Extend the finishing phase proportionally
+                            ease: [
+                                [0.25, 1, 0.5, 1],    // Smoother, less abrupt ease out
+                                [0.25, 1, 0.5, 1]     // Smooth organic expansion
+                            ]
+                        }
                 }
                 onAnimationComplete={() => setHasEntered(true)}
                 onClick={handleClick}
+                onPointerDown={bringToFront}
                 onDragStart={() => {
                     wasDragged.current = true;
+                    bringToFront();
                 }}
                 onDragEnd={() => {
                     setTimeout(() => {
@@ -457,7 +462,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     }, 100);
                 }}
 
-                whileDrag={{ zIndex: 70, cursor: 'grabbing' }}
+                whileDrag={{ scale: 0.92, cursor: 'grabbing' }}
+                whileTap={{ scale: 0.92 }}
                 drag
                 dragMomentum={false}
                 dragElastic={0.15}
@@ -467,7 +473,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     {showPopup && popup && (
                         <motion.div
                             key="sticker-popup"
-                            className={`absolute left-1/2 pointer-events-auto ${isPopupBelow ? 'top-full mt-3' : 'bottom-full mb-3'
+                            className={`absolute left-1/2 pointer-events-auto ${isPopupBelow ? 'top-full mt-5' : 'bottom-full mb-5'
                                 }`}
                             style={{
                                 x: popup.offsetX ? `calc(${popupTranslateX} + ${popup.offsetX / 16}rem)` : popupTranslateX,
@@ -476,17 +482,17 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                             }}
                             initial={{
                                 opacity: 0,
-                                y: isPopupBelow ? -((popup.offsetY || 0) + 6) : ((popup.offsetY || 0) + 6),
+                                y: isPopupBelow ? ((popup.offsetY || 0) + 6) : -((popup.offsetY || 0) + 6),
                                 scale: 0.92
                             }}
                             animate={{
                                 opacity: 1,
-                                y: isPopupBelow ? -(popup.offsetY || 0) : (popup.offsetY || 0),
+                                y: isPopupBelow ? (popup.offsetY || 0) : -(popup.offsetY || 0),
                                 scale: 1
                             }}
                             exit={{
                                 opacity: 0,
-                                y: isPopupBelow ? -((popup.offsetY || 0) + 6) : ((popup.offsetY || 0) + 6),
+                                y: isPopupBelow ? ((popup.offsetY || 0) + 6) : -((popup.offsetY || 0) + 6),
                                 scale: 0.92
                             }}
                             transition={{ duration: 0.15, ease: 'easeOut' }}
@@ -513,13 +519,13 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                         return (
                                             <div className="flex flex-col w-full text-left" style={{ gap: 'clamp(0.5rem, 0.8vw, 0.75rem)' }}>
                                                 <p className="font-bold text-white tracking-wide m-0" style={{ fontSize: 'clamp(0.72rem, 1.2vw, 0.95rem)' }}>{popup.title}</p>
-                                                <p className="text-white leading-relaxed m-0" style={{ fontSize: 'clamp(0.65rem, 1.05vw, 0.85rem)' }}>{displayText}</p>
+                                                <p className="text-white leading-relaxed m-0 whitespace-pre-wrap" style={{ fontSize: 'clamp(0.65rem, 1.05vw, 0.85rem)' }}>{displayText}</p>
 
                                                 {/* Stack pills container */}
                                                 {popup.stack && (
                                                     <div
-                                                        ref={stackRef}
-                                                        className="stack-wrap"
+                                                        ref={popup.stackAlwaysOpen ? undefined : stackRef}
+                                                        className={popup.stackAlwaysOpen ? "mt-4 opacity-100" : "stack-wrap"}
                                                     >
                                                         <div className="flex flex-wrap pt-1 pb-1" style={{ gap: 'clamp(0.25rem, 0.4vw, 0.375rem)' }}>
                                                             {popup.stack.map((item, i) => (
@@ -535,6 +541,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                     </div>
                                                 )}
 
+                                                {(popup.linkUrl || (popup.stack && !popup.stackAlwaysOpen)) && (
                                                 <div className="flex items-center justify-between mt-1 pt-2 border-t border-zinc-700/50">
                                                     {popup.linkUrl && popup.linkText ? (
                                                         <a
@@ -547,7 +554,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                             {popup.linkText}
                                                         </a>
                                                     ) : <span />}
-                                                    {popup.stack && (
+                                                    {popup.stack && !popup.stackAlwaysOpen && (
                                                         <button
                                                             ref={toggleRef}
                                                             onClick={(e) => {
@@ -605,6 +612,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                                                         </button>
                                                     )}
                                                 </div>
+                                                )}
                                             </div>
                                         );
                                     }
@@ -673,7 +681,53 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     ref={flyRef}
                     className="relative w-full h-full flex justify-center items-center"
                     style={{ opacity: isFlying ? 0 : 1 }}
-                    whileTap={{ scale: 0.92 }}
+                    animate={
+                        isBouncing
+                            ? {
+                                y: [0, -15, 0, -15, 0],
+                            }
+                            : isShaking
+                                ? {
+                                    x: [-5, 5],
+                                }
+                                : isDashing
+                                    ? {
+                                        x: [0, -100, 0],
+                                        y: [0, 40, 0],
+                                        scale: [1, 0.82, 1],
+                                        rotate: [0, -15, 0],
+                                    }
+                                    : isFishing
+                                        ? {
+                                            y: [0, -30, 0, -6, 0, -6, 0, -4, 0, -4, 0],
+                                            rotate: [0, 20, 0, -3, 3, -3, 3, -2, 2, 0, 0],
+                                        }
+                                        : {
+                                            x: 0,
+                                            y: 0,
+                                            scale: 1,
+                                            rotate: 0,
+                                        }
+                    }
+                    transition={
+                        isBouncing
+                            ? { y: { duration: 1.0, ease: 'easeOut' } }
+                            : isShaking
+                                ? { x: { duration: 0.12, repeat: Infinity, repeatType: 'reverse', ease: 'linear' } }
+                                : isDashing
+                                    ? {
+                                        x: { duration: 1.2, times: [0, 0.15, 1], ease: ["easeOut", "easeInOut"] },
+                                        y: { duration: 1.2, times: [0, 0.15, 1], ease: ["easeOut", "easeInOut"] },
+                                        scale: { duration: 1.2, times: [0, 0.15, 1], ease: ["easeOut", "easeInOut"] },
+                                        rotate: { duration: 1.2, times: [0, 0.15, 1], ease: ["easeOut", "easeInOut"] }
+                                      }
+                                    : isFishing
+                                        ? {
+                                            y: { duration: 2.0, times: [0, 0.12, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.93, 1], ease: "easeInOut" },
+                                            rotate: { duration: 2.0, times: [0, 0.12, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.93, 1], ease: "easeInOut" },
+                                          }
+                                        : { duration: 0.2 }
+                    }
                 >
                     <Image
                         src={src}
@@ -684,7 +738,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
                         draggable={false}
                         priority={priority}
-                        unoptimized={data.id === 'main-me'}
+                        unoptimized={true}
                     />
                 </motion.div>
             </motion.div>
@@ -711,6 +765,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                             className="w-full h-auto object-contain select-none"
                             style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
                             draggable={false}
+                            unoptimized={true}
                         />
                     </div>
                 </div>,

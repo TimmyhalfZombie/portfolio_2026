@@ -17,8 +17,12 @@ export interface StickerPopup {
     title?: string;
     /** Optional tech stack items, toggled by "stack +" button */
     stack?: string[];
+    /** If true, the tech stack pills start and stay fully open/visible without a toggle button */
+    stackAlwaysOpen?: boolean;
     /** If true, the popup will ALWAYS render above the sticker, ignoring upper-screen collision logic */
     forceTop?: boolean;
+    /** If true, the popup will ALWAYS render below the sticker */
+    forceBottom?: boolean;
     /** If true, the popup will NEVER automatically hide. */
     noAutoHide?: boolean;
 }
@@ -50,8 +54,7 @@ export interface StickerData {
     behindCards?: boolean;
     /** Optional popup tooltip shown on tap */
     popup?: StickerPopup;
-    /** Optional tap animation effect */
-    tapEffect?: 'flyAround' | 'spotify' | 'bounce' | 'contact' | 'certificates' | 'shake' | 'rotate3d';
+    tapEffect?: 'flyAround' | 'spotify' | 'bounce' | 'contact' | 'certificates' | 'shake' | 'rotate3d' | 'crayfish' | 'fishing';
 }
 
 /*
@@ -183,7 +186,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 110px desktop → min ~50px, scales with 7.6vw
         width: 'clamp(3.1rem, 7.6vw, 6.88rem)',
         widthPx: 110,
-        top: 'calc(50% + 1.62rem)',
+        top: 'calc(50% + 0.5rem)',
         left: 'clamp(8%, 17vw, 17%)',
         rotate: -8,
         delay: 0.3,
@@ -207,7 +210,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         width: 'clamp(2.8rem, 6.9vw, 6.25rem)',
         widthPx: 100,
         top: 'calc(50% + 11.88rem)',
-        left: 'clamp(42%, 65vw, 65%)',
+        left: 'clamp(48%, 71vw, 71%)',
         rotate: 3,
         delay: 0.35,
         zIndex: 14,
@@ -242,7 +245,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         width: 'clamp(1.8rem, 4.5vw, 4.06rem)',
         widthPx: 65,
         top: 'calc(50% + 15.66rem)',
-        left: 'clamp(16%, 32vw, 32%)',
+        left: 'clamp(18%, 33vw, 33%)',
         rotate: 8,
         delay: 0.4,
         zIndex: 12,
@@ -275,9 +278,9 @@ export const STICKER_CONFIG: StickerData[] = ([
         id: 'flag',
         src: '/stickers/flag.png',
         alt: 'Philippine Flag',
-        // 170px desktop → min ~77px, scales with 11.8vw
-        width: 'clamp(4.8rem, 11.8vw, 10.63rem)',
-        widthPx: 170,
+        // 125px desktop → min ~56px, scales with 8.7vw
+        width: 'clamp(3.5rem, 8.7vw, 7.8rem)',
+        widthPx: 125,
         top: 'calc(50% - 22.38rem)',
         left: 'clamp(62%, 85vw, 85%)',
         rotate: 10,
@@ -328,8 +331,8 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 90px desktop → min ~40px, scales with 6.3vw
         width: 'clamp(2.9rem, 8.3vw, 6.88rem)',
         widthPx: 130,
-        top: 'calc(50% + 14.28rem)',
-        left: 'clamp(22%, 42vw, 42%)',
+        top: 'calc(50% + 11rem)',
+        left: 'clamp(28%, 48vw, 48%)',
         rotate: -5,
         delay: 0.28,
         zIndex: 11,
@@ -345,8 +348,8 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 135px desktop → min ~61px, scales with 9.4vw
         width: 'clamp(3.8rem, 9.4vw, 8.44rem)',
         widthPx: 135,
-        top: 'calc(50% + 13.5rem)',
-        left: 'clamp(8%, 16vw, 16%)',
+        top: 'calc(50% + 11.5rem)',
+        left: 'clamp(8%, 15vw, 15%)',
         rotate: 6,
         delay: 0.32,
         zIndex: 13,
@@ -388,20 +391,58 @@ export const STICKER_CONFIG: StickerData[] = ([
         },
     },
     {
+        id: 'ltbl',
+        src: '/stickers/ltbl.png',
+        alt: 'Let There Be Lights Project',
+        // 80px desktop → min ~36px, scales with 5.6vw
+        width: 'clamp(2.25rem, 5.6vw, 5rem)',
+        widthPx: 80,
+        top: 'calc(50% + 16.2rem)',
+        left: 'clamp(40%, 62vw, 62%)',
+        rotate: -5,
+        delay: 0.36,
+        zIndex: 14,
+        popup: {
+            title: 'Let There Be Lights',
+            text: 'A digital art gallery and devotional platform featuring daily reflections and imagery.',
+            linkText: 'Visit Site',
+            linkUrl: 'https://let-there-be-lights.vercel.app/',
+            stack: ['React Native', 'Expo Go', 'Next.js', 'TypeScript', 'Supabase', 'Tailwind CSS', 'n8n'],
+        }
+    },
+    {
         id: 'fishing',
         src: '/stickers/fishing.png',
         alt: 'Fishing',
         // 90px desktop → min ~40px, scales with 6.3vw
         width: 'clamp(2.5rem, 6.3vw, 5.63rem)',
         widthPx: 90,
-        top: 'calc(50% + 16.2rem)',
-        left: 'clamp(34%, 56vw, 56%)',
-        rotate: -5,
-        delay: 0.36,
-        zIndex: 14,
-        tapEffect: 'bounce',
+        top: 'calc(50% - 21.5rem)',
+        left: 'clamp(1%, 6vw, 6%)',
+        rotate: -15,
+        delay: 0.38,
+        zIndex: 11,
+        tapEffect: 'fishing',
     },
     // ── BOTTOM-RIGHT ──
+    {
+        id: 'github',
+        src: '/stickers/github.png',
+        alt: 'GitHub',
+        // 70px desktop → min ~31px, scales with 4.9vw
+        width: 'clamp(1.95rem, 4.9vw, 4.38rem)',
+        widthPx: 70,
+        top: 'calc(50% + 12.5rem)',
+        left: 'clamp(66%, 84vw, 84%)',
+        rotate: 6,
+        delay: 0.37,
+        zIndex: 14,
+        popup: {
+            text: 'Check out my',
+            linkText: 'GitHub',
+            linkUrl: 'https://github.com/TimmyhalfZombie',
+        },
+    },
     {
         id: 'coconut',
         src: '/stickers/coconut.png',
@@ -410,13 +451,71 @@ export const STICKER_CONFIG: StickerData[] = ([
         width: 'clamp(1.95rem, 4.9vw, 4.38rem)',
         widthPx: 70,
         top: 'calc(50% + 16.98rem)',
-        left: 'clamp(72%, 93vw, 93%)',
+        left: 'clamp(72%, 92vw, 92%)',
         rotate: -10,
         delay: 0.4,
         zIndex: 15,
         tapEffect: 'shake',
     },
-] as StickerData[]).map((sticker, index) => ({
-    ...sticker,
-    delay: 0.15 + (index * 0.05) // Base delay of 0.15s, so the card (0 delay) appears first
-}));
+
+    {
+        id: 'crayfish',
+        src: '/stickers/crayfish.png?v=2',
+        alt: 'Crayfish',
+        // 140px desktop → min ~63px, scales with 9.7vw
+        width: 'clamp(3.9rem, 9.7vw, 8.75rem)',
+        widthPx: 140,
+        top: 'calc(50% + 5rem)',
+        left: 'clamp(68%, 88vw, 88%)',
+        rotate: -8,
+        delay: 0.41,
+        zIndex: 14,
+        tapEffect: 'crayfish',
+    },
+    {
+        id: 'code',
+        src: '/stickers/code.png',
+        alt: 'Code',
+        // 65px desktop → min ~29px, scales with 4.5vw
+        width: 'clamp(1.8rem, 4.5vw, 4.06rem)',
+        widthPx: 65,
+        top: 'calc(50% - 2rem)',
+        left: 'clamp(16%, 27vw, 27%)',
+        rotate: 10,
+        delay: 0.42,
+        zIndex: 13,
+        popup: {
+            title: 'Skill Set',
+            text: 'The tools I build with.',
+            maxWidth: 420,
+            forceBottom: true,
+            stackAlwaysOpen: true,
+            offsetX: -210,
+            offsetY: 24,
+            stack: [
+                'React / Next.js',
+                'TypeScript',
+                'React Native',
+                'Expo Go',
+                'Node.js / Express',
+                'Supabase',
+                'Firebase',
+                'MongoDB',
+                'n8n Automation',
+                'Tailwind CSS',
+                'Shadcn / Radix UI',
+                'Websockets / REST',
+                'IoT Pipeline',
+            ],
+        },
+    },
+] as StickerData[]).map((sticker, index) => {
+    const exclude = sticker.id === 'main-me' || sticker.id === 'cat';
+    return {
+        ...sticker,
+        delay: 0.15 + (index * 0.05), // Base delay of 0.15s, so the card (0 delay) appears first
+        // Slightly scale up all stickers except main-me and cat
+        width: exclude ? sticker.width : `calc(${sticker.width} * 1.12)`,
+        widthPx: exclude ? sticker.widthPx : Math.round(sticker.widthPx * 1.12),
+    };
+});
