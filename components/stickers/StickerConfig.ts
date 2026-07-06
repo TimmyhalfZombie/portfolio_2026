@@ -140,9 +140,9 @@ export const STICKER_CONFIG: StickerData[] = ([
             ],
             duration: 6000,
             maxWidth: 320,
-            offsetX: -80,
-            offsetY: 25,
-            forceTop: true,
+            offsetX: -180,
+            offsetY: -35,
+            forceBottom: true,
         }
     },
     {
@@ -462,9 +462,9 @@ export const STICKER_CONFIG: StickerData[] = ([
         id: 'crayfish',
         src: '/stickers/crayfish.webp',
         alt: 'Crayfish',
-        // 140px desktop → min ~63px, scales with 9.7vw
-        width: 'clamp(3.9rem, 9.7vw, 8.75rem)',
-        widthPx: 140,
+        // 110px desktop → min ~50px, scales with 7.6vw
+        width: 'clamp(3.1rem, 7.6vw, 6.88rem)',
+        widthPx: 110,
         top: 'calc(50% + 5rem)',
         left: 'clamp(68%, 88vw, 88%)',
         rotate: -8,
