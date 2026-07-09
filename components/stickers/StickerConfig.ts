@@ -149,9 +149,9 @@ export const STICKER_CONFIG: StickerData[] = ([
         id: 'linkedin',
         src: '/stickers/linkedin.webp',
         alt: 'LinkedIn',
-        // 65px desktop → min ~29px, scales with 4.5vw
-        width: 'clamp(1.8rem, 4.5vw, 4.06rem)',
-        widthPx: 65,
+        // 55px desktop → min ~25px, scales with 3.8vw
+        width: 'clamp(1.55rem, 3.8vw, 3.44rem)',
+        widthPx: 55,
         top: 'calc(50% + 4.32rem)',
         left: 'clamp(14%, 29vw, 29%)',
         rotate: -15,
@@ -198,6 +198,40 @@ export const STICKER_CONFIG: StickerData[] = ([
             linkUrl: "https://assumptioniloilo.vercel.app/",
             maxWidth: 320,
             stack: ['React', 'TypeScript', 'Firebase', 'Custom REST API'],
+        }
+    },
+    {
+        id: 'kajabi',
+        src: '/stickers/kajabi.webp',
+        alt: 'Kajabi',
+        // 80px desktop → min ~36px, scales with 5.6vw
+        width: 'clamp(2.25rem, 5.6vw, 5rem)',
+        widthPx: 80,
+        top: 'calc(50% - 10.5rem)',
+        left: 'clamp(4.5%, 11vw, 11%)',
+        rotate: 10,
+        delay: 0.32,
+        zIndex: 12,
+        popup: {
+            text: 'Experienced building online courses, membership sites, and sales funnels in Kajabi.',
+            maxWidth: 320,
+        }
+    },
+    {
+        id: 'squarespace',
+        src: '/stickers/squarespace.webp',
+        alt: 'Squarespace',
+        // 80px desktop → min ~36px, scales with 5.6vw
+        width: 'clamp(2.25rem, 5.6vw, 5rem)',
+        widthPx: 80,
+        top: 'calc(50% - 9.5rem)',
+        left: 'clamp(13.5%, 23.5vw, 23.5%)',
+        rotate: -8,
+        delay: 0.33,
+        zIndex: 13,
+        popup: {
+            text: 'Experienced building business websites, landing pages, and custom-styled sites in Squarespace.',
+            maxWidth: 320,
         }
     },
 
@@ -293,9 +327,9 @@ export const STICKER_CONFIG: StickerData[] = ([
         id: 'email',
         src: '/stickers/email.webp',
         alt: 'Email Contact',
-        // 100px desktop → min ~45px, scales with 6.9vw
-        width: 'clamp(2.8rem, 6.9vw, 6.25rem)',
-        widthPx: 100,
+        // 85px desktop → min ~38px, scales with 5.9vw
+        width: 'clamp(2.4rem, 5.9vw, 5.31rem)',
+        widthPx: 85,
         top: 'calc(50% - 7.02rem)',
         left: 'clamp(40%, 63.7vw, 63.7%)',
         rotate: 8,
@@ -310,8 +344,8 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 90px desktop → min ~40px, scales with 6.3vw
         width: 'clamp(2.5rem, 6.3vw, 5.63rem)',
         widthPx: 90,
-        top: 'calc(50% - 22.38rem)',
-        left: 'clamp(11%, 22vw, 22%)',
+        top: 'calc(50% - 20.5rem)',
+        left: 'clamp(9.5%, 19vw, 19%)',
         rotate: -10,
         delay: 0.14,
         zIndex: 12,
@@ -328,10 +362,10 @@ export const STICKER_CONFIG: StickerData[] = ([
         id: 'tool',
         src: '/stickers/tool.webp',
         alt: 'Dev Tools',
-        // 90px desktop → min ~40px, scales with 6.3vw
-        width: 'clamp(2.9rem, 8.3vw, 6.88rem)',
-        widthPx: 130,
-        top: 'calc(50% + 11rem)',
+        // 100px desktop → min ~45px, scales with 6.9vw
+        width: 'clamp(2.8rem, 6.9vw, 6.25rem)',
+        widthPx: 100,
+        top: 'calc(50% + 13rem)',
         left: 'clamp(28%, 48vw, 48%)',
         rotate: -5,
         delay: 0.28,
@@ -376,9 +410,9 @@ export const STICKER_CONFIG: StickerData[] = ([
         id: 'telegram',
         src: '/stickers/telegram.webp',
         alt: 'Telegram',
-        // 60px desktop → min ~27px, scales with 4.2vw
-        width: 'clamp(1.7rem, 4.2vw, 3.75rem)',
-        widthPx: 60,
+        // 50px desktop → min ~22px, scales with 3.5vw
+        width: 'clamp(1.4rem, 3.5vw, 3.13rem)',
+        widthPx: 50,
         top: 'calc(50% - 21.6rem)',
         left: 'clamp(16%, 32vw, 32%)',
         rotate: 12,
@@ -414,9 +448,9 @@ export const STICKER_CONFIG: StickerData[] = ([
         id: 'fishing',
         src: '/stickers/fishing.webp',
         alt: 'Fishing',
-        // 90px desktop → min ~40px, scales with 6.3vw
-        width: 'clamp(2.5rem, 6.3vw, 5.63rem)',
-        widthPx: 90,
+        // 75px desktop → min ~33px, scales with 5.2vw
+        width: 'clamp(2.1rem, 5.2vw, 4.69rem)',
+        widthPx: 75,
         top: 'calc(50% - 21.5rem)',
         left: 'clamp(1%, 6vw, 6%)',
         rotate: -15,
@@ -429,9 +463,9 @@ export const STICKER_CONFIG: StickerData[] = ([
         id: 'github',
         src: '/stickers/github.webp',
         alt: 'GitHub',
-        // 70px desktop → min ~31px, scales with 4.9vw
-        width: 'clamp(1.95rem, 4.9vw, 4.38rem)',
-        widthPx: 70,
+        // 60px desktop → min ~27px, scales with 4.2vw
+        width: 'clamp(1.7rem, 4.2vw, 3.75rem)',
+        widthPx: 60,
         top: 'calc(50% + 12.5rem)',
         left: 'clamp(66%, 84vw, 84%)',
         rotate: 6,
@@ -459,13 +493,48 @@ export const STICKER_CONFIG: StickerData[] = ([
     },
 
     {
+        id: 'wix',
+        src: '/stickers/wix.webp',
+        alt: 'Wix',
+        // 100px desktop → min ~45px, scales with 6.9vw
+        width: 'clamp(2.8rem, 6.9vw, 6.25rem)',
+        widthPx: 100,
+        top: 'calc(50% - 9rem)',
+        left: 'clamp(64%, 85vw, 85%)',
+        rotate: -5,
+        delay: 0.39,
+        zIndex: 12,
+        popup: {
+            text: 'Experienced building custom websites, landing pages, and client-facing sites in Wix.',
+            maxWidth: 320,
+        }
+    },
+    {
+        id: 'ghl',
+        src: '/stickers/ghl.webp',
+        alt: 'GoHighLevel',
+        // 100px desktop → min ~45px, scales with 6.9vw
+        width: 'clamp(2.8rem, 6.9vw, 6.25rem)',
+        widthPx: 100,
+        top: 'calc(50% + 0.5rem)',
+        left: 'clamp(56%, 76vw, 76%)',
+        rotate: 8,
+        delay: 0.4,
+        zIndex: 13,
+        popup: {
+            text: 'Experienced building marketing funnels, automation workflows, and CRM pipelines in GoHighLevel.',
+            maxWidth: 320,
+        }
+    },
+
+    {
         id: 'crayfish',
         src: '/stickers/crayfish.webp',
         alt: 'Crayfish',
         // 110px desktop → min ~50px, scales with 7.6vw
         width: 'clamp(3.1rem, 7.6vw, 6.88rem)',
         widthPx: 110,
-        top: 'calc(50% + 5rem)',
+        top: 'calc(50% + 3rem)',
         left: 'clamp(68%, 88vw, 88%)',
         rotate: -8,
         delay: 0.41,
@@ -476,22 +545,21 @@ export const STICKER_CONFIG: StickerData[] = ([
         id: 'code',
         src: '/stickers/code.webp',
         alt: 'Code',
-        // 65px desktop → min ~29px, scales with 4.5vw
-        width: 'clamp(1.8rem, 4.5vw, 4.06rem)',
-        widthPx: 65,
-        top: 'calc(50% - 2rem)',
-        left: 'clamp(16%, 27vw, 27%)',
+        // 60px desktop → min ~27px, scales with 4.2vw
+        width: 'clamp(1.7rem, 4.2vw, 3.75rem)',
+        widthPx: 60,
+        top: 'calc(55% - 8rem)',
+        left: 'clamp(52%, 74vw, 74%)',
         rotate: 10,
         delay: 0.42,
         zIndex: 13,
         popup: {
             title: 'Skill Set',
             text: 'The tools I build with.',
-            maxWidth: 420,
+            maxWidth: 360,
             forceBottom: true,
             stackAlwaysOpen: true,
-            offsetX: -210,
-            offsetY: 24,
+            offsetX: 50,
             stack: [
                 'React / Next.js',
                 'TypeScript',

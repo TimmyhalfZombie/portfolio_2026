@@ -22,28 +22,44 @@ const LOCAL_PLAYLIST = [
 ];
 
 /** Stickers rendered IN FRONT of the card stack (z-30) */
-export const StickerLayer: React.FC = () => {
+export const StickerLayer: React.FC<{ activeIndex?: number }> = ({ activeIndex = 0 }) => {
   const frontStickers = STICKER_CONFIG.filter((s) => !s.behindCards);
+  const isSecondCard = activeIndex === 1;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[30]">
-      {frontStickers.map((sticker) => (
-        <Sticker key={sticker.id} data={sticker} />
-      ))}
+      {frontStickers.map((sticker) => {
+        const isRetained = 
+          !!(sticker.popup?.title && sticker.popup?.linkUrl) || 
+          ['main-me', 'ghl', 'kajabi', 'squarespace', 'wix'].includes(sticker.id);
+        const shouldShrink = isSecondCard && !isRetained;
+        const shouldExpand = isSecondCard && isRetained && sticker.id !== 'main-me' && sticker.id !== 'cat';
+        return (
+          <Sticker key={sticker.id} data={sticker} isShrunk={shouldShrink} isExpanded={shouldExpand} />
+        );
+      })}
     </div>
   );
 };
 
 
 /** Stickers rendered BEHIND the card stack (z-5) — e.g. main-me */
-export const StickerLayerBehind: React.FC = () => {
+export const StickerLayerBehind: React.FC<{ activeIndex?: number }> = ({ activeIndex = 0 }) => {
   const behindStickers = STICKER_CONFIG.filter((s) => s.behindCards);
+  const isSecondCard = activeIndex === 1;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[5]">
-      {behindStickers.map((sticker) => (
-        <Sticker key={sticker.id} data={sticker} />
-      ))}
+      {behindStickers.map((sticker) => {
+        const isRetained = 
+          !!(sticker.popup?.title && sticker.popup?.linkUrl) || 
+          ['main-me', 'ghl', 'kajabi', 'squarespace', 'wix'].includes(sticker.id);
+        const shouldShrink = isSecondCard && !isRetained;
+        const shouldExpand = isSecondCard && isRetained && sticker.id !== 'main-me' && sticker.id !== 'cat';
+        return (
+          <Sticker key={sticker.id} data={sticker} isShrunk={shouldShrink} isExpanded={shouldExpand} />
+        );
+      })}
     </div>
   );
 };

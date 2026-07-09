@@ -11,6 +11,8 @@ import { CertificatesModal } from '../CertificatesModal';
 
 interface StickerProps {
     data: StickerData;
+    isShrunk?: boolean;
+    isExpanded?: boolean;
 }
 
 const LOCAL_PLAYLIST = [
@@ -152,9 +154,10 @@ function animatePopupText(popupElement: HTMLElement) {
 
 let globalMaxZIndex = 100;
 
-export const Sticker: React.FC<StickerProps> = ({ data }) => {
+export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpanded = false }) => {
     const { src, alt, width, widthPx, top, left, rotate, delay, zIndex, priority, popup, tapEffect } = data;
     const [localZIndex, setLocalZIndex] = useState(zIndex);
+    const targetScale = isShrunk ? 0.9 : isExpanded ? 1.18 : 1;
 
     const bringToFront = () => {
         globalMaxZIndex += 1;
@@ -289,6 +292,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
 
     // ── Click handler that works alongside drag ──
     const handleClick = () => {
+        if (isShrunk) return;
         if (wasDragged.current) return;
         playTickSound();
 
@@ -420,7 +424,7 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     left,
                     zIndex: isFlying ? 1 : showPopup ? Math.max(200, localZIndex + 10) : localZIndex,
                     width,
-                    cursor: popup || tapEffect ? 'pointer' : 'grab',
+                    cursor: isShrunk ? 'default' : (popup || tapEffect) ? 'pointer' : 'grab',
                     willChange: 'transform, opacity',
                 }}
                 initial={{
@@ -431,14 +435,25 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                 }}
                 animate={{
                     opacity: hasEntered ? 1 : [0, 1, 1],
-                    scale: hasEntered ? 1 : [initialScale, 0.94, 1],
+                    scale: hasEntered 
+                        ? targetScale 
+                        : [initialScale, 0.94, targetScale],
                     y: 0,
                     x: 0,
                     rotate,
                 }}
                 transition={
                     hasEntered
-                        ? { scale: { duration: 0.1 }, opacity: { duration: 0.1 }, x: { duration: 0.2 }, y: { duration: 0.2 } }
+                        ? { 
+                            scale: { 
+                                duration: 0.5, 
+                                ease: [0.34, 1.56, 0.64, 1], 
+                                delay: isExpanded ? (delay * 0.8) : 0 
+                            }, 
+                            opacity: { duration: 0.1 }, 
+                            x: { duration: 0.2 }, 
+                            y: { duration: 0.2 } 
+                          }
                         : {
                             duration: 0.7, // Extracted duration to float gracefully over 700ms instead of slamming
                             delay: delay,
@@ -462,8 +477,8 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                     }, 100);
                 }}
 
-                whileDrag={{ scale: 0.92, cursor: 'grabbing' }}
-                whileTap={{ scale: 0.92 }}
+                whileDrag={{ scale: targetScale * 0.92, cursor: 'grabbing' }}
+                whileTap={{ scale: targetScale * 0.92 }}
                 drag
                 dragMomentum={false}
                 dragElastic={0.15}
@@ -734,8 +749,12 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                         alt={alt}
                         width={widthPx}
                         height={widthPx}
-                        className="w-full h-auto object-contain select-none"
-                        style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
+                        className="w-full h-auto object-contain select-none transition-all duration-150"
+                        style={{
+                            filter: isShrunk
+                                ? 'grayscale(1) opacity(0.6) drop-shadow(0 4px 12px rgba(0,0,0,0.3))'
+                                : 'grayscale(0) opacity(1) drop-shadow(0 4px 12px rgba(0,0,0,0.5))',
+                        }}
                         draggable={false}
                         priority={priority}
                     />
@@ -761,8 +780,12 @@ export const Sticker: React.FC<StickerProps> = ({ data }) => {
                             alt={alt}
                             width={widthPx}
                             height={widthPx}
-                            className="w-full h-auto object-contain select-none"
-                            style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
+                            className="w-full h-auto object-contain select-none transition-all duration-150"
+                            style={{
+                                filter: isShrunk
+                                    ? 'grayscale(1) opacity(0.6) drop-shadow(0 4px 12px rgba(0,0,0,0.3))'
+                                    : 'grayscale(0) opacity(1) drop-shadow(0 4px 12px rgba(0,0,0,0.5))',
+                            }}
                             draggable={false}
                         />
                     </div>

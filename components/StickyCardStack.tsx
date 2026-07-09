@@ -31,9 +31,9 @@ const CARDS: CardData[] = [
         titleClass: "text-xl",
         description: "I've built with a mix of modern tools, enough to be useful on day one and grow from there.",
         bullets: [
-            "TypeScript, Next.js & React Native",
+            "TypeScript, React/React Native & No-Code Platforms",
             "Supabase, Firebase & MongoDB",
-            "REST, WebSockets & IoT Integration"
+            "REST, WebSockets & IoT Integration",
         ]
     },
     {
@@ -71,7 +71,7 @@ const CARDS: CardData[] = [
     }
 ];
 
-export const StickyCardStack = () => {
+export const StickyCardStack = ({ onActiveIndexChange }: { onActiveIndexChange?: (index: number) => void }) => {
     // Current active card index (0 to CARDS.length - 1)
     const [activeIndex, setActiveIndex] = useState(0);
 
@@ -88,7 +88,8 @@ export const StickyCardStack = () => {
     useEffect(() => {
         // Sync spring with state
         currentProgress.set(activeIndex);
-    }, [activeIndex, currentProgress]);
+        onActiveIndexChange?.(activeIndex);
+    }, [activeIndex, currentProgress, onActiveIndexChange]);
 
     const handleWheel = useCallback((e: WheelEvent) => {
         e.preventDefault();
@@ -124,7 +125,7 @@ export const StickyCardStack = () => {
         <div className="h-screen w-full relative overflow-hidden bg-transparent pointer-events-none">
             {/* Center the stack */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <motion.div 
+                <motion.div
                     className="relative w-[28.75rem] h-[20rem]"
                     initial={{ opacity: 0, scale: 1.4 }}
                     animate={{
