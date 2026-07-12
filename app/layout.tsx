@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://reilagrosa.vercel.app"),
   title: "Shemuel Rei",
   description: "BSIT student & developer looking for my first professional role. Backend focused, full-stack capable.",
   icons: {
@@ -22,11 +23,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Shemuel Rei",
     description: "BSIT student & developer looking for my first professional role. Backend focused, full-stack capable.",
-    url: "https://shemuelrei.vercel.app",
+    url: "https://reilagrosa.vercel.app",
     siteName: "Shemuel Rei — Portfolio",
     images: [
       {
-        url: "/OGmeta.png",
+        url: "https://reilagrosa.vercel.app/OGmeta.png",
         width: 1200,
         height: 630,
         alt: "Shemuel Rei Portfolio Preview",
