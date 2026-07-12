@@ -16,13 +16,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://reilagrosa.vercel.app"),
   title: "Shemuel Rei",
-  description: "BSIT student & developer looking for my first professional role. Backend focused, full-stack capable.",
+  description: "Full-stack developer building robust web and mobile applications, databases, automated workflows, and no-code solutions.",
   icons: {
     icon: "/favicon.png",
   },
   openGraph: {
     title: "Shemuel Rei",
-    description: "BSIT student & developer looking for my first professional role. Backend focused, full-stack capable.",
+    description: "Full-stack developer building robust web and mobile applications, databases, automated workflows, and no-code solutions.",
     url: "https://reilagrosa.vercel.app",
     siteName: "Shemuel Rei — Portfolio",
     images: [
