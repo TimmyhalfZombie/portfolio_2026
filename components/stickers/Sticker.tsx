@@ -157,7 +157,11 @@ let globalMaxZIndex = 100;
 export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpanded = false }) => {
     const { src, alt, width, widthPx, top, left, rotate, delay, zIndex, priority, popup, tapEffect } = data;
     const [localZIndex, setLocalZIndex] = useState(zIndex);
-    const targetScale = isShrunk ? 0.9 : isExpanded ? 1.18 : 1;
+    const targetScale = isShrunk 
+        ? 0.9 
+        : isExpanded 
+            ? (data.id === 'vipscale' ? 1.026 : 1.18) 
+            : 1;
 
     const bringToFront = () => {
         globalMaxZIndex += 1;

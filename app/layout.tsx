@@ -19,6 +19,21 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.png",
   },
+  openGraph: {
+    title: "Shemuel Rei",
+    description: "BSIT student & developer looking for my first professional role. Backend focused, full-stack capable.",
+    url: "https://shemuelrei.vercel.app",
+    siteName: "Shemuel Rei — Portfolio",
+    images: [
+      {
+        url: "/OGmeta.png",
+        width: 1200,
+        height: 630,
+        alt: "Shemuel Rei Portfolio Preview",
+      },
+    ],
+    type: "website",
+  },
 };
 
 /**

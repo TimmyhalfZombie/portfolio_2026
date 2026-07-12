@@ -207,7 +207,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 72px desktop → min ~32px, scales with 5vw
         width: 'clamp(2rem, 5vw, 4.5rem)',
         widthPx: 72,
-        top: 'calc(50% - 9rem)',
+        top: 'calc(50% - 7.2rem)',
         left: 'clamp(64%, 85vw, 85%)',
         rotate: 10,
         delay: 0.32,
@@ -341,9 +341,9 @@ export const STICKER_CONFIG: StickerData[] = ([
         id: 'vipscale',
         src: '/stickers/vipscale.webp',
         alt: 'VIPScale Project',
-        // 81px desktop → min ~36px, scales with 5.7vw
-        width: 'clamp(2.25rem, 5.7vw, 5.06rem)',
-        widthPx: 81,
+        // 93px desktop (increased by 15% from 81px)
+        width: 'clamp(2.59rem, 6.56vw, 5.82rem)',
+        widthPx: 93,
         top: 'calc(50% - 8.5rem)',
         left: 'clamp(6.5%, 13.5vw, 13.5%)',
         rotate: -10,
