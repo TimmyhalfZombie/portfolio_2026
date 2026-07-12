@@ -5,7 +5,13 @@ export async function sendContact(formData: FormData) {
   const email = formData.get('email');
   const message = formData.get('message');
 
-  const res = await fetch('http://localhost:5678/webhook/email', {
+  const webhookUrl = process.env.N8N_WEBHOOK_URL;
+
+  if (!webhookUrl) {
+    throw new Error('Contact form is not configured yet.');
+  }
+
+  const res = await fetch(webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, email, message }),

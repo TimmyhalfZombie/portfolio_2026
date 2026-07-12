@@ -436,8 +436,8 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                 animate={{
                     opacity: hasEntered ? 1 : [0, 1, 1],
                     scale: hasEntered 
-                        ? targetScale 
-                        : [initialScale, 0.94, targetScale],
+                        ? 1 
+                        : [initialScale, 0.94, 1],
                     y: 0,
                     x: 0,
                     rotate,
@@ -445,11 +445,6 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                 transition={
                     hasEntered
                         ? { 
-                            scale: { 
-                                duration: 0.5, 
-                                ease: [0.34, 1.56, 0.64, 1], 
-                                delay: isExpanded ? (delay * 0.8) : 0 
-                            }, 
                             opacity: { duration: 0.1 }, 
                             x: { duration: 0.2 }, 
                             y: { duration: 0.2 } 
@@ -477,8 +472,8 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                     }, 100);
                 }}
 
-                whileDrag={{ scale: targetScale * 0.92, cursor: 'grabbing' }}
-                whileTap={{ scale: targetScale * 0.92 }}
+                whileDrag={{ scale: 0.92, cursor: 'grabbing' }}
+                whileTap={{ scale: 0.92 }}
                 drag
                 dragMomentum={false}
                 dragElastic={0.15}
@@ -720,7 +715,7 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                                         : {
                                             x: 0,
                                             y: 0,
-                                            scale: 1,
+                                            scale: targetScale,
                                             rotate: 0,
                                         }
                     }
@@ -741,7 +736,15 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                                             y: { duration: 2.0, times: [0, 0.12, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.93, 1], ease: "easeInOut" },
                                             rotate: { duration: 2.0, times: [0, 0.12, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.93, 1], ease: "easeInOut" },
                                           }
-                                        : { duration: 0.2 }
+                                        : {
+                                            scale: {
+                                                duration: 0.5,
+                                                ease: [0.34, 1.56, 0.64, 1],
+                                                delay: isExpanded ? (delay * 0.8) : 0
+                                            },
+                                            x: { duration: 0.2 },
+                                            y: { duration: 0.2 }
+                                          }
                     }
                 >
                     <Image

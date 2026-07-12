@@ -46,11 +46,11 @@ export const ContactModal: React.FC<ContactModalProps> = ({ onClose }) => {
 
         startTransition(async () => {
             try {
-                const res = await sendContact(formData);
-                toast.success(res?.message || "Message sent! I'll get back to you soon.");
+                await sendContact(formData);
+                toast.success("Message sent! Check your spam folder if you don't see a confirmation email.", { duration: 5000 });
                 setTimeout(() => {
                     onClose();
-                }, 2000);
+                }, 3000);
             } catch (err: any) {
                 toast.error(err?.message || "Failed to send message. Please try again.");
             }

@@ -40,7 +40,7 @@ const CARDS: CardData[] = [
         id: 3,
         title: "How I got here.",
         titleClass: "text-xl",
-        description: "I took Bachelor of Science in Information Technology because it made sense. Somewhere along the way I actually started to love it.",
+        description: "I studied IT because it made sense, fell in love with it, and landed my first job before graduating.",
         bullets: [
             "School gave me the foundation",
             "Side projects kept me going",
@@ -51,22 +51,22 @@ const CARDS: CardData[] = [
         id: 4,
         title: "Where I thrive.",
         titleClass: "text-xl",
-        description: "I want a team I can learn from, one that moves fast but still cares about doing things right.",
+        description: "I move fast, care about doing things right, and get better with every project.",
         bullets: [
-            "I like getting real feedback",
-            "Mentorship I can actually learn from",
-            "Collaborative by default"
+            "I ship, then refine based on real feedback",
+            "I learn by building, not just reading",
+            "Collaborative by default, independent when needed"
         ]
     },
     {
         id: 5,
         title: "Let's build something.",
         titleClass: "text-xl",
-        description: "I'm just getting started but, I show up, I learn fast, and I don't leave things half-done.",
+        description: "I show up, learn fast, and don't leave things half-done.",
         bullets: [
-            "Open for junior roles",
-            "Local or remote works for me",
-            "I know what I don't know yet",
+            "Full-stack builds, code or no-code",
+            "Available for local or remote work",
+            "Always building, always leveling up"
         ]
     }
 ];
