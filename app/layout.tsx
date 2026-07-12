@@ -28,6 +28,7 @@ export const metadata: Metadata = {
     images: [
       {
         url: "https://reilagrosa.vercel.app/OGmeta.png",
+        secureUrl: "https://reilagrosa.vercel.app/OGmeta.png",
         width: 1200,
         height: 630,
         alt: "Shemuel Rei Portfolio Preview",
