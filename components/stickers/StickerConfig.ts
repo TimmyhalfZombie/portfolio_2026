@@ -262,8 +262,8 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 100px desktop → min ~45px, scales with 6.9vw
         width: 'clamp(2.8rem, 6.9vw, 6.25rem)',
         widthPx: 100,
-        top: 'calc(50% + 11.88rem)',
-        left: 'clamp(48%, 71vw, 71%)',
+        top: 'calc(50% + 10.5rem)',
+        left: 'clamp(49.5%, 72.5vw, 72.5%)',
         rotate: 3,
         delay: 0.35,
         zIndex: 14,
@@ -450,8 +450,8 @@ export const STICKER_CONFIG: StickerData[] = ([
         // 80px desktop → min ~36px, scales with 5.6vw
         width: 'clamp(2.25rem, 5.6vw, 5rem)',
         widthPx: 80,
-        top: 'calc(50% + 0.5rem)',
-        left: 'clamp(56%, 76vw, 76%)',
+        top: 'calc(50% + 1.2rem)',
+        left: 'clamp(57.5%, 77.5vw, 77.5%)',
         rotate: -5,
         delay: 0.36,
         zIndex: 14,
@@ -526,6 +526,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         popup: {
             text: 'Experienced building custom websites, landing pages, and client-facing sites in Wix.',
             maxWidth: 320,
+            offsetY: -35,
         }
     },
     {
@@ -543,6 +544,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         popup: {
             text: 'Experienced building marketing funnels, automation workflows, and CRM pipelines in GoHighLevel.',
             maxWidth: 320,
+            offsetY: -15,
         }
     },
 
