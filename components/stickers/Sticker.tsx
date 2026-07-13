@@ -476,8 +476,7 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                     }, 100);
                 }}
 
-                whileDrag={{ scale: 0.92, cursor: 'grabbing' }}
-                whileTap={{ scale: 0.92 }}
+                whileDrag={{ cursor: 'grabbing' }}
                 drag
                 dragMomentum={false}
                 dragElastic={0.15}
@@ -695,6 +694,8 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                     ref={flyRef}
                     className="relative w-full h-full flex justify-center items-center"
                     style={{ opacity: isFlying ? 0 : 1 }}
+                    whileDrag={{ scale: targetScale * 0.95 }}
+                    whileTap={{ scale: targetScale * 0.95 }}
                     animate={
                         isBouncing
                             ? {
