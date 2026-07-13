@@ -114,6 +114,7 @@ export const STICKER_CONFIG: StickerData[] = ([
             text: 'Download my',
             linkText: 'Resume',
             linkUrl: '/resume/Shemuel_Rei_Lagrosa_Resume.pdf',
+            forceTop: true,
         },
     },
     {
