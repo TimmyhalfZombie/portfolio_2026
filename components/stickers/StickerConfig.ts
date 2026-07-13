@@ -440,7 +440,7 @@ export const STICKER_CONFIG: StickerData[] = ([
         popup: {
             text: 'Message me on',
             linkText: 'Telegram',
-            linkUrl: 'https://telegram.org',
+            linkUrl: 'https://t.me/Ksgabbn',
         },
     },
     {
