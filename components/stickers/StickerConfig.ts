@@ -99,13 +99,31 @@ export const STICKER_CONFIG: StickerData[] = ([
         zIndex: 12,
     },
     {
+        id: 'resume',
+        src: '/stickers/resume.webp',
+        alt: 'Resume',
+        // 70px desktop → min ~31px, scales with 4.9vw
+        width: 'clamp(2rem, 5vw, 4.5rem)',
+        widthPx: 70,
+        top: 'calc(50% - 13rem)',
+        left: 'clamp(2%, 4.5vw, 4.5%)',
+        rotate: -8,
+        delay: 0.14,
+        zIndex: 15,
+        popup: {
+            text: 'Download my',
+            linkText: 'Resume',
+            linkUrl: '/resume/Shemuel_Rei_Lagrosa_Resume.pdf',
+        },
+    },
+    {
         id: 'fb',
         src: '/stickers/fb.webp',
         alt: 'Facebook',
         // 55px desktop → min ~25px, scales with 3.8vw
         width: 'clamp(1.55rem, 3.8vw, 3.44rem)',
         widthPx: 55,
-        top: 'calc(50% - 4.32rem)',
+        top: 'calc(50% - 2.5rem)',
         left: 'clamp(1%, 3vw, 3%)',
         rotate: 12,
         delay: 0.15,
