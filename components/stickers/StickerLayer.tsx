@@ -22,12 +22,19 @@ const LOCAL_PLAYLIST = [
 ];
 
 /** Stickers rendered IN FRONT of the card stack (z-30) */
-export const StickerLayer: React.FC<{ activeIndex?: number }> = ({ activeIndex = 0 }) => {
+export const StickerLayer: React.FC<{ 
+  activeIndex?: number;
+  isAnyActive?: boolean;
+  onActiveChange?: (active: boolean) => void;
+}> = ({ activeIndex = 0, isAnyActive = false, onActiveChange }) => {
   const frontStickers = STICKER_CONFIG.filter((s) => !s.behindCards);
   const isSecondCard = activeIndex === 1;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[30]">
+    <div 
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex: isAnyActive ? 250 : 8 }}
+    >
       {frontStickers.map((sticker) => {
         const isRetained = 
           !!(sticker.popup?.title && sticker.popup?.linkUrl) || 
@@ -35,7 +42,13 @@ export const StickerLayer: React.FC<{ activeIndex?: number }> = ({ activeIndex =
         const shouldShrink = isSecondCard && !isRetained;
         const shouldExpand = isSecondCard && isRetained && sticker.id !== 'main-me' && sticker.id !== 'cat';
         return (
-          <Sticker key={sticker.id} data={sticker} isShrunk={shouldShrink} isExpanded={shouldExpand} />
+          <Sticker 
+            key={sticker.id} 
+            data={sticker} 
+            isShrunk={shouldShrink} 
+            isExpanded={shouldExpand} 
+            onDragStateChange={onActiveChange}
+          />
         );
       })}
     </div>
@@ -44,12 +57,19 @@ export const StickerLayer: React.FC<{ activeIndex?: number }> = ({ activeIndex =
 
 
 /** Stickers rendered BEHIND the card stack (z-5) — e.g. main-me */
-export const StickerLayerBehind: React.FC<{ activeIndex?: number }> = ({ activeIndex = 0 }) => {
+export const StickerLayerBehind: React.FC<{ 
+  activeIndex?: number;
+  isMainMeActive?: boolean;
+  onMainMeActiveChange?: (active: boolean) => void;
+}> = ({ activeIndex = 0, isMainMeActive = false, onMainMeActiveChange }) => {
   const behindStickers = STICKER_CONFIG.filter((s) => s.behindCards);
   const isSecondCard = activeIndex === 1;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[5]">
+    <div 
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex: isMainMeActive ? 250 : 9 }}
+    >
       {behindStickers.map((sticker) => {
         const isRetained = 
           !!(sticker.popup?.title && sticker.popup?.linkUrl) || 
@@ -57,7 +77,13 @@ export const StickerLayerBehind: React.FC<{ activeIndex?: number }> = ({ activeI
         const shouldShrink = isSecondCard && !isRetained;
         const shouldExpand = isSecondCard && isRetained && sticker.id !== 'main-me' && sticker.id !== 'cat';
         return (
-          <Sticker key={sticker.id} data={sticker} isShrunk={shouldShrink} isExpanded={shouldExpand} />
+          <Sticker 
+            key={sticker.id} 
+            data={sticker} 
+            isShrunk={shouldShrink} 
+            isExpanded={shouldExpand} 
+            onDragStateChange={onMainMeActiveChange}
+          />
         );
       })}
     </div>

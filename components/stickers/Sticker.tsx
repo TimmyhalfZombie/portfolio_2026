@@ -13,6 +13,7 @@ interface StickerProps {
     data: StickerData;
     isShrunk?: boolean;
     isExpanded?: boolean;
+    onDragStateChange?: (isDragging: boolean) => void;
 }
 
 const LOCAL_PLAYLIST = [
@@ -154,7 +155,7 @@ function animatePopupText(popupElement: HTMLElement) {
 
 let globalMaxZIndex = 100;
 
-export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpanded = false }) => {
+export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpanded = false, onDragStateChange }) => {
     const { src, alt, width, widthPx, top, left, rotate, delay, zIndex, priority, popup, tapEffect } = data;
     const [localZIndex, setLocalZIndex] = useState(zIndex);
     const targetScale = isShrunk 
@@ -465,15 +466,25 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                 }
                 onAnimationComplete={() => setHasEntered(true)}
                 onClick={handleClick}
-                onPointerDown={bringToFront}
+                onPointerDown={() => {
+                    bringToFront();
+                    onDragStateChange?.(true);
+                }}
+                onPointerUp={() => {
+                    if (!wasDragged.current) {
+                        onDragStateChange?.(false);
+                    }
+                }}
                 onDragStart={() => {
                     wasDragged.current = true;
                     bringToFront();
+                    onDragStateChange?.(true);
                 }}
                 onDragEnd={() => {
                     setTimeout(() => {
                         wasDragged.current = false;
                     }, 100);
+                    onDragStateChange?.(false);
                 }}
 
                 whileDrag={{ cursor: 'grabbing' }}
