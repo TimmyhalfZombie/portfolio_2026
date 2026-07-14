@@ -586,6 +586,7 @@ export const STICKER_CONFIG: StickerData[] = ([
                 'TypeScript',
                 'React Native',
                 'Expo Go',
+                'Ionic React',
                 'Node.js / Express',
                 'Supabase',
                 'Firebase',
