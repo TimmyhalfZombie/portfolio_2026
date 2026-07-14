@@ -33,7 +33,7 @@ export const StickerLayer: React.FC<{
   return (
     <div 
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: isAnyActive ? 250 : 8 }}
+      style={{ zIndex: isAnyActive ? 250 : 30 }}
     >
       {frontStickers.map((sticker) => {
         const isRetained = 
@@ -68,7 +68,7 @@ export const StickerLayerBehind: React.FC<{
   return (
     <div 
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: isMainMeActive ? 250 : 9 }}
+      style={{ zIndex: isMainMeActive ? 250 : 5 }}
     >
       {behindStickers.map((sticker) => {
         const isRetained = 
