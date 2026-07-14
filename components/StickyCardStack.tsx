@@ -71,7 +71,7 @@ const CARDS: CardData[] = [
     }
 ];
 
-export const StickyCardStack = ({ onActiveIndexChange }: { onActiveIndexChange?: (index: number) => void }) => {
+export const StickyCardStack = ({ onActiveIndexChange, cardAreaRef }: { onActiveIndexChange?: (index: number) => void; cardAreaRef?: React.RefObject<HTMLDivElement | null> }) => {
     // Current active card index (0 to CARDS.length - 1)
     const [activeIndex, setActiveIndex] = useState(0);
 
@@ -126,6 +126,7 @@ export const StickyCardStack = ({ onActiveIndexChange }: { onActiveIndexChange?:
             {/* Center the stack */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <motion.div
+                    ref={cardAreaRef}
                     className="relative w-[28.75rem] h-[20rem]"
                     initial={{ opacity: 0, scale: 1.4 }}
                     animate={{

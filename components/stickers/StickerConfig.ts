@@ -160,8 +160,8 @@ export const STICKER_CONFIG: StickerData[] = ([
             duration: 6000,
             maxWidth: 320,
             offsetX: -180,
-            offsetY: -35,
-            forceBottom: true,
+            offsetY: -20,
+            forceTop: true,
         }
     },
     {

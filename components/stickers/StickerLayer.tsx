@@ -21,21 +21,21 @@ const LOCAL_PLAYLIST = [
   { src: '/mp3/The Story So Far Big Blind.mp3', name: 'The Story So Far - Big Blind' },
 ];
 
-/** Stickers rendered IN FRONT of the card stack (z-30) */
+/** All stickers EXCEPT main-me — rendered ABOVE the card stack (z-15) */
 export const StickerLayer: React.FC<{ 
   activeIndex?: number;
   isAnyActive?: boolean;
   onActiveChange?: (active: boolean) => void;
 }> = ({ activeIndex = 0, isAnyActive = false, onActiveChange }) => {
-  const frontStickers = STICKER_CONFIG.filter((s) => !s.behindCards);
+  const stickers = STICKER_CONFIG.filter((s) => s.id !== 'main-me');
   const isSecondCard = activeIndex === 1;
 
   return (
     <div 
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: isAnyActive ? 250 : 30 }}
+      style={{ zIndex: isAnyActive ? 250 : 15 }}
     >
-      {frontStickers.map((sticker) => {
+      {stickers.map((sticker) => {
         const isRetained = 
           !!(sticker.popup?.title && sticker.popup?.linkUrl) || 
           ['main-me', 'ghl', 'kajabi', 'squarespace', 'wix'].includes(sticker.id);
@@ -56,36 +56,34 @@ export const StickerLayer: React.FC<{
 };
 
 
-/** Stickers rendered BEHIND the card stack (z-5) — e.g. main-me */
-export const StickerLayerBehind: React.FC<{ 
+/**
+ * Main-me sticker — position-based z-index:
+ * - Overlapping card area → z-8 (behind cards)
+ * - Away from card area → z-250 (above everything including stickers)
+ * - During drag → z-250 (always on top while moving)
+ */
+export const StickerLayerMainMe: React.FC<{ 
   activeIndex?: number;
   isMainMeActive?: boolean;
   onMainMeActiveChange?: (active: boolean) => void;
-}> = ({ activeIndex = 0, isMainMeActive = false, onMainMeActiveChange }) => {
-  const behindStickers = STICKER_CONFIG.filter((s) => s.behindCards);
-  const isSecondCard = activeIndex === 1;
+  cardAreaRef?: React.RefObject<HTMLDivElement | null>;
+}> = ({ activeIndex = 0, isMainMeActive = false, onMainMeActiveChange, cardAreaRef }) => {
+  const mainMe = STICKER_CONFIG.find((s) => s.id === 'main-me');
+  if (!mainMe) return null;
 
   return (
     <div 
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: isMainMeActive ? 250 : 5 }}
+      style={{ zIndex: isMainMeActive ? 250 : 8 }}
     >
-      {behindStickers.map((sticker) => {
-        const isRetained = 
-          !!(sticker.popup?.title && sticker.popup?.linkUrl) || 
-          ['main-me', 'ghl', 'kajabi', 'squarespace', 'wix'].includes(sticker.id);
-        const shouldShrink = isSecondCard && !isRetained;
-        const shouldExpand = isSecondCard && isRetained && sticker.id !== 'main-me' && sticker.id !== 'cat';
-        return (
-          <Sticker 
-            key={sticker.id} 
-            data={sticker} 
-            isShrunk={shouldShrink} 
-            isExpanded={shouldExpand} 
-            onDragStateChange={onMainMeActiveChange}
-          />
-        );
-      })}
+      <Sticker 
+        key={mainMe.id} 
+        data={mainMe} 
+        isShrunk={false} 
+        isExpanded={false} 
+        onDragStateChange={onMainMeActiveChange}
+        cardAreaRef={cardAreaRef}
+      />
     </div>
   );
 };

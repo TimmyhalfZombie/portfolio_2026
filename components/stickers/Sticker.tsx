@@ -14,6 +14,8 @@ interface StickerProps {
     isShrunk?: boolean;
     isExpanded?: boolean;
     onDragStateChange?: (isDragging: boolean) => void;
+    /** Ref to the card area element — used by main-me to detect overlap for z-index logic */
+    cardAreaRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 const LOCAL_PLAYLIST = [
@@ -40,50 +42,57 @@ function playTickSound() {
         }
         if (!sharedAudioCtx) return;
 
-        if (sharedAudioCtx.state === 'suspended') {
-            sharedAudioCtx.resume().catch(() => { });
-        }
+        const playNodes = (ctx: AudioContext) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
 
-        const ctx = sharedAudioCtx;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
+            // Cycle through Tick -> Tack -> Tock
+            const seq = clickSoundCounter % 3;
+            clickSoundCounter++;
 
-        // Cycle through Tick -> Tack -> Tock
-        const seq = clickSoundCounter % 3;
-        clickSoundCounter++;
+            let startFreq = 1800;
+            let endFreq = 900;
 
-        let startFreq = 1800;
-        let endFreq = 900;
-
-        if (seq === 1) { // Tack
-            startFreq = 1400;
-            endFreq = 700;
-        } else if (seq === 2) { // Tock
-            startFreq = 1000;
-            endFreq = 900;
-        }
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + 0.02);
-
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.025);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.03);
-
-        if (suspendTimeoutId) {
-            window.clearTimeout(suspendTimeoutId);
-        }
-        suspendTimeoutId = window.setTimeout(() => {
-            if (sharedAudioCtx && sharedAudioCtx.state === 'running') {
-                sharedAudioCtx.suspend().catch(() => { });
+            if (seq === 1) { // Tack
+                startFreq = 1400;
+                endFreq = 700;
+            } else if (seq === 2) { // Tock
+                startFreq = 1000;
+                endFreq = 900;
             }
-        }, 100);
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + 0.02);
+
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.025);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.03);
+
+            if (suspendTimeoutId) {
+                window.clearTimeout(suspendTimeoutId);
+            }
+            suspendTimeoutId = window.setTimeout(() => {
+                if (sharedAudioCtx && sharedAudioCtx.state === 'running') {
+                    sharedAudioCtx.suspend().catch(() => { });
+                }
+            }, 10000);
+        };
+
+        if (sharedAudioCtx.state === 'suspended') {
+            sharedAudioCtx.resume()
+                .then(() => {
+                    if (sharedAudioCtx) playNodes(sharedAudioCtx);
+                })
+                .catch(() => { });
+        } else {
+            playNodes(sharedAudioCtx);
+        }
     } catch (e) {
         // Ignore audio API errors silently
     }
@@ -155,7 +164,7 @@ function animatePopupText(popupElement: HTMLElement) {
 
 let globalMaxZIndex = 100;
 
-export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpanded = false, onDragStateChange }) => {
+export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpanded = false, onDragStateChange, cardAreaRef }) => {
     const { src, alt, width, widthPx, top, left, rotate, delay, zIndex, priority, popup, tapEffect } = data;
     const [localZIndex, setLocalZIndex] = useState(zIndex);
     const targetScale = isShrunk 
@@ -472,7 +481,20 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                 }}
                 onPointerUp={() => {
                     if (!wasDragged.current) {
-                        onDragStateChange?.(false);
+                        // Click without drag: check if overlapping card area
+                        if (cardAreaRef?.current && stickerRef.current) {
+                            const stickerRect = stickerRef.current.getBoundingClientRect();
+                            const cardRect = cardAreaRef.current.getBoundingClientRect();
+                            const overlaps = !(
+                                stickerRect.right < cardRect.left ||
+                                stickerRect.left > cardRect.right ||
+                                stickerRect.bottom < cardRect.top ||
+                                stickerRect.top > cardRect.bottom
+                            );
+                            onDragStateChange?.(overlaps ? false : true);
+                        } else {
+                            onDragStateChange?.(false);
+                        }
                     }
                 }}
                 onDragStart={() => {
@@ -484,7 +506,21 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                     setTimeout(() => {
                         wasDragged.current = false;
                     }, 100);
-                    onDragStateChange?.(false);
+                    // Position-based check: is main-me overlapping the card area?
+                    if (cardAreaRef?.current && stickerRef.current) {
+                        const stickerRect = stickerRef.current.getBoundingClientRect();
+                        const cardRect = cardAreaRef.current.getBoundingClientRect();
+                        const overlaps = !(
+                            stickerRect.right < cardRect.left ||
+                            stickerRect.left > cardRect.right ||
+                            stickerRect.bottom < cardRect.top ||
+                            stickerRect.top > cardRect.bottom
+                        );
+                        // If overlapping card → behind card (false). If away → stay on top (true).
+                        onDragStateChange?.(overlaps ? false : true);
+                    } else {
+                        onDragStateChange?.(false);
+                    }
                 }}
 
                 whileDrag={{ cursor: 'grabbing' }}
