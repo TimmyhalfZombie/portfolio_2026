@@ -16,6 +16,8 @@ interface StickerProps {
     onDragStateChange?: (isDragging: boolean) => void;
     /** Ref to the card area element — used by main-me to detect overlap for z-index logic */
     cardAreaRef?: React.RefObject<HTMLDivElement | null>;
+    /** When true, disables ALL Framer Motion opacity/scale animations on the sticker (used in mobile story view) */
+    noAnimation?: boolean;
 }
 
 const LOCAL_PLAYLIST = [
@@ -164,10 +166,20 @@ function animatePopupText(popupElement: HTMLElement) {
 
 let globalMaxZIndex = 100;
 
-export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpanded = false, onDragStateChange, cardAreaRef }) => {
+export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpanded = false, onDragStateChange, cardAreaRef, noAnimation = false }) => {
     const { src, alt, width, widthPx, top, left, rotate, delay, zIndex, priority, popup, tapEffect } = data;
     const [localZIndex, setLocalZIndex] = useState(zIndex);
-    const targetScale = isShrunk 
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    const effectiveShrunk = isMobile ? false : isShrunk;
+    const targetScale = effectiveShrunk 
         ? 0.9 
         : isExpanded 
             ? (data.id === 'vipscale' ? 1.026 : 1.18) 
@@ -436,52 +448,75 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                 style={{
                     top,
                     left,
-                    zIndex: isFlying ? 1 : showPopup ? Math.max(200, localZIndex + 10) : localZIndex,
+                    zIndex: noAnimation ? (showPopup ? Math.max(200, localZIndex + 10) : localZIndex) : (isFlying ? 1 : showPopup ? Math.max(200, localZIndex + 10) : localZIndex),
                     width,
-                    cursor: isShrunk ? 'default' : (popup || tapEffect) ? 'pointer' : 'grab',
-                    willChange: 'transform, opacity',
+                    cursor: noAnimation ? ((popup || tapEffect) ? 'pointer' : 'default') : (effectiveShrunk ? 'default' : (popup || tapEffect) ? 'pointer' : 'grab'),
+                    willChange: noAnimation ? 'auto' : 'transform, opacity',
+                    opacity: noAnimation ? 1 : undefined,
+                    transform: noAnimation ? `rotate(${rotate}deg)` : undefined,
                 }}
-                initial={{
-                    opacity: 0,
-                    scale: initialScale,
-                    y: 0,
-                    rotate
-                }}
-                animate={{
-                    opacity: hasEntered ? 1 : [0, 1, 1],
-                    scale: hasEntered 
-                        ? 1 
-                        : [initialScale, 0.94, 1],
-                    y: 0,
-                    x: 0,
-                    rotate,
-                }}
-                transition={
-                    hasEntered
+                {...(noAnimation ? {} : {
+                    initial: {
+                        opacity: 0,
+                        scale: initialScale,
+                        y: 0,
+                        rotate
+                    },
+                    animate: {
+                        opacity: hasEntered ? 1 : [0, 1, 1],
+                        scale: hasEntered 
+                            ? 1 
+                            : [initialScale, 0.94, 1],
+                        y: 0,
+                        x: 0,
+                        rotate,
+                    },
+                    transition: hasEntered
                         ? { 
                             opacity: { duration: 0.1 }, 
                             x: { duration: 0.2 }, 
                             y: { duration: 0.2 } 
                           }
                         : {
-                            duration: 0.7, // Extracted duration to float gracefully over 700ms instead of slamming
+                            duration: 0.7,
                             delay: delay,
-                            times: [0, 0.6, 1], // Extend the finishing phase proportionally
+                            times: [0, 0.6, 1],
                             ease: [
-                                [0.25, 1, 0.5, 1],    // Smoother, less abrupt ease out
-                                [0.25, 1, 0.5, 1]     // Smooth organic expansion
+                                [0.25, 1, 0.5, 1],
+                                [0.25, 1, 0.5, 1]
                             ]
+                        },
+                    onAnimationComplete: () => setHasEntered(true),
+                    onPointerDown: () => {
+                        bringToFront();
+                        onDragStateChange?.(true);
+                    },
+                    onPointerUp: () => {
+                        if (!wasDragged.current) {
+                            if (cardAreaRef?.current && stickerRef.current) {
+                                const stickerRect = stickerRef.current.getBoundingClientRect();
+                                const cardRect = cardAreaRef.current.getBoundingClientRect();
+                                const overlaps = !(
+                                    stickerRect.right < cardRect.left ||
+                                    stickerRect.left > cardRect.right ||
+                                    stickerRect.bottom < cardRect.top ||
+                                    stickerRect.top > cardRect.bottom
+                                );
+                                onDragStateChange?.(overlaps ? false : true);
+                            } else {
+                                onDragStateChange?.(false);
+                            }
                         }
-                }
-                onAnimationComplete={() => setHasEntered(true)}
-                onClick={handleClick}
-                onPointerDown={() => {
-                    bringToFront();
-                    onDragStateChange?.(true);
-                }}
-                onPointerUp={() => {
-                    if (!wasDragged.current) {
-                        // Click without drag: check if overlapping card area
+                    },
+                    onDragStart: () => {
+                        wasDragged.current = true;
+                        bringToFront();
+                        onDragStateChange?.(true);
+                    },
+                    onDragEnd: () => {
+                        setTimeout(() => {
+                            wasDragged.current = false;
+                        }, 100);
                         if (cardAreaRef?.current && stickerRef.current) {
                             const stickerRect = stickerRef.current.getBoundingClientRect();
                             const cardRect = cardAreaRef.current.getBoundingClientRect();
@@ -495,36 +530,11 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                         } else {
                             onDragStateChange?.(false);
                         }
-                    }
-                }}
-                onDragStart={() => {
-                    wasDragged.current = true;
-                    bringToFront();
-                    onDragStateChange?.(true);
-                }}
-                onDragEnd={() => {
-                    setTimeout(() => {
-                        wasDragged.current = false;
-                    }, 100);
-                    // Position-based check: is main-me overlapping the card area?
-                    if (cardAreaRef?.current && stickerRef.current) {
-                        const stickerRect = stickerRef.current.getBoundingClientRect();
-                        const cardRect = cardAreaRef.current.getBoundingClientRect();
-                        const overlaps = !(
-                            stickerRect.right < cardRect.left ||
-                            stickerRect.left > cardRect.right ||
-                            stickerRect.bottom < cardRect.top ||
-                            stickerRect.top > cardRect.bottom
-                        );
-                        // If overlapping card → behind card (false). If away → stay on top (true).
-                        onDragStateChange?.(overlaps ? false : true);
-                    } else {
-                        onDragStateChange?.(false);
-                    }
-                }}
-
-                whileDrag={{ cursor: 'grabbing' }}
-                drag
+                    },
+                    whileDrag: isMobile ? undefined : { cursor: 'grabbing' },
+                })}
+                onClick={handleClick}
+                drag={noAnimation ? false : !isMobile}
                 dragMomentum={false}
                 dragElastic={0.15}
             >
@@ -804,11 +814,12 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                         alt={alt}
                         width={widthPx}
                         height={widthPx}
-                        className="w-full h-auto object-contain select-none transition-all duration-150"
+                        className="w-full h-auto object-contain select-none opacity-100"
                         style={{
-                            filter: isShrunk
+                            opacity: 1,
+                            filter: effectiveShrunk
                                 ? 'grayscale(1) opacity(0.6) drop-shadow(0 4px 12px rgba(0,0,0,0.3))'
-                                : 'grayscale(0) opacity(1) drop-shadow(0 4px 12px rgba(0,0,0,0.5))',
+                                : 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))',
                         }}
                         draggable={false}
                         priority={priority}

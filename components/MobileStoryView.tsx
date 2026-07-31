@@ -1,0 +1,438 @@
+'use client';
+
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CARDS, CardData, CardContent } from './StickyCardStack';
+import { Sticker } from './stickers';
+import { STICKER_CONFIG } from './stickers/StickerConfig';
+
+interface MobileStickerConfig {
+    id: string;
+    top: string;
+    left: string;
+    width: string;
+    rotate: number;
+}
+
+// Maps stickers to their thematic slides for mobile story view (with enlarged sizes)
+const MOBILE_STORY_STICKERS: Record<number, MobileStickerConfig[]> = {
+    0: [ // Slide 1: Welcome
+        { id: 'main-me', top: '-6.0rem', left: '20%', width: '13.5rem', rotate: 0 },
+        { id: 'cat', top: '-2.8rem', left: '0.5rem', width: '6.5rem', rotate: 0 },
+        { id: 'me', top: '95%', left: '-2.0rem', width: '9.8rem', rotate: -12 },
+        { id: 'flag', top: '-6.8rem', left: '60%', width: '7.8rem', rotate: 10 },
+        { id: 'resume', top: '80%', left: '72%', width: '5.2rem', rotate: -8 },
+        { id: 'palawan', top: '105%', left: '20%', width: '9.8rem', rotate: 6 }
+    ],
+    1: [ // Slide 2: Skills & Featured Projects (VIPScale, Kajabi, Squarespace, Wix, GHL, Assumption, PatchUp, Hive, LTBL)
+        { id: 'vipscale', top: '135%', left: '53%', width: '5.6rem', rotate: 5 },
+        { id: 'kajabi', top: '-2.8rem', left: '5%', width: '4.5rem', rotate: -8 },
+        { id: 'squarespace', top: '110%', left: '-2%', width: '4.8rem', rotate: -6 },
+        { id: 'wix', top: '-73%', left: '-3%', width: '4.8rem', rotate: -10 },
+        { id: 'ghl', top: '-32%', left: '67%', width: '4.8rem', rotate: 10 },
+        { id: 'assumption', top: '-80%', left: '56%', width: '5.2rem', rotate: 8 },
+        { id: 'patchup', top: '92%', left: '66%', width: '5.0rem', rotate: 6 },
+        { id: 'hive', top: '136%', left: '22%', width: '4.5rem', rotate: -8 },
+        { id: 'ltbl', top: '-4.8rem', left: '32%', width: '4.8rem', rotate: -5 }
+    ],
+    2: [ // Slide 3: Background & Interests
+        { id: 'coursera', top: '-1.9rem', left: '2.5rem', width: '4.5rem', rotate: -5 },
+        { id: 'crayfish', top: '-1.5rem', left: '58%', width: '7.5rem', rotate: -8 },
+        { id: 'fishing', top: '98%', left: '50%', width: '5.6rem', rotate: -15 }
+    ],
+    3: [ // Slide 4: Projects & Crafts
+        { id: 'fazzio', top: '125%', left: '60%', width: '7.0rem', rotate: 0 },
+        { id: 'tool', top: '-5.0rem', left: '7%', width: '7.0rem', rotate: -5 },
+        { id: 'github', top: '-18%', left: '70%', width: '5.0rem', rotate: 6 },
+        { id: 'punk', top: '93%', left: '2%', width: '6.5rem', rotate: 1 }
+    ],
+    4: [ // Slide 5: Connect & Contact
+        { id: 'email', top: '-2.8rem', left: '-1.0rem', width: '6.8rem', rotate: 8 },
+        { id: 'telegram', top: '-2.8rem', left: '40%', width: '4.2rem', rotate: 12 },
+        { id: 'fb', top: '88%', left: '70%', width: '4.8rem', rotate: 12 },
+        { id: 'linkedin', top: '98%', left: '5%', width: '4.8rem', rotate: -15 }
+    ]
+};
+
+const STORY_DURATION = 10000; // 10 seconds per card
+
+interface StoryComment {
+    id: string;
+    text: string;
+    timestamp: number;
+}
+
+export const MobileStoryView = () => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [progressKey, setProgressKey] = useState(0); // Forces CSS animation restart
+    const [isLiked, setIsLiked] = useState(false);
+    const [showShareMenu, setShowShareMenu] = useState(false);
+    const [comments, setComments] = useState<StoryComment[]>([]);
+    const [commentText, setCommentText] = useState('');
+    const [isInputActive, setIsInputActive] = useState(false);
+    const [showComments, setShowComments] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Load comments from localStorage on mount
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem('portfolio-story-comments');
+            if (saved) setComments(JSON.parse(saved));
+        } catch {}
+    }, []);
+
+    // Save comments to localStorage
+    const saveComments = useCallback((newComments: StoryComment[]) => {
+        setComments(newComments);
+        localStorage.setItem('portfolio-story-comments', JSON.stringify(newComments));
+    }, []);
+
+    const handleSendComment = useCallback(() => {
+        if (!commentText.trim()) return;
+        const newComment: StoryComment = {
+            id: Date.now().toString(),
+            text: commentText.trim(),
+            timestamp: Date.now(),
+        };
+        saveComments([...comments, newComment]);
+        setCommentText('');
+        setIsInputActive(false);
+        setShowComments(true);
+        inputRef.current?.blur();
+    }, [commentText, comments, saveComments]);
+
+    const handleDeleteComment = useCallback((id: string) => {
+        saveComments(comments.filter((c) => c.id !== id));
+    }, [comments, saveComments]);
+
+    const clearTimer = useCallback(() => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
+    }, []);
+
+    const startTimer = useCallback(() => {
+        clearTimer();
+        timerRef.current = setTimeout(() => {
+            setActiveIndex((prev) => {
+                if (prev < CARDS.length - 1) {
+                    return prev + 1;
+                }
+                return prev; // Stay on last card
+            });
+        }, STORY_DURATION);
+    }, [clearTimer]);
+
+    // Start/restart timer whenever activeIndex changes
+    useEffect(() => {
+        setProgressKey((k) => k + 1); // Restart CSS animation
+        // startTimer(); // TEMPORARILY DISABLED — re-enable after sticker edits
+        return () => clearTimer();
+    }, [activeIndex, startTimer, clearTimer]);
+
+    const goTo = useCallback((index: number) => {
+        setActiveIndex(Math.max(0, Math.min(CARDS.length - 1, index)));
+    }, []);
+
+    const handleScreenClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        // Stop navigation if tapping on active modals, interactive popups or buttons
+        const target = e.target as HTMLElement;
+        if (target.closest('.pointer-events-auto:not(.story-nav-area)')) {
+            return;
+        }
+
+        const x = e.clientX;
+        const width = window.innerWidth;
+        if (x < width * 0.3) {
+            goTo(activeIndex - 1);
+        } else {
+            goTo(activeIndex + 1);
+        }
+    };
+
+    const activeStickers = MOBILE_STORY_STICKERS[activeIndex] || [];
+
+    return (
+        <div
+            onClick={handleScreenClick}
+            className="story-nav-area fixed inset-0 w-full h-full bg-transparent flex flex-col items-center justify-center select-none overflow-hidden z-10"
+            style={{ touchAction: 'none' }}
+        >
+            {/* Top Progress Bars (Instagram style) */}
+            <div className="absolute top-6 left-4 right-4 flex gap-1.5 z-[210] pointer-events-none">
+                {CARDS.map((_, i) => (
+                    <div
+                        key={i}
+                        className="h-1 flex-1 bg-neutral-800 rounded-full overflow-hidden"
+                    >
+                        <div
+                            key={`${i}-${progressKey}`}
+                            className="h-full bg-white rounded-full"
+                            style={{
+                                width: i < activeIndex ? '100%' : i === activeIndex ? '0%' : '0%',
+                                ...(i === activeIndex ? {
+                                    animation: `storyProgress ${STORY_DURATION}ms linear forwards`,
+                                } : {}),
+                            }}
+                        />
+                    </div>
+                ))}
+            </div>
+
+            {/* Inline keyframes for progress bar animation */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @keyframes storyProgress {
+                    from { width: 0%; }
+                    to { width: 100%; }
+                }
+            `}} />
+
+            {/* Card Stack Content wrapper */}
+            <div className="relative w-[82vw] max-w-[320px] min-h-[220px]">
+                {/* Active Card Body — no animation, instant switch */}
+                <div
+                    className="w-full h-full bg-black rounded-2xl border-2 border-white p-5 sm:p-6 shadow-2xl flex flex-col justify-between font-mono relative z-10 pointer-events-auto"
+                >
+                    <CardContent card={CARDS[activeIndex]} isActive={true} />
+                </div>
+
+                {/* Overlapping active stickers for the current slide — renders as-is with no blinking */}
+                {activeStickers.map((stConfig) => {
+                    const stickerData = STICKER_CONFIG.find((s) => s.id === stConfig.id);
+                    if (!stickerData) return null;
+
+                    const mobData = {
+                        ...stickerData,
+                        top: stConfig.top,
+                        left: stConfig.left,
+                        width: stConfig.width,
+                        rotate: stConfig.rotate,
+                        delay: 0,
+                    };
+
+                    return (
+                        <div
+                            key={stConfig.id}
+                            className="absolute pointer-events-auto"
+                            style={{
+                                top: stConfig.top,
+                                left: stConfig.left,
+                                width: stConfig.width,
+                                zIndex: stConfig.id === 'main-me' ? 5 : 20, // Sit behind card if main-me, else on top
+                            }}
+                        >
+                            <Sticker data={mobData} noAnimation />
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* IG-style Comments Bottom Sheet */}
+            <AnimatePresence>
+                {showComments && (
+                    <>
+                        {/* Backdrop overlay */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 z-[300]"
+                            onClick={(e) => { e.stopPropagation(); setShowComments(false); }}
+                        />
+                        {/* Bottom Sheet */}
+                        <motion.div
+                            initial={{ y: '100%' }}
+                            animate={{ y: 0 }}
+                            exit={{ y: '100%' }}
+                            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                            className="fixed bottom-0 left-0 right-0 z-[310] rounded-t-3xl flex flex-col pointer-events-auto border-t border-white/10"
+                            style={{ height: '90vh', background: 'rgba(20, 20, 20, 0.75)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Handle bar */}
+                            <div className="flex justify-center pt-3 pb-1">
+                                <div className="w-10 h-1 rounded-full bg-white/20" />
+                            </div>
+
+                            {/* Header */}
+                            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                                <span className="text-white font-semibold text-base">Comments</span>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setShowComments(false); }}
+                                    className="w-8 h-8 flex items-center justify-center"
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18" />
+                                        <line x1="6" y1="6" x2="18" y2="18" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            {/* Comments List */}
+                            <div className="flex-1 overflow-y-auto px-4 py-3" style={{ scrollbarWidth: 'none' }}>
+                                {comments.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-20 text-neutral-400">
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                        </svg>
+                                        <p className="text-sm mt-3">No comments yet</p>
+                                        <p className="text-xs text-neutral-600 mt-1">Be the first to comment</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-4">
+                                        {comments.map((comment) => (
+                                            <div key={comment.id} className="flex items-start justify-between gap-3">
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-white text-sm leading-relaxed break-words">{comment.text}</p>
+                                                    <p className="text-neutral-500 text-[11px] mt-1">
+                                                        {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    className="w-7 h-7 flex items-center justify-center flex-shrink-0 rounded-full hover:bg-white/10 transition-colors"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteComment(comment.id);
+                                                    }}
+                                                    aria-label="Delete comment"
+                                                >
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737373" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <polyline points="3 6 5 6 21 6" />
+                                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Bottom Input inside the sheet */}
+                            <div className="border-t border-white/10 px-4 py-3 flex items-center gap-3" style={{ background: 'rgba(30, 30, 30, 0.6)' }}>
+                                <form
+                                    className="flex-1 flex items-center gap-2"
+                                    onSubmit={(e) => { e.preventDefault(); e.stopPropagation(); handleSendComment(); }}
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <input
+                                        ref={inputRef}
+                                        type="text"
+                                        value={commentText}
+                                        onChange={(e) => setCommentText(e.target.value)}
+                                        placeholder="Add a comment..."
+                                        className="flex-1 h-10 rounded-full border border-white/15 bg-white/10 px-4 text-white text-sm placeholder-neutral-400 outline-none focus:border-white/30 transition-colors"
+                                    />
+                                    <button
+                                        type="submit"
+                                        className={`text-sm font-semibold transition-colors ${
+                                            commentText.trim() ? 'text-blue-400' : 'text-blue-400/30'
+                                        }`}
+                                        disabled={!commentText.trim()}
+                                    >
+                                        Post
+                                    </button>
+                                </form>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* Instagram-style Reaction Bar */}
+            <div className="absolute bottom-4 left-3 right-3 flex items-center gap-3 z-[210] pointer-events-auto">
+                {/* Message Input Field — opens bottom sheet */}
+                <div
+                    className="flex-1 h-11 rounded-full border border-neutral-600 bg-transparent px-4 flex items-center cursor-text"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setShowComments(true);
+                        // Focus the input after the sheet animates in
+                        setTimeout(() => inputRef.current?.focus(), 400);
+                    }}
+                >
+                    <span className="text-neutral-500 text-sm font-light select-none">Send message...</span>
+                </div>
+
+                {/* Comment count badge on message field */}
+                {comments.length > 0 && (
+                    <span className="absolute -top-2 left-8 px-1.5 py-0.5 bg-red-500 rounded-full text-[9px] text-white font-bold pointer-events-none">
+                        {comments.length}
+                    </span>
+                )}
+
+                {/* Heart Button */}
+                <button
+                    className="w-11 h-11 flex items-center justify-center rounded-full"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsLiked(!isLiked);
+                        const btn = e.currentTarget;
+                        btn.style.transform = 'scale(1.4)';
+                        btn.style.transition = 'transform 0.15s ease';
+                        setTimeout(() => { btn.style.transform = 'scale(1)'; }, 150);
+                    }}
+                    aria-label="Like"
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill={isLiked ? '#ef4444' : 'none'} stroke={isLiked ? '#ef4444' : 'white'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                </button>
+
+                {/* Share / Send Button */}
+                <div className="relative">
+                    <button
+                        className="w-11 h-11 flex items-center justify-center rounded-full"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowShareMenu(!showShareMenu);
+                        }}
+                        aria-label="Share"
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13" />
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                    </button>
+
+                    {/* Share Menu Popup */}
+                    <AnimatePresence>
+                        {showShareMenu && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                transition={{ duration: 0.15 }}
+                                className="absolute bottom-14 right-0 bg-neutral-900 border border-neutral-700 rounded-2xl p-2 min-w-[180px] shadow-2xl"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {[
+                                    { label: 'Twitter / X', icon: '\ud835\udd4f', action: () => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent("Check out Shem's portfolio!")}`, '_blank') },
+                                    { label: 'Facebook', icon: 'f', action: () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank') },
+                                    { label: 'LinkedIn', icon: 'in', action: () => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank') },
+                                    { label: 'WhatsApp', icon: '\ud83d\udcac', action: () => window.open(`https://wa.me/?text=${encodeURIComponent("Check out Shem's portfolio! " + window.location.href)}`, '_blank') },
+                                    { label: 'Copy Link', icon: '\ud83d\udd17', action: () => { navigator.clipboard.writeText(window.location.href); setShowShareMenu(false); } },
+                                ].map((item) => (
+                                    <button
+                                        key={item.label}
+                                        className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-white hover:bg-neutral-800 transition-colors text-left"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            item.action();
+                                            if (item.label !== 'Copy Link') setShowShareMenu(false);
+                                        }}
+                                    >
+                                        <span className="w-6 text-center text-base">{item.icon}</span>
+                                        <span>{item.label}</span>
+                                    </button>
+                                ))}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            </div>
+        </div>
+    );
+};

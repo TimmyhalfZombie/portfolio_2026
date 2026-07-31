@@ -3,7 +3,19 @@
 /* 1.0417vw = 16px at 1536px viewport. All rem-based values scale proportionally. */
 @layer base {
   html {
-    font-size: 1.0417vw !important;
+    font-size: 3.1vw !important;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: 1.6vw !important;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 1.0417vw !important;
+    }
   }
 }
 

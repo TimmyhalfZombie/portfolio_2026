@@ -5,7 +5,7 @@ import { motion, useSpring, useTransform, MotionValue, useAnimate, stagger } fro
 import { ChevronUp, ChevronDown, Home } from 'lucide-react';
 
 // Sample data
-interface CardData {
+export interface CardData {
     id: number;
     title: string;
     titleClass?: string;
@@ -13,7 +13,7 @@ interface CardData {
     bullets: string[];
 }
 
-const CARDS: CardData[] = [
+export const CARDS: CardData[] = [
     {
         id: 1,
         title: "Hi, I'm Shem.",
@@ -84,6 +84,7 @@ export const StickyCardStack = ({ onActiveIndexChange, cardAreaRef }: { onActive
     });
 
     const scrollAccumulator = useRef(0);
+    const touchStart = useRef(0);
 
     useEffect(() => {
         // Sync spring with state
@@ -121,13 +122,41 @@ export const StickyCardStack = ({ onActiveIndexChange, cardAreaRef }: { onActive
         return () => window.removeEventListener('wheel', handleWheel);
     }, [handleWheel]);
 
+    useEffect(() => {
+        const handleTouchStart = (e: TouchEvent) => {
+            touchStart.current = e.touches[0].clientY;
+        };
+
+        const handleTouchEnd = (e: TouchEvent) => {
+            const touchEnd = e.changedTouches[0].clientY;
+            const diff = touchStart.current - touchEnd;
+            const threshold = 50; // swipe distance threshold in px
+
+            if (Math.abs(diff) >= threshold) {
+                const direction = diff > 0 ? 1 : -1;
+                setActiveIndex((prev) => {
+                    const next = prev + direction;
+                    return Math.max(0, Math.min(next, CARDS.length - 1));
+                });
+            }
+        };
+
+        window.addEventListener('touchstart', handleTouchStart, { passive: true });
+        window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+        return () => {
+            window.removeEventListener('touchstart', handleTouchStart);
+            window.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, []);
+
     return (
         <div className="h-screen w-full relative overflow-hidden bg-transparent pointer-events-none">
             {/* Center the stack */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <motion.div
                     ref={cardAreaRef}
-                    className="relative w-[28.75rem] h-[20rem]"
+                    className="relative w-[21rem] h-[26rem] md:w-[28.75rem] md:h-[20rem]"
                     initial={{ opacity: 0, scale: 1.4 }}
                     animate={{
                         opacity: [0, 1, 1],
@@ -212,7 +241,7 @@ interface CardProps {
     activeIndex: number;
 }
 
-const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) => {
+export const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) => {
     const [scope, animate] = useAnimate();
     const hasAnimated = useRef(false);
 
@@ -261,17 +290,17 @@ const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) 
     };
 
     return (
-        <div ref={scope} className="space-y-4">
-            <h3 className={`font-bold text-white ${card.titleClass || 'text-xl'}`}>
+        <div ref={scope} className="space-y-3 tracking-[-0.03em]">
+            <h3 className={`font-bold text-white tracking-[-0.03em] ${card.titleClass || 'text-xl'}`}>
                 {splitText(card.title)}
             </h3>
-            <p className="text-[0.9375rem] text-white font-medium">
+            <p className="text-[0.875rem] sm:text-[0.9375rem] text-white font-medium tracking-[-0.025em] leading-snug">
                 {splitText(card.description)}
             </p>
-            <div className="space-y-2 text-[0.9375rem] text-white">
+            <div className="space-y-2 pt-2 text-[0.875rem] sm:text-[0.9375rem] text-white tracking-[-0.025em] leading-snug">
                 {card.bullets.map((bullet, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                        <span className="word-reveal opacity-0 text-white mt-[2px]" style={{ transform: 'scale(0.6)', transformOrigin: 'center bottom' }}>-</span>
+                    <div key={i} className="flex items-start gap-1.5">
+                        <span className="word-reveal opacity-0 text-white mt-[1px]" style={{ transform: 'scale(0.6)', transformOrigin: 'center bottom' }}>-</span>
                         <div className="flex-1">
                             {splitText(bullet)}
                         </div>
