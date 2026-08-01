@@ -172,10 +172,11 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
+        const mql = window.matchMedia('(orientation: portrait) and (max-width: 1024px)');
+        const update = () => setIsMobile(mql.matches);
+        update();
+        mql.addEventListener('change', update);
+        return () => mql.removeEventListener('change', update);
     }, []);
 
     const effectiveShrunk = isMobile ? false : isShrunk;
@@ -321,6 +322,7 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
         if (isShrunk) return;
         if (wasDragged.current) return;
         playTickSound();
+        bringToFront();
 
         if (popup) {
             if (Array.isArray(popup.text) && popup.text.length > 1) {
@@ -436,7 +438,13 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
         }
     }
     // If the sticker is in the upper 30% of the screen, show the popup below it to avoid cutoff (unless overridden).
-    const isPopupBelow = popup?.forceBottom ? true : popup?.forceTop ? false : rawTop < 30;
+    const isPopupBelow = (isMobile || noAnimation)
+        ? (popup?.mobileForceBottom ? true : (popup?.mobileForceTop ? false : (popup?.forceBottom ? true : (popup?.forceTop ? false : rawTop < 30))))
+        : (popup?.forceBottom ? true : (popup?.forceTop ? false : rawTop < 30));
+
+    const effectiveOffsetX = popup ? ((isMobile || noAnimation)
+        ? (popup.mobileOffsetX !== undefined ? popup.mobileOffsetX : 0)
+        : (popup.offsetX || 0)) : 0;
 
 
 
@@ -448,7 +456,7 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                 style={{
                     top,
                     left,
-                    zIndex: noAnimation ? (showPopup ? Math.max(200, localZIndex + 10) : localZIndex) : (isFlying ? 1 : showPopup ? Math.max(200, localZIndex + 10) : localZIndex),
+                    zIndex: showPopup ? 9999 : (noAnimation ? localZIndex : (isFlying ? 1 : localZIndex)),
                     width,
                     cursor: noAnimation ? ((popup || tapEffect) ? 'pointer' : 'default') : (effectiveShrunk ? 'default' : (popup || tapEffect) ? 'pointer' : 'grab'),
                     willChange: noAnimation ? 'auto' : 'transform, opacity',
@@ -546,7 +554,7 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                             className={`absolute left-1/2 pointer-events-auto ${isPopupBelow ? 'top-full mt-5' : 'bottom-full mb-5'
                                 }`}
                             style={{
-                                x: popup.offsetX ? `calc(${popupTranslateX} + ${popup.offsetX / 16}rem)` : popupTranslateX,
+                                x: effectiveOffsetX ? `calc(${popupTranslateX} + ${effectiveOffsetX / 16}rem)` : popupTranslateX,
                                 rotate: -rotate,
                                 transformOrigin: `${caretLeftPos} ${isPopupBelow ? '0%' : '100%'}`
                             }}
@@ -598,14 +606,17 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                                                         className={popup.stackAlwaysOpen ? "mt-4 opacity-100" : "stack-wrap"}
                                                     >
                                                         <div className="flex flex-wrap pt-1 pb-1" style={{ gap: 'clamp(0.25rem, 0.4vw, 0.375rem)' }}>
-                                                            {popup.stack.map((item, i) => (
-                                                                <div
-                                                                    key={i}
-                                                                    className="pill whitespace-nowrap text-emerald-100/90 bg-emerald-500/10 border border-emerald-500/30 rounded-full inline-block"
-                                                                    style={{ fontSize: 'clamp(0.55rem, 0.9vw, 0.75rem)', padding: 'clamp(0.1rem, 0.2vw, 0.125rem) clamp(0.4rem, 0.7vw, 0.75rem)' }}
+                                                            {popup.stack.map((item, idx) => (
+                                                                <span
+                                                                    key={idx}
+                                                                    className="pill rounded-md bg-white/10 text-neutral-300 font-mono tracking-wider transition-colors hover:bg-white/20 uppercase"
+                                                                    style={{
+                                                                        padding: 'clamp(0.125rem, 0.2vw, 0.25rem) clamp(0.375rem, 0.6vw, 0.5rem)',
+                                                                        fontSize: 'clamp(0.55rem, 0.85vw, 0.7rem)'
+                                                                    }}
                                                                 >
                                                                     {item}
-                                                                </div>
+                                                                </span>
                                                             ))}
                                                         </div>
                                                     </div>
@@ -730,7 +741,7 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                                     style={{
                                         width: 'clamp(0.625rem, 1vw, 0.875rem)',
                                         height: 'clamp(0.625rem, 1vw, 0.875rem)',
-                                        left: popup.offsetX ? `calc(${caretLeftPos} - ${popup.offsetX / 16}rem)` : caretLeftPos,
+                                        left: effectiveOffsetX ? `calc(${caretLeftPos} - ${effectiveOffsetX / 16}rem)` : caretLeftPos,
                                         [isPopupBelow ? 'top' : 'bottom']: '-0.406rem',
                                         transform: 'translateX(-50%) rotate(45deg)',
                                         borderRight: isPopupBelow ? 'none' : '2px solid white',

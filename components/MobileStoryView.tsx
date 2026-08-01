@@ -17,41 +17,84 @@ interface MobileStickerConfig {
 // Maps stickers to their thematic slides for mobile story view (with enlarged sizes)
 const MOBILE_STORY_STICKERS: Record<number, MobileStickerConfig[]> = {
     0: [ // Slide 1: Welcome
-        { id: 'main-me', top: '-6.0rem', left: '20%', width: '13.5rem', rotate: 0 },
-        { id: 'cat', top: '-2.8rem', left: '0.5rem', width: '6.5rem', rotate: 0 },
-        { id: 'me', top: '95%', left: '-2.0rem', width: '9.8rem', rotate: -12 },
-        { id: 'flag', top: '-6.8rem', left: '60%', width: '7.8rem', rotate: 10 },
-        { id: 'resume', top: '80%', left: '72%', width: '5.2rem', rotate: -8 },
-        { id: 'palawan', top: '105%', left: '20%', width: '9.8rem', rotate: 6 }
+        { id: 'main-me', top: '-47%', left: '27%', width: '13.5rem', rotate: 0 },
+        { id: 'cat', top: '-24%', left: '2%', width: '6.5rem', rotate: 0 },
+        { id: 'me', top: '95%', left: '-4%', width: '10.5rem', rotate: -12 },
+        { id: 'flag', top: '-48%', left: '69%', width: '7.8rem', rotate: 10 },
+        { id: 'resume', top: '87%', left: '72%', width: '5.2rem', rotate: -8 },
+        { id: 'palawan', top: '105%', left: '30%', width: '9.8rem', rotate: 6 }
     ],
     1: [ // Slide 2: Skills & Featured Projects (VIPScale, Kajabi, Squarespace, Wix, GHL, Assumption, PatchUp, Hive, LTBL)
-        { id: 'vipscale', top: '135%', left: '53%', width: '5.6rem', rotate: 5 },
-        { id: 'kajabi', top: '-2.8rem', left: '5%', width: '4.5rem', rotate: -8 },
-        { id: 'squarespace', top: '110%', left: '-2%', width: '4.8rem', rotate: -6 },
-        { id: 'wix', top: '-73%', left: '-3%', width: '4.8rem', rotate: -10 },
-        { id: 'ghl', top: '-32%', left: '67%', width: '4.8rem', rotate: 10 },
-        { id: 'assumption', top: '-80%', left: '56%', width: '5.2rem', rotate: 8 },
+        { id: 'vipscale', top: '119%', left: '48%', width: '5.6rem', rotate: 5 },
+        { id: 'kajabi', top: '-15%', left: '5%', width: '4.5rem', rotate: -8 },
+        { id: 'squarespace', top: '120%', left: '2%', width: '4.8rem', rotate: -6 },
+        { id: 'wix', top: '-53%', left: '13%', width: '5.8rem', rotate: -10 },
+        { id: 'ghl', top: '-35%', left: '62%', width: '6.8rem', rotate: 10 },
+        { id: 'assumption', top: '-50%', left: '50%', width: '5.2rem', rotate: 8 },
         { id: 'patchup', top: '92%', left: '66%', width: '5.0rem', rotate: 6 },
-        { id: 'hive', top: '136%', left: '22%', width: '4.5rem', rotate: -8 },
-        { id: 'ltbl', top: '-4.8rem', left: '32%', width: '4.8rem', rotate: -5 }
+        { id: 'hive', top: '96%', left: '20%', width: '4.5rem', rotate: -8 },
+        { id: 'ltbl', top: '-25%', left: '32%', width: '6.8rem', rotate: -5 }
     ],
     2: [ // Slide 3: Background & Interests
-        { id: 'coursera', top: '-1.9rem', left: '2.5rem', width: '4.5rem', rotate: -5 },
-        { id: 'crayfish', top: '-1.5rem', left: '58%', width: '7.5rem', rotate: -8 },
+        { id: 'coursera', top: '-18%', left: '8%', width: '4.5rem', rotate: -5 },
+        { id: 'crayfish', top: '-36%', left: '58%', width: '7.5rem', rotate: -8 },
         { id: 'fishing', top: '98%', left: '50%', width: '5.6rem', rotate: -15 }
     ],
     3: [ // Slide 4: Projects & Crafts
-        { id: 'fazzio', top: '125%', left: '60%', width: '7.0rem', rotate: 0 },
-        { id: 'tool', top: '-5.0rem', left: '7%', width: '7.0rem', rotate: -5 },
-        { id: 'github', top: '-18%', left: '70%', width: '5.0rem', rotate: 6 },
+        { id: 'fazzio', top: '103%', left: '60%', width: '9.0rem', rotate: 0 },
+        { id: 'tool', top: '-23%', left: '7%', width: '7.0rem', rotate: -5 },
+        { id: 'github', top: '-15%', left: '70%', width: '5.0rem', rotate: 6 },
         { id: 'punk', top: '93%', left: '2%', width: '6.5rem', rotate: 1 }
     ],
     4: [ // Slide 5: Connect & Contact
-        { id: 'email', top: '-2.8rem', left: '-1.0rem', width: '6.8rem', rotate: 8 },
-        { id: 'telegram', top: '-2.8rem', left: '40%', width: '4.2rem', rotate: 12 },
-        { id: 'fb', top: '88%', left: '70%', width: '4.8rem', rotate: 12 },
+        { id: 'email', top: '-27%', left: '4%', width: '6.8rem', rotate: 8 },
+        { id: 'telegram', top: '-19%', left: '60%', width: '4.2rem', rotate: 12 },
+        { id: 'fb', top: '108%', left: '70%', width: '4.8rem', rotate: 12 },
         { id: 'linkedin', top: '98%', left: '5%', width: '4.8rem', rotate: -15 }
     ]
+};
+
+// ─── TABLET PORTRAIT OVERRIDES ───
+// Only list stickers that need different positioning/sizing on tablet portrait.
+// Any sticker NOT listed here will fall back to its MOBILE_STORY_STICKERS values.
+// Adjust these values independently without touching mobile or desktop.
+const TABLET_STORY_STICKERS: Record<number, Partial<Record<string, Partial<MobileStickerConfig>>>> = {
+    0: { // Slide 1: Welcome
+        'main-me': { top: 'calc(-65% - 3vh)', width: '13rem' },
+        'cat': { top: 'calc(-38% - 2vh)', width: '7.5rem' },
+        'me': { top: 'calc(100% + 3vh)', left: '-2%', width: '9rem' },
+        'flag': { top: 'calc(-68% - 3vh)', left: '75%', width: '6rem' },
+        'resume': { top: 'calc(105% + 2vh)', left: '72%', width: '6rem' },
+        'palawan': { top: 'calc(115% + 4vh)', left: '25%', width: '9rem' },
+    },
+    1: { // Slide 2: Skills & Featured Projects
+        'vipscale': { top: 'calc(135% + 4vh)', left: '44%', width: '4.5rem' },
+        'kajabi': { top: 'calc(-25% - 2vh)', left: '5%', width: '3.5rem' },
+        'squarespace': { top: 'calc(135% + 4vh)', left: '2%', width: '3.5rem' },
+        'wix': { top: 'calc(-60% - 3vh)', left: '13%', width: '4.8rem' },
+        'ghl': { top: 'calc(-50% - 3vh)', left: '78%', width: '5.8rem' },
+        'assumption': { top: 'calc(-58% - 4vh)', left: '50%', width: '4rem' },
+        'patchup': { top: 'calc(105% + 3vh)', left: '66%', width: '3.8rem' },
+        'hive': { top: 'calc(110% + 3vh)', left: '20%', width: '3.2rem' },
+        'ltbl': { top: 'calc(-38% - 2vh)', left: '38%', width: '5.8rem' },
+    },
+    2: { // Slide 3: Background & Interests
+        'coursera': { top: 'calc(-20% - 2vh)', left: '8%', width: '3.5rem' },
+        'crayfish': { top: 'calc(-45% - 3vh)', left: '58%', width: '5.5rem' },
+        'fishing': { top: 'calc(110% + 4vh)', left: '50%', width: '4.5rem' },
+    },
+    3: { // Slide 4: Projects & Crafts
+        'fazzio': { top: 'calc(105% + 4vh)', left: '60%', width: '8rem' },
+        'tool': { top: 'calc(-38% - 3vh)', left: '10%', width: '6rem' },
+        'github': { top: 'calc(-18% - 2vh)', left: '75%', width: '3.8rem' },
+        'punk': { top: 'calc(95% + 3vh)', left: '2%', width: '5.5rem' },
+    },
+    4: { // Slide 5: Connect & Contact
+        'email': { top: 'calc(-22% - 3vh)', left: '6%', width: '5.8rem' },
+        'telegram': { top: 'calc(-32% - 2vh)', left: '62%', width: '3rem' },
+        'fb': { top: 'calc(100% + 4vh)', left: '72%', width: '3.5rem' },
+        'linkedin': { top: 'calc(110% + 4vh)', left: '7%', width: '3.5rem' },
+    },
 };
 
 const STORY_DURATION = 10000; // 10 seconds per card
@@ -74,12 +117,21 @@ export const MobileStoryView = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    // Detect tablet portrait for sticker config overrides
+    const [isTablet, setIsTablet] = useState(false);
+    useEffect(() => {
+        const mql = window.matchMedia('(min-width: 700px) and (orientation: portrait)');
+        const update = () => setIsTablet(mql.matches);
+        update();
+        mql.addEventListener('change', update);
+        return () => mql.removeEventListener('change', update);
+    }, []);
     // Load comments from localStorage on mount
     useEffect(() => {
         try {
             const saved = localStorage.getItem('portfolio-story-comments');
             if (saved) setComments(JSON.parse(saved));
-        } catch {}
+        } catch { }
     }, []);
 
     // Save comments to localStorage
@@ -128,7 +180,7 @@ export const MobileStoryView = () => {
     // Start/restart timer whenever activeIndex changes
     useEffect(() => {
         setProgressKey((k) => k + 1); // Restart CSS animation
-        // startTimer(); // TEMPORARILY DISABLED — re-enable after sticker edits
+        startTimer();
         return () => clearTimer();
     }, [activeIndex, startTimer, clearTimer]);
 
@@ -152,16 +204,22 @@ export const MobileStoryView = () => {
         }
     };
 
-    const activeStickers = MOBILE_STORY_STICKERS[activeIndex] || [];
+    // Merge tablet overrides when on tablet portrait, otherwise use mobile config as-is
+    const activeStickers = (MOBILE_STORY_STICKERS[activeIndex] || []).map((stConfig) => {
+        if (!isTablet) return stConfig;
+        const tabletOverrides = TABLET_STORY_STICKERS[activeIndex]?.[stConfig.id];
+        if (!tabletOverrides) return stConfig;
+        return { ...stConfig, ...tabletOverrides };
+    });
 
     return (
         <div
             onClick={handleScreenClick}
-            className="story-nav-area fixed inset-0 w-full h-full bg-transparent flex flex-col items-center justify-center select-none overflow-hidden z-10"
-            style={{ touchAction: 'none' }}
+            className="story-nav-area fixed inset-0 w-full bg-transparent flex flex-col items-center justify-center select-none overflow-x-hidden z-10"
+            style={{ touchAction: 'none', height: '100dvh', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
             {/* Top Progress Bars (Instagram style) */}
-            <div className="absolute top-6 left-4 right-4 flex gap-1.5 z-[210] pointer-events-none">
+            <div className="absolute left-4 right-4 flex gap-1.5 z-[210] pointer-events-none" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1.5rem)' }}>
                 {CARDS.map((_, i) => (
                     <div
                         key={i}
@@ -191,15 +249,15 @@ export const MobileStoryView = () => {
             `}} />
 
             {/* Card Stack Content wrapper */}
-            <div className="relative w-[82vw] max-w-[320px] min-h-[220px]">
+            <div className="relative w-[88vw] mx-4 my-auto">
                 {/* Active Card Body — no animation, instant switch */}
                 <div
-                    className="w-full h-full bg-black rounded-2xl border-2 border-white p-5 sm:p-6 shadow-2xl flex flex-col justify-between font-mono relative z-10 pointer-events-auto"
+                    className="w-full bg-black rounded-3xl border-2 border-white p-8 shadow-2xl flex flex-col font-mono relative z-10 pointer-events-auto"
                 >
-                    <CardContent card={CARDS[activeIndex]} isActive={true} />
+                    <CardContent key={CARDS[activeIndex].id} card={CARDS[activeIndex]} isActive={true} />
                 </div>
 
-                {/* Overlapping active stickers for the current slide — renders as-is with no blinking */}
+                {/* Overlapping active stickers for the current slide */}
                 {activeStickers.map((stConfig) => {
                     const stickerData = STICKER_CONFIG.find((s) => s.id === stConfig.id);
                     if (!stickerData) return null;
@@ -211,21 +269,11 @@ export const MobileStoryView = () => {
                         width: stConfig.width,
                         rotate: stConfig.rotate,
                         delay: 0,
+                        zIndex: stConfig.id === 'main-me' ? 5 : 20,
                     };
 
                     return (
-                        <div
-                            key={stConfig.id}
-                            className="absolute pointer-events-auto"
-                            style={{
-                                top: stConfig.top,
-                                left: stConfig.left,
-                                width: stConfig.width,
-                                zIndex: stConfig.id === 'main-me' ? 5 : 20, // Sit behind card if main-me, else on top
-                            }}
-                        >
-                            <Sticker data={mobData} noAnimation />
-                        </div>
+                        <Sticker key={stConfig.id} data={mobData} noAnimation />
                     );
                 })}
             </div>
@@ -327,9 +375,8 @@ export const MobileStoryView = () => {
                                     />
                                     <button
                                         type="submit"
-                                        className={`text-sm font-semibold transition-colors ${
-                                            commentText.trim() ? 'text-blue-400' : 'text-blue-400/30'
-                                        }`}
+                                        className={`text-sm font-semibold transition-colors ${commentText.trim() ? 'text-blue-400' : 'text-blue-400/30'
+                                            }`}
                                         disabled={!commentText.trim()}
                                     >
                                         Post
@@ -342,7 +389,7 @@ export const MobileStoryView = () => {
             </AnimatePresence>
 
             {/* Instagram-style Reaction Bar */}
-            <div className="absolute bottom-4 left-3 right-3 flex items-center gap-3 z-[210] pointer-events-auto">
+            <div className="absolute left-3 right-3 flex items-center gap-3 z-[210] pointer-events-auto" style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}>
                 {/* Message Input Field — opens bottom sheet */}
                 <div
                     className="flex-1 h-11 rounded-full border border-neutral-600 bg-transparent px-4 flex items-center cursor-text"

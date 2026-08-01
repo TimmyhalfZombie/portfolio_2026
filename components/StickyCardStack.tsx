@@ -243,30 +243,30 @@ interface CardProps {
 
 export const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) => {
     const [scope, animate] = useAnimate();
-    const hasAnimated = useRef(false);
+    const hasAnimated = useRef<number | null>(null);
 
     useEffect(() => {
         if (isActive) {
-            if (!hasAnimated.current) {
-                // First time: play the word pop stagger
+            if (hasAnimated.current !== card.id) {
+                // First time for this card: play word pop stagger
                 animate(
                     ".word-reveal",
                     { opacity: 1, scale: 1 },
                     {
-                        duration: 0.25,
-                        delay: stagger(0.05),
-                        ease: [0.34, 1.56, 0.64, 1] // Matches popup word cubic-bezier
+                        duration: 0.2,
+                        delay: stagger(0.025),
+                        ease: [0.34, 1.56, 0.64, 1]
                     }
                 );
-                hasAnimated.current = true;
+                hasAnimated.current = card.id;
             } else {
                 // Already animated before: show fast
                 animate(".word-reveal", { opacity: 1, scale: 1 }, { duration: 0.05 });
             }
         } else {
-            animate(".word-reveal", { opacity: 0, scale: 0.6 }, { duration: 0.01, delay: 0.4 });
+            animate(".word-reveal", { opacity: 0, scale: 0.6 }, { duration: 0.01, delay: 0.2 });
         }
-    }, [isActive, animate]);
+    }, [isActive, card.id, animate]);
 
     const splitText = (text: string) => {
         return text.split(/(\s+)/).map((word, wordIndex) => {
@@ -290,17 +290,17 @@ export const CardContent = ({ card, isActive }: { card: CardData; isActive: bool
     };
 
     return (
-        <div ref={scope} className="space-y-3 tracking-[-0.03em]">
-            <h3 className={`font-bold text-white tracking-[-0.03em] ${card.titleClass || 'text-xl'}`}>
+        <div ref={scope} className="space-y-4 md:space-y-3 tracking-[-0.02em] md:tracking-[-0.03em]">
+            <h3 className={`font-black md:font-bold text-white tracking-[-0.02em] md:tracking-[-0.03em] text-[1.75rem] ${card.titleClass ? `md:${card.titleClass}` : 'md:text-xl'}`}>
                 {splitText(card.title)}
             </h3>
-            <p className="text-[0.875rem] sm:text-[0.9375rem] text-white font-medium tracking-[-0.025em] leading-snug">
+            <p className="text-[1.25rem] md:text-[0.9375rem] text-neutral-200 md:text-white font-medium tracking-[-0.015em] md:tracking-[-0.025em] leading-relaxed md:leading-snug">
                 {splitText(card.description)}
             </p>
-            <div className="space-y-2 pt-2 text-[0.875rem] sm:text-[0.9375rem] text-white tracking-[-0.025em] leading-snug">
+            <div className="space-y-3 md:space-y-2 pt-1 md:pt-2 text-[1.15rem] md:text-[0.9375rem] text-neutral-200 md:text-white font-normal tracking-[-0.015em] md:tracking-[-0.025em] leading-relaxed md:leading-snug">
                 {card.bullets.map((bullet, i) => (
-                    <div key={i} className="flex items-start gap-1.5">
-                        <span className="word-reveal opacity-0 text-white mt-[1px]" style={{ transform: 'scale(0.6)', transformOrigin: 'center bottom' }}>-</span>
+                    <div key={i} className="flex items-start gap-2.5 md:gap-1.5">
+                        <span className="word-reveal opacity-0 text-white mt-[2px] md:mt-[1px] font-normal" style={{ transform: 'scale(0.6)', transformOrigin: 'center bottom' }}>-</span>
                         <div className="flex-1">
                             {splitText(bullet)}
                         </div>

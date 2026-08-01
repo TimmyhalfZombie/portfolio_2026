@@ -2,17 +2,27 @@
 
 /* 1.0417vw = 16px at 1536px viewport. All rem-based values scale proportionally. */
 @layer base {
+  /* Phones (portrait, < 768px) */
   html {
     font-size: 3.1vw !important;
   }
 
-  @media (min-width: 768px) {
+
+  /* Tablet landscape & small desktops (768px+ in landscape, or > 1024px any orientation) */
+  @media (min-width: 768px) and (orientation: landscape) {
     html {
       font-size: 1.6vw !important;
     }
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 1024px) and (orientation: landscape) {
+    html {
+      font-size: 1.0417vw !important;
+    }
+  }
+
+  /* Large screens in portrait (> 1024px) — desktop UI */
+  @media (min-width: 1025px) and (orientation: portrait) {
     html {
       font-size: 1.0417vw !important;
     }

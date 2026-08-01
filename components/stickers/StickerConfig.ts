@@ -11,8 +11,12 @@ export interface StickerPopup {
     duration?: number;
     /** Optional X offset in pixels to nudge the popup left/right (default 0) */
     offsetX?: number;
+    /** Optional X offset on mobile view only */
+    mobileOffsetX?: number;
     /** Optional Y offset in pixels to nudge the popup down (default 0) */
     offsetY?: number;
+    /** Optional Y offset on mobile view only */
+    mobileOffsetY?: number;
     /** Optional project title for card-style popup */
     title?: string;
     /** Optional tech stack items, toggled by "stack +" button */
@@ -23,6 +27,10 @@ export interface StickerPopup {
     forceTop?: boolean;
     /** If true, the popup will ALWAYS render below the sticker */
     forceBottom?: boolean;
+    /** If true, the popup will ALWAYS render above the sticker on mobile view */
+    mobileForceTop?: boolean;
+    /** If true, the popup will ALWAYS render below the sticker on mobile view */
+    mobileForceBottom?: boolean;
     /** If true, the popup will NEVER automatically hide. */
     noAutoHide?: boolean;
 }
@@ -162,6 +170,7 @@ export const STICKER_CONFIG: StickerData[] = ([
             offsetX: -180,
             offsetY: -20,
             forceTop: true,
+            mobileForceBottom: true,
         }
     },
     {
