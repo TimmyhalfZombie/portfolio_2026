@@ -500,12 +500,7 @@ export const MobileStoryView = () => {
                     <span className="text-neutral-500 text-sm font-light select-none">Send message...</span>
                 </div>
 
-                {/* Comment count badge on message field */}
-                {!isLoading && comments.length > 0 && (
-                    <span className="absolute -top-2 left-8 px-1.5 py-0.5 bg-red-500 rounded-full text-[9px] text-white font-bold pointer-events-none">
-                        {comments.length}
-                    </span>
-                )}
+
 
                 {/* Heart Button */}
                 <button
