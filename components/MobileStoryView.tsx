@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CARDS, CardData, CardContent } from './StickyCardStack';
 import { Sticker } from './stickers';
 import { STICKER_CONFIG } from './stickers/StickerConfig';
+import { useComments, Comment } from '@/hooks/useComments';
+import { getAssignedAnonymousName, getAvatarInitial } from '@/lib/anonymous-names';
+import { toast } from 'sonner';
 
 interface MobileStickerConfig {
     id: string;
@@ -99,23 +102,20 @@ const TABLET_STORY_STICKERS: Record<number, Partial<Record<string, Partial<Mobil
 
 const STORY_DURATION = 10000; // 10 seconds per card
 
-interface StoryComment {
-    id: string;
-    text: string;
-    timestamp: number;
-}
-
 export const MobileStoryView = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [progressKey, setProgressKey] = useState(0); // Forces CSS animation restart
     const [isLiked, setIsLiked] = useState(false);
     const [showShareMenu, setShowShareMenu] = useState(false);
-    const [comments, setComments] = useState<StoryComment[]>([]);
     const [commentText, setCommentText] = useState('');
     const [isInputActive, setIsInputActive] = useState(false);
     const [showComments, setShowComments] = useState(false);
+    const [isPosting, setIsPosting] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Shared comments via GitHub Discussions API
+    const { comments, isLoading, postComment, deleteComment } = useComments();
 
     // Detect tablet portrait for sticker config overrides
     const [isTablet, setIsTablet] = useState(false);
@@ -126,37 +126,34 @@ export const MobileStoryView = () => {
         mql.addEventListener('change', update);
         return () => mql.removeEventListener('change', update);
     }, []);
-    // Load comments from localStorage on mount
-    useEffect(() => {
-        try {
-            const saved = localStorage.getItem('portfolio-story-comments');
-            if (saved) setComments(JSON.parse(saved));
-        } catch { }
-    }, []);
 
-    // Save comments to localStorage
-    const saveComments = useCallback((newComments: StoryComment[]) => {
-        setComments(newComments);
-        localStorage.setItem('portfolio-story-comments', JSON.stringify(newComments));
-    }, []);
-
-    const handleSendComment = useCallback(() => {
+    const handleSendComment = useCallback(async () => {
         if (!commentText.trim()) return;
-        const newComment: StoryComment = {
-            id: Date.now().toString(),
-            text: commentText.trim(),
-            timestamp: Date.now(),
-        };
-        saveComments([...comments, newComment]);
-        setCommentText('');
-        setIsInputActive(false);
-        setShowComments(true);
-        inputRef.current?.blur();
-    }, [commentText, comments, saveComments]);
 
-    const handleDeleteComment = useCallback((id: string) => {
-        saveComments(comments.filter((c) => c.id !== id));
-    }, [comments, saveComments]);
+        setIsPosting(true);
+        try {
+            const assignedName = getAssignedAnonymousName();
+            await postComment(assignedName, commentText.trim());
+            setCommentText('');
+            setIsInputActive(false);
+            inputRef.current?.blur();
+        } catch (err: any) {
+            toast.error(err?.message || 'Failed to post comment');
+        } finally {
+            setIsPosting(false);
+        }
+    }, [commentText, postComment]);
+
+    const handleDeleteComment = useCallback(async (id: string) => {
+        const ok = await deleteComment(id);
+        if (!ok) toast.error('Failed to delete comment');
+    }, [deleteComment]);
+
+    const [isPaused, setIsPaused] = useState(false);
+    const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isLongPressRef = useRef(false);
+    const startTimeRef = useRef<number>(Date.now());
+    const elapsedRef = useRef<number>(0);
 
     const clearTimer = useCallback(() => {
         if (timerRef.current) {
@@ -165,8 +162,9 @@ export const MobileStoryView = () => {
         }
     }, []);
 
-    const startTimer = useCallback(() => {
+    const startTimer = useCallback((duration: number = STORY_DURATION) => {
         clearTimer();
+        startTimeRef.current = Date.now();
         timerRef.current = setTimeout(() => {
             setActiveIndex((prev) => {
                 if (prev < CARDS.length - 1) {
@@ -174,33 +172,75 @@ export const MobileStoryView = () => {
                 }
                 return prev; // Stay on last card
             });
-        }, STORY_DURATION);
+        }, duration);
     }, [clearTimer]);
 
     // Start/restart timer whenever activeIndex changes
     useEffect(() => {
+        elapsedRef.current = 0;
         setProgressKey((k) => k + 1); // Restart CSS animation
-        startTimer();
+        startTimer(STORY_DURATION);
         return () => clearTimer();
     }, [activeIndex, startTimer, clearTimer]);
+
+    // Pause story timer when comments bottom sheet is open
+    useEffect(() => {
+        if (showComments) {
+            clearTimer();
+            setIsPaused(true);
+        } else if (!isLongPressRef.current) {
+            setIsPaused(false);
+            const remaining = Math.max(200, STORY_DURATION - elapsedRef.current);
+            startTimer(remaining);
+        }
+    }, [showComments, clearTimer, startTimer]);
 
     const goTo = useCallback((index: number) => {
         setActiveIndex(Math.max(0, Math.min(CARDS.length - 1, index)));
     }, []);
 
-    const handleScreenClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        // Stop navigation if tapping on active modals, interactive popups or buttons
+    const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
         const target = e.target as HTMLElement;
         if (target.closest('.pointer-events-auto:not(.story-nav-area)')) {
             return;
         }
 
-        const x = e.clientX;
-        const width = window.innerWidth;
-        if (x < width * 0.3) {
-            goTo(activeIndex - 1);
+        isLongPressRef.current = false;
+        if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+
+        longPressTimerRef.current = setTimeout(() => {
+            isLongPressRef.current = true;
+            setIsPaused(true);
+            clearTimer();
+            elapsedRef.current += Date.now() - startTimeRef.current;
+        }, 220);
+    };
+
+    const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('.pointer-events-auto:not(.story-nav-area)')) {
+            if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+            return;
+        }
+
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
+        }
+
+        if (isLongPressRef.current) {
+            isLongPressRef.current = false;
+            setIsPaused(false);
+            const remaining = Math.max(200, STORY_DURATION - elapsedRef.current);
+            startTimer(remaining);
         } else {
-            goTo(activeIndex + 1);
+            const x = e.clientX;
+            const width = window.innerWidth;
+            if (x < width * 0.3) {
+                goTo(activeIndex - 1);
+            } else {
+                goTo(activeIndex + 1);
+            }
         }
     };
 
@@ -214,7 +254,9 @@ export const MobileStoryView = () => {
 
     return (
         <div
-            onClick={handleScreenClick}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
             className="story-nav-area fixed inset-0 w-full bg-transparent flex flex-col items-center justify-center select-none overflow-x-hidden z-10"
             style={{ touchAction: 'none', height: '100dvh', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
@@ -232,6 +274,7 @@ export const MobileStoryView = () => {
                                 width: i < activeIndex ? '100%' : i === activeIndex ? '0%' : '0%',
                                 ...(i === activeIndex ? {
                                     animation: `storyProgress ${STORY_DURATION}ms linear forwards`,
+                                    animationPlayState: isPaused ? 'paused' : 'running',
                                 } : {}),
                             }}
                         />
@@ -252,7 +295,7 @@ export const MobileStoryView = () => {
             <div className="relative w-[88vw] mx-4 my-auto">
                 {/* Active Card Body — no animation, instant switch */}
                 <div
-                    className="w-full bg-black rounded-3xl border-2 border-white p-8 shadow-2xl flex flex-col font-mono relative z-10 pointer-events-auto"
+                    className="story-nav-area w-full bg-black rounded-3xl border-2 border-white p-8 shadow-2xl flex flex-col font-mono relative z-10 pointer-events-auto cursor-pointer"
                 >
                     <CardContent key={CARDS[activeIndex].id} card={CARDS[activeIndex]} isActive={true} />
                 </div>
@@ -277,6 +320,43 @@ export const MobileStoryView = () => {
                     );
                 })}
             </div>
+
+            {/* ── Floating Recent Comment Bubble (IG Story style) ── */}
+            <AnimatePresence>
+                {!showComments && comments.length > 0 && (() => {
+                    const latestComment = comments[comments.length - 1];
+                    return (
+                        <motion.div
+                            className="absolute left-3 right-16 z-[200] pointer-events-none flex flex-col gap-2"
+                            style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 4.5rem)' }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        >
+                            <motion.div
+                                key={latestComment.id}
+                                className="flex items-center gap-2.5 pointer-events-auto"
+                                initial={{ opacity: 0, y: 10, x: -10 }}
+                                animate={{ opacity: 1, y: 0, x: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                {/* Avatar circle */}
+                                <div
+                                    className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-lg"
+                                    style={{ backgroundColor: latestComment.avatarColor }}
+                                >
+                                    {getAvatarInitial(latestComment.name)}
+                                </div>
+                                {/* Chat bubble - text only */}
+                                <div className="bg-neutral-800/90 backdrop-blur-md rounded-2xl px-4 py-2 max-w-[80%] shadow-lg border border-white/10">
+                                    <span className="text-white text-[13px] leading-tight font-sans">{latestComment.text}</span>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    );
+                })()}
+            </AnimatePresence>
 
             {/* IG-style Comments Bottom Sheet */}
             <AnimatePresence>
@@ -321,7 +401,11 @@ export const MobileStoryView = () => {
 
                             {/* Comments List */}
                             <div className="flex-1 overflow-y-auto px-4 py-3" style={{ scrollbarWidth: 'none' }}>
-                                {comments.length === 0 ? (
+                                {isLoading ? (
+                                    <div className="flex items-center justify-center py-20">
+                                        <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                    </div>
+                                ) : comments.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center py-20 text-neutral-400">
                                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -332,13 +416,25 @@ export const MobileStoryView = () => {
                                 ) : (
                                     <div className="flex flex-col gap-4">
                                         {comments.map((comment) => (
-                                            <div key={comment.id} className="flex items-start justify-between gap-3">
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-white text-sm leading-relaxed break-words">{comment.text}</p>
-                                                    <p className="text-neutral-500 text-[11px] mt-1">
-                                                        {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                    </p>
+                                            <div key={comment.id} className="flex items-start gap-3">
+                                                {/* Avatar */}
+                                                <div
+                                                    className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                                                    style={{ backgroundColor: comment.avatarColor }}
+                                                >
+                                                    {getAvatarInitial(comment.name)}
                                                 </div>
+                                                {/* Content */}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-baseline gap-2">
+                                                        <span className="text-white text-[13px] font-bold">{comment.name}</span>
+                                                        <span className="text-neutral-500 text-[11px]">
+                                                            {formatTimestamp(comment.timestamp)}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-white text-sm leading-relaxed break-words mt-0.5">{comment.text}</p>
+                                                </div>
+                                                {/* Delete */}
                                                 <button
                                                     className="w-7 h-7 flex items-center justify-center flex-shrink-0 rounded-full hover:bg-white/10 transition-colors"
                                                     onClick={(e) => {
@@ -371,15 +467,16 @@ export const MobileStoryView = () => {
                                         value={commentText}
                                         onChange={(e) => setCommentText(e.target.value)}
                                         placeholder="Add a comment..."
+                                        maxLength={500}
                                         className="flex-1 h-10 rounded-full border border-white/15 bg-white/10 px-4 text-white text-sm placeholder-neutral-400 outline-none focus:border-white/30 transition-colors"
+                                        disabled={isPosting}
                                     />
                                     <button
                                         type="submit"
-                                        className={`text-sm font-semibold transition-colors ${commentText.trim() ? 'text-blue-400' : 'text-blue-400/30'
-                                            }`}
-                                        disabled={!commentText.trim()}
+                                        className={`text-sm font-semibold transition-colors ${commentText.trim() ? 'text-blue-400' : 'text-blue-400/30'}`}
+                                        disabled={!commentText.trim() || isPosting}
                                     >
-                                        Post
+                                        {isPosting ? '...' : 'Post'}
                                     </button>
                                 </form>
                             </div>
@@ -404,7 +501,7 @@ export const MobileStoryView = () => {
                 </div>
 
                 {/* Comment count badge on message field */}
-                {comments.length > 0 && (
+                {!isLoading && comments.length > 0 && (
                     <span className="absolute -top-2 left-8 px-1.5 py-0.5 bg-red-500 rounded-full text-[9px] text-white font-bold pointer-events-none">
                         {comments.length}
                     </span>
@@ -483,3 +580,18 @@ export const MobileStoryView = () => {
         </div>
     );
 };
+
+function formatTimestamp(ts: string): string {
+    const date = new Date(ts);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHr = Math.floor(diffMs / 3600000);
+    const diffDay = Math.floor(diffMs / 86400000);
+
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHr < 24) return `${diffHr}h ago`;
+    if (diffDay < 7) return `${diffDay}d ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
