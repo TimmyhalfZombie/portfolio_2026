@@ -8,21 +8,29 @@ import Image from 'next/image';
 import { StickerData } from './StickerConfig';
 import { ContactModal } from '../ContactModal';
 import { CertificatesModal } from '../CertificatesModal';
+import { StickerPeel } from './StickerPeel';
+import { useRevealed } from '../RevealContext';
 
 interface StickerProps {
     data: StickerData;
     isShrunk?: boolean;
     isExpanded?: boolean;
     onDragStateChange?: (isDragging: boolean) => void;
-    /** Ref to the card area element — used by main-me to detect overlap for z-index logic */
+    /** Ref to the card area element — used by main-me to detect overlap for z-index logic and to anchor its popup */
     cardAreaRef?: React.RefObject<HTMLDivElement | null>;
     /** When true, disables ALL Framer Motion opacity/scale animations on the sticker (used in mobile story view) */
     noAnimation?: boolean;
+    /** Reports when this sticker's popup or modal opens/closes (used to pause the mobile story timer) */
+    onOpenChange?: (id: string, open: boolean) => void;
 }
 
 const LOCAL_PLAYLIST = [
     { src: '/mp3/Hot Mulligan - I Dont Think Its the Right Time for Emojis.mp3', name: "Hot Mulligan - I Don't Think It's the Right Time for Emojis" },
     { src: '/mp3/The Story So Far Big Blind.mp3', name: 'The Story So Far - Big Blind' },
+    { src: '/mp3/408 - Remember Her Like That.mp3', name: '408 - Remember Her Like That' },
+    { src: '/mp3/Knox - Go For Broke (Lyric Video).mp3', name: 'Knox - Go For Broke' },
+    { src: '/mp3/Mayday Parade - Under My Sweater (Official Music Video).mp3', name: 'Mayday Parade - Under My Sweater' },
+    { src: '/mp3/Pierce The Veil - So Far So Fake.mp3', name: 'Pierce The Veil - So Far So Fake' },
 ];
 
 let globalAudio: HTMLAudioElement | null = null;
@@ -100,6 +108,13 @@ function playTickSound() {
     }
 }
 
+/** Dispatch a custom event so the toast UI can re-render when audio state changes */
+function dispatchAudioStateChange() {
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('audio-state-change'));
+    }
+}
+
 function getAudioController() {
     if (typeof window === 'undefined') return null;
     if (!globalAudio) {
@@ -110,7 +125,10 @@ function getAudioController() {
                 globalAudio.src = LOCAL_PLAYLIST[currentAudioIndex].src;
                 globalAudio.play().catch(console.error);
             }
+            dispatchAudioStateChange();
         });
+        globalAudio.addEventListener('play', dispatchAudioStateChange);
+        globalAudio.addEventListener('pause', dispatchAudioStateChange);
     }
 
     return {
@@ -128,9 +146,22 @@ function getAudioController() {
             currentAudioIndex = (currentAudioIndex + 1) % LOCAL_PLAYLIST.length;
             if (globalAudio) {
                 globalAudio.src = LOCAL_PLAYLIST[currentAudioIndex].src;
+                globalAudio.play().catch(console.error);
             }
+            dispatchAudioStateChange();
         },
-        getSongName: () => LOCAL_PLAYLIST[currentAudioIndex].name
+        prev: () => {
+            currentAudioIndex = (currentAudioIndex - 1 + LOCAL_PLAYLIST.length) % LOCAL_PLAYLIST.length;
+            if (globalAudio) {
+                globalAudio.src = LOCAL_PLAYLIST[currentAudioIndex].src;
+                globalAudio.play().catch(console.error);
+            }
+            dispatchAudioStateChange();
+        },
+        isPlaying: () => !!(globalAudio && !globalAudio.paused),
+        getSongName: () => LOCAL_PLAYLIST[currentAudioIndex].name,
+        getCurrentIndex: () => currentAudioIndex,
+        getPlaylistLength: () => LOCAL_PLAYLIST.length,
     };
 }
 
@@ -164,12 +195,107 @@ function animatePopupText(popupElement: HTMLElement) {
     });
 }
 
+let musicToastActive = false;
+
+// Keep toast in sync when songs auto-advance (ended event)
+if (typeof window !== 'undefined') {
+    let listenerSet = false;
+    const setupListener = () => {
+        if (listenerSet) return;
+        listenerSet = true;
+        window.addEventListener('audio-state-change', () => {
+            if (musicToastActive) showMusicToast();
+        });
+    };
+    // Defer to avoid referencing showMusicToast before it's defined
+    setTimeout(setupListener, 0);
+}
+
+/** Show (or update) the persistent music player toast, styled like the sticker popups */
+function showMusicToast() {
+    const controller = getAudioController();
+    if (!controller) return;
+
+    musicToastActive = true;
+    const playing = controller.isPlaying();
+    const songName = controller.getSongName();
+    const trackLabel = `${String(controller.getCurrentIndex() + 1).padStart(2, '0')}/${String(controller.getPlaylistLength()).padStart(2, '0')}`;
+
+    const handleDismiss = () => {
+        musicToastActive = false;
+        controller.pause();
+        toast.dismiss('spotify-toast');
+    };
+
+    const iconBtn = 'inline-flex items-center justify-center rounded-md border border-white/20 text-white transition-colors hover:bg-white/15 active:scale-95 cursor-pointer';
+
+    toast.custom(() => (
+        <div className="w-[356px] max-w-[calc(100vw-2rem)] bg-black border-2 border-white rounded-xl font-mono text-white select-none px-4 py-3">
+            <div className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-2 uppercase tracking-wider font-semibold text-[0.75rem]">
+                    <span className={`inline-block size-2 rounded-full ${playing ? 'bg-white animate-pulse' : 'bg-white/30'}`} />
+                    {playing ? 'Now Playing' : 'Paused'}
+                </span>
+                <span className="flex items-center gap-3">
+                    <span className="text-neutral-400 tracking-wider text-[0.7rem]">{trackLabel}</span>
+                    <button
+                        onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
+                        className="text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                        title="Close"
+                        aria-label="Close player"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="size-4"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                    </button>
+                </span>
+            </div>
+
+            <p className="font-semibold leading-snug mt-2 mb-0 text-[0.875rem]">{songName}</p>
+
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-zinc-700/50">
+                <button
+                    className={`${iconBtn} h-8 w-10`}
+                    onClick={(e) => { e.stopPropagation(); controller.prev(); }}
+                    title="Previous"
+                    aria-label="Previous track"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-4"><path d="M6 5h2v14H6zM20 5v14L9 12z" /></svg>
+                </button>
+                <button
+                    className={`${iconBtn} h-8 w-12 bg-white !text-black border-white hover:!bg-neutral-200`}
+                    onClick={(e) => { e.stopPropagation(); playing ? controller.pause() : controller.play(); }}
+                    title={playing ? 'Pause' : 'Play'}
+                    aria-label={playing ? 'Pause' : 'Play'}
+                >
+                    {playing
+                        ? <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-4"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
+                        : <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-4"><path d="M7 4.5v15L19.5 12z" /></svg>}
+                </button>
+                <button
+                    className={`${iconBtn} h-8 w-10`}
+                    onClick={(e) => { e.stopPropagation(); controller.next(); }}
+                    title="Next"
+                    aria-label="Next track"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-4"><path d="M16 5h2v14h-2zM4 5v14l11-7z" /></svg>
+                </button>
+            </div>
+        </div>
+    ), {
+        id: 'spotify-toast',
+        duration: Infinity,
+        dismissible: false,
+    });
+}
+
 let globalMaxZIndex = 100;
 
-export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpanded = false, onDragStateChange, cardAreaRef, noAnimation = false }) => {
+const INTRO_SEEN_KEY = 'sticker-intro-seen';
+
+export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpanded = false, onDragStateChange, cardAreaRef, noAnimation = false, onOpenChange }) => {
     const { src, alt, width, widthPx, top, left, rotate, delay, zIndex, priority, popup, tapEffect } = data;
     const [localZIndex, setLocalZIndex] = useState(zIndex);
     const [isMobile, setIsMobile] = useState(false);
+    const revealed = useRevealed();
 
     useEffect(() => {
         const mql = window.matchMedia('(orientation: portrait) and (max-width: 1024px)');
@@ -187,6 +313,8 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
             : 1;
 
     const bringToFront = () => {
+        // Stickers behind the cards keep their z-index so they stay tucked under the card on tap
+        if (data.behindCards) return;
         globalMaxZIndex += 1;
         setLocalZIndex(globalMaxZIndex);
     };
@@ -213,6 +341,57 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
     const isFlyingGuard = useRef(false);
     const wasDragged = useRef(false);
     const popupRef = useRef<HTMLDivElement>(null);
+
+    // Stickers behind the cards portal their popup to <body> so it isn't hidden under the card stack
+    const portalPopup = !!data.behindCards;
+    const [popupAnchor, setPopupAnchor] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+
+    const openPopup = () => {
+        if (portalPopup && stickerRef.current) {
+            // Anchor to the part of the sticker that peeks out above the cards
+            const r = stickerRef.current.getBoundingClientRect();
+            const cardTop = cardAreaRef?.current?.getBoundingClientRect().top;
+            const bottom = cardTop !== undefined && cardTop > r.top && cardTop < r.bottom ? cardTop : r.bottom;
+            setPopupAnchor({ top: r.top, left: r.left, width: r.width, height: bottom - r.top });
+        }
+        setShowPopup(true);
+    };
+
+    // Keyed Fragment wrapper: AnimatePresence ignores bare portals, which would skip the popup entirely
+    const wrapPopup = (node: React.ReactElement) =>
+        portalPopup && popupAnchor
+            ? (
+                <React.Fragment key="sticker-popup">
+                    {createPortal(
+                        <div style={{ position: 'fixed', ...popupAnchor, zIndex: 260, pointerEvents: 'none' }}>{node}</div>,
+                        document.body
+                    )}
+                </React.Fragment>
+            )
+            : node;
+
+    // First visit only: open the popup by itself once, so visitors see a sticker talk without being told to click
+    const isShrunkRef = useRef(isShrunk);
+    useEffect(() => { isShrunkRef.current = isShrunk; }, [isShrunk]);
+    useEffect(() => {
+        if (!popup?.autoOpenOnce || !revealed) return;
+        try {
+            if (localStorage.getItem(INTRO_SEEN_KEY)) return;
+        } catch { }
+        const timerId = setTimeout(() => {
+            if (isShrunkRef.current) return;
+            setShowPopup(true);
+            try { localStorage.setItem(INTRO_SEEN_KEY, '1'); } catch { }
+        }, 2400); // after every sticker has landed
+        return () => clearTimeout(timerId);
+    }, [popup?.autoOpenOnce, revealed]);
+
+    const isOpen = showPopup || showContactModal || showCertificatesModal;
+    useEffect(() => {
+        if (!isOpen || !onOpenChange) return;
+        onOpenChange(data.id, true);
+        return () => onOpenChange(data.id, false);
+    }, [isOpen, onOpenChange, data.id]);
 
     // Block framer-motion drag from triggering when interacting with the popup
     // React's stopPropagation doesn't block framer-motion's native DOM listeners
@@ -319,7 +498,6 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
 
     // ── Click handler that works alongside drag ──
     const handleClick = () => {
-        if (isShrunk) return;
         if (wasDragged.current) return;
         playTickSound();
         bringToFront();
@@ -329,11 +507,13 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                 if (showPopup) {
                     setPopupIndex(prev => (prev + 1) % popup.text.length);
                 } else {
-                    setShowPopup(true);
+                    openPopup();
                     setPopupIndex(prev => (prev + 1) % popup.text.length);
                 }
+            } else if (showPopup) {
+                setShowPopup(false);
             } else {
-                setShowPopup((prev) => !prev);
+                openPopup();
             }
         }
         else if (tapEffect === 'flyAround') flyAround();
@@ -376,23 +556,11 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
         else if (tapEffect === 'spotify') {
             const controller = getAudioController();
             if (controller) {
-                spotifyClickCount.current++;
-                const count = spotifyClickCount.current;
-
-                if (count % 2 === 1) {
-                    if (count > 1) {
-                        controller.next();
-                    }
-
+                // If audio is already playing, just show the toast (don't toggle)
+                if (!controller.isPlaying()) {
                     controller.play();
-                    toast.success(`Playing ${controller.getSongName()} 🎵`, { id: 'spotify-toast', duration: 3000 });
-                } else {
-                    controller.pause();
-                    toast('Radio paused', {
-                        id: 'spotify-toast',
-                        icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5"><path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" /></svg>
-                    });
                 }
+                showMusicToast();
             } else {
                 toast.error('Audio player not ready yet.');
             }
@@ -456,9 +624,9 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                 style={{
                     top,
                     left,
-                    zIndex: showPopup ? 9999 : (noAnimation ? localZIndex : (isFlying ? 1 : localZIndex)),
+                    zIndex: showPopup && !portalPopup ? 9999 : (noAnimation ? localZIndex : (isFlying ? 1 : localZIndex)),
                     width,
-                    cursor: noAnimation ? ((popup || tapEffect) ? 'pointer' : 'default') : (effectiveShrunk ? 'default' : (popup || tapEffect) ? 'pointer' : 'grab'),
+                    cursor: noAnimation ? ((popup || tapEffect) ? 'pointer' : 'default') : ((popup || tapEffect) ? 'pointer' : 'grab'),
                     willChange: noAnimation ? 'auto' : 'transform, opacity',
                     opacity: noAnimation ? 1 : undefined,
                     transform: noAnimation ? `rotate(${rotate}deg)` : undefined,
@@ -470,11 +638,12 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                         y: 0,
                         rotate
                     },
+                    // Hold the pre-entrance pose until the opening screen hands off
                     animate: {
-                        opacity: hasEntered ? 1 : [0, 1, 1],
-                        scale: hasEntered 
-                            ? 1 
-                            : [initialScale, 0.94, 1],
+                        opacity: hasEntered ? 1 : revealed ? [0, 1, 1] : 0,
+                        scale: hasEntered
+                            ? 1
+                            : revealed ? [initialScale, 0.94, 1] : initialScale,
                         y: 0,
                         x: 0,
                         rotate,
@@ -494,7 +663,7 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                                 [0.25, 1, 0.5, 1]
                             ]
                         },
-                    onAnimationComplete: () => setHasEntered(true),
+                    onAnimationComplete: () => { if (revealed) setHasEntered(true); },
                     onPointerDown: () => {
                         bringToFront();
                         onDragStateChange?.(true);
@@ -518,6 +687,8 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                     },
                     onDragStart: () => {
                         wasDragged.current = true;
+                        // A portaled popup can't follow the sticker, so close it
+                        if (portalPopup) setShowPopup(false);
                         bringToFront();
                         onDragStateChange?.(true);
                     },
@@ -548,14 +719,14 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
             >
                 {/* ── Popup Tooltip ── */}
                 <AnimatePresence>
-                    {showPopup && popup && (
+                    {showPopup && popup && wrapPopup(
                         <motion.div
                             key="sticker-popup"
                             className={`absolute left-1/2 pointer-events-auto ${isPopupBelow ? 'top-full mt-5' : 'bottom-full mb-5'
                                 }`}
                             style={{
                                 x: effectiveOffsetX ? `calc(${popupTranslateX} + ${effectiveOffsetX / 16}rem)` : popupTranslateX,
-                                rotate: -rotate,
+                                rotate: portalPopup ? 0 : -rotate,
                                 transformOrigin: `${caretLeftPos} ${isPopupBelow ? '0%' : '100%'}`
                             }}
                             initial={{
@@ -820,21 +991,24 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                                           }
                     }
                 >
-                    <Image
-                        src={src}
-                        alt={alt}
-                        width={widthPx}
-                        height={widthPx}
-                        className="w-full h-auto object-contain select-none opacity-100"
-                        style={{
-                            opacity: 1,
-                            filter: effectiveShrunk
-                                ? 'grayscale(1) opacity(0.6) drop-shadow(0 4px 12px rgba(0,0,0,0.3))'
-                                : 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))',
-                        }}
-                        draggable={false}
-                        priority={priority}
-                    />
+                    {/* Hover peel: the corner nearest the cursor lifts off the page (desktop only) */}
+                    <StickerPeel enabled={!isMobile && !noAnimation} dimmed={effectiveShrunk}>
+                        <Image
+                            src={src}
+                            alt={alt}
+                            width={widthPx}
+                            height={widthPx}
+                            className="w-full h-auto object-contain select-none opacity-100"
+                            style={{
+                                opacity: 1,
+                                filter: effectiveShrunk
+                                    ? 'grayscale(1) opacity(0.6) drop-shadow(0 4px 12px rgba(0,0,0,0.3))'
+                                    : 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))',
+                            }}
+                            draggable={false}
+                            priority={priority}
+                        />
+                    </StickerPeel>
                 </motion.div>
             </motion.div>
 

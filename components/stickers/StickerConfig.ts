@@ -33,6 +33,8 @@ export interface StickerPopup {
     mobileForceBottom?: boolean;
     /** If true, the popup will NEVER automatically hide. */
     noAutoHide?: boolean;
+    /** If true, the popup opens by itself once (first visit only), showing text[0] */
+    autoOpenOnce?: boolean;
 }
 
 export interface StickerData {
@@ -90,6 +92,11 @@ export const STICKER_CONFIG: StickerData[] = ([
         zIndex: 5,
         priority: true,
         behindCards: true,
+        popup: {
+            text: "Hey, that's me. Every sticker here is a project, a tool, or a piece of my story.",
+            maxWidth: 320,
+            duration: 7000,
+        },
     },
 
     // ── TOP-LEFT ZONE ──
@@ -105,6 +112,10 @@ export const STICKER_CONFIG: StickerData[] = ([
         rotate: -8,
         delay: 0.1,
         zIndex: 12,
+        popup: {
+            text: 'Off the clock: out fishing or blasting pop-punk way too loud.',
+            maxWidth: 300,
+        },
     },
     {
         id: 'resume',
@@ -159,6 +170,8 @@ export const STICKER_CONFIG: StickerData[] = ([
         zIndex: 40,
         popup: {
             text: [
+                // Shown once by itself on the first visit (autoOpenOnce); clicks cycle from the next line
+                "Everything stuck on this page is his: projects, tools, and ways to reach him.",
                 "Got repetitive tasks? He can probably automate those.",
                 "He can take a design and turn it into a real working site.",
                 "He can wire up APIs and handle the backend logic.",
@@ -171,6 +184,7 @@ export const STICKER_CONFIG: StickerData[] = ([
             offsetY: -20,
             forceTop: true,
             mobileForceBottom: true,
+            autoOpenOnce: true,
         }
     },
     {
@@ -348,6 +362,10 @@ export const STICKER_CONFIG: StickerData[] = ([
         rotate: 10,
         delay: 0.16,
         zIndex: 12,
+        popup: {
+            text: 'Based in the Philippines (GMT+8). Open to local or remote work.',
+            maxWidth: 300,
+        },
     },
 
 
@@ -619,3 +637,16 @@ export const STICKER_CONFIG: StickerData[] = ([
         widthPx: exclude ? sticker.widthPx : Math.round(sticker.widthPx * 1.12),
     };
 });
+
+/*
+ * Stickers that stay lit for each desktop card — the rest dim, so visitors connect
+ * what they're reading to the stickers around it. Card 1 (index 0) has no entry,
+ * so every sticker stays lit on the landing view. Roughly mirrors the per-slide
+ * grouping in MobileStoryView's MOBILE_STORY_STICKERS. main-me is never dimmed.
+ */
+export const CARD_STICKER_SPOTLIGHT: Record<number, string[]> = {
+    1: ['assumption', 'patchup', 'hive', 'vipscale', 'ltbl', 'ghl', 'kajabi', 'squarespace', 'wix', 'code'], // What I work with
+    2: ['coursera', 'palawan', 'flag', 'me', 'fishing', 'crayfish', 'coconut'], // How I got here
+    3: ['cat', 'tool', 'github', 'fazzio', 'punk'], // Where I thrive
+    4: ['email', 'telegram', 'fb', 'linkedin', 'resume'], // Let's build something
+};

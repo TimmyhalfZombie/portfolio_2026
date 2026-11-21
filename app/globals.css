@@ -89,6 +89,181 @@ body {
     margin-top 0.3s ease;
 }
 
+/* ── Opening screen: "Rei" built from tiles that land in the background grid's cells ──
+   Only transform/opacity animate, so it stays smooth while JS loads */
+.intro-name {
+  /* Same cell size as .bg-grid-small, so every tile sits exactly in a grid cell */
+  --cell: 2.5rem;
+  position: absolute;
+  width: calc(var(--cell) * var(--cols));
+  height: calc(var(--cell) * var(--rows));
+  left: calc((100% - var(--cell) * var(--cols)) / 2);
+  top: calc((100% - var(--cell) * var(--rows)) / 2);
+}
+
+/* Snap the centred name onto the grid lines */
+@supports (left: round(down, 1px, 1px)) {
+  .intro-name {
+    left: round(down, calc((100% - var(--cell) * var(--cols)) / 2), var(--cell));
+    top: round(down, calc((100% - var(--cell) * var(--rows)) / 2), var(--cell));
+  }
+}
+
+/* Each tile slaps down like a tiny sticker, alternating which way it's tilted */
+.intro-tile {
+  position: absolute;
+  left: calc(var(--col) * var(--cell));
+  top: calc(var(--row) * var(--cell));
+  width: var(--cell);
+  height: var(--cell);
+  padding: calc(var(--cell) * 0.13);
+  animation: intro-tile-slap-l 0.5s cubic-bezier(0.25, 1, 0.5, 1) var(--slap-delay) both;
+  will-change: transform, opacity;
+}
+
+.intro-tile.tilt-r {
+  animation-name: intro-tile-slap-r;
+}
+
+/* When the page is ready the tiles hop loose and tumble off screen */
+.is-leaving .intro-tile {
+  animation: intro-tile-fall-l 0.55s cubic-bezier(0.5, 0, 0.8, 0.4) var(--fall-delay) both;
+}
+
+.is-leaving .intro-tile.tilt-r {
+  animation-name: intro-tile-fall-r;
+}
+
+.intro-tile-face {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 24%;
+  background: #d9d9d9;
+  box-shadow: 0 calc(var(--cell) * 0.06) calc(var(--cell) * 0.14) rgba(0, 0, 0, 0.55);
+}
+
+/* While the page finishes loading, a wave of light runs through the finished name */
+.intro-tile-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #fff;
+  box-shadow: 0 0 calc(var(--cell) * 0.45) rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  animation: intro-tile-shimmer 1.5s ease-in-out calc(1.7s + var(--col) * 70ms) infinite;
+}
+
+@keyframes intro-tile-slap-l {
+  0% {
+    opacity: 0;
+    transform: scale(1.9) rotate(-16deg);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(0.9) rotate(2deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes intro-tile-slap-r {
+  0% {
+    opacity: 0;
+    transform: scale(1.9) rotate(16deg);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(0.9) rotate(-2deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes intro-tile-fall-l {
+  20% {
+    opacity: 1;
+    transform: translateY(-10px) rotate(-8deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(55vh) rotate(-40deg);
+  }
+}
+
+@keyframes intro-tile-fall-r {
+  20% {
+    opacity: 1;
+    transform: translateY(-10px) rotate(8deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(55vh) rotate(40deg);
+  }
+}
+
+@keyframes intro-tile-shimmer {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-tile,
+  .intro-tile.tilt-r {
+    animation: intro-fade-in 0.3s ease both;
+  }
+
+  .is-leaving .intro-tile,
+  .is-leaving .intro-tile.tilt-r {
+    animation: intro-fade-out 0.3s ease both;
+  }
+
+  .intro-tile-face::after {
+    animation: none;
+  }
+}
+
+@keyframes intro-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes intro-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Portfolio pieces with no entrance of their own fade in as the opening screen leaves */
+.reveal-fade {
+  animation: reveal-fade 0.45s ease-out both;
+}
+
+@keyframes reveal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
 .popup-word {
   display: inline-block;
   opacity: 0;

@@ -7,6 +7,7 @@ import { Sticker } from './stickers';
 import { STICKER_CONFIG } from './stickers/StickerConfig';
 import { useComments, Comment } from '@/hooks/useComments';
 import { getAssignedAnonymousName, getAvatarInitial } from '@/lib/anonymous-names';
+import { useRevealed } from './RevealContext';
 import { toast } from 'sonner';
 
 interface MobileStickerConfig {
@@ -36,12 +37,14 @@ const MOBILE_STORY_STICKERS: Record<number, MobileStickerConfig[]> = {
         { id: 'assumption', top: '-50%', left: '50%', width: '5.2rem', rotate: 8 },
         { id: 'patchup', top: '92%', left: '66%', width: '5.0rem', rotate: 6 },
         { id: 'hive', top: '96%', left: '20%', width: '4.5rem', rotate: -8 },
-        { id: 'ltbl', top: '-25%', left: '32%', width: '6.8rem', rotate: -5 }
+        { id: 'ltbl', top: '-25%', left: '32%', width: '6.8rem', rotate: -5 },
+        { id: 'code', top: '-58%', left: '80%', width: '4.4rem', rotate: 10 }
     ],
     2: [ // Slide 3: Background & Interests
         { id: 'coursera', top: '-18%', left: '8%', width: '4.5rem', rotate: -5 },
         { id: 'crayfish', top: '-36%', left: '58%', width: '7.5rem', rotate: -8 },
-        { id: 'fishing', top: '98%', left: '50%', width: '5.6rem', rotate: -15 }
+        { id: 'fishing', top: '98%', left: '50%', width: '5.6rem', rotate: -15 },
+        { id: 'coconut', top: '102%', left: '12%', width: '5.2rem', rotate: -10 }
     ],
     3: [ // Slide 4: Projects & Crafts
         { id: 'fazzio', top: '103%', left: '60%', width: '9.0rem', rotate: 0 },
@@ -80,6 +83,7 @@ const TABLET_STORY_STICKERS: Record<number, Partial<Record<string, Partial<Mobil
         'patchup': { top: 'calc(105% + 3vh)', left: '66%', width: '3.8rem' },
         'hive': { top: 'calc(110% + 3vh)', left: '20%', width: '3.2rem' },
         'ltbl': { top: 'calc(-38% - 2vh)', left: '38%', width: '5.8rem' },
+        'code': { top: 'calc(-30% - 2vh)', left: '62%', width: '3.6rem' },
     },
     2: { // Slide 3: Background & Interests
         'coursera': { top: 'calc(-20% - 2vh)', left: '8%', width: '3.5rem' },
@@ -112,6 +116,8 @@ export const MobileStoryView = () => {
     const [showComments, setShowComments] = useState(false);
     const [isPosting, setIsPosting] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    const cardRef = useRef<HTMLDivElement>(null);
+    const revealed = useRevealed();
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Shared comments via GitHub Discussions API
@@ -175,25 +181,34 @@ export const MobileStoryView = () => {
         }, duration);
     }, [clearTimer]);
 
-    // Start/restart timer whenever activeIndex changes
+    // Start/restart timer whenever activeIndex changes (and not before the opening screen hands off)
     useEffect(() => {
+        if (!revealed) return;
         elapsedRef.current = 0;
         setProgressKey((k) => k + 1); // Restart CSS animation
         startTimer(STORY_DURATION);
         return () => clearTimer();
-    }, [activeIndex, startTimer, clearTimer]);
+    }, [activeIndex, revealed, startTimer, clearTimer]);
 
-    // Pause story timer when comments bottom sheet is open
+    // Number of stickers with an open popup/modal — keeps the story from advancing mid-read
+    const [openStickerCount, setOpenStickerCount] = useState(0);
+    const handleStickerOpenChange = useCallback((_id: string, open: boolean) => {
+        setOpenStickerCount((c) => c + (open ? 1 : -1));
+    }, []);
+
+    // Pause story timer when comments bottom sheet or a sticker popup/modal is open
+    const isHeld = showComments || openStickerCount > 0;
     useEffect(() => {
-        if (showComments) {
+        if (isHeld) {
+            if (timerRef.current) elapsedRef.current += Date.now() - startTimeRef.current;
             clearTimer();
             setIsPaused(true);
-        } else if (!isLongPressRef.current) {
+        } else if (!isLongPressRef.current && revealed) {
             setIsPaused(false);
             const remaining = Math.max(200, STORY_DURATION - elapsedRef.current);
             startTimer(remaining);
         }
-    }, [showComments, clearTimer, startTimer]);
+    }, [isHeld, revealed, clearTimer, startTimer]);
 
     const goTo = useCallback((index: number) => {
         setActiveIndex(Math.max(0, Math.min(CARDS.length - 1, index)));
@@ -257,7 +272,7 @@ export const MobileStoryView = () => {
             onPointerDown={handlePointerDown}
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
-            className="story-nav-area fixed inset-0 w-full bg-transparent flex flex-col items-center justify-center select-none overflow-x-hidden z-10"
+            className={`story-nav-area fixed inset-0 w-full bg-transparent flex flex-col items-center justify-center select-none overflow-x-hidden z-10 ${revealed ? 'reveal-fade' : ''}`}
             style={{ touchAction: 'none', height: '100dvh', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
             {/* Top Progress Bars (Instagram style) */}
@@ -274,7 +289,7 @@ export const MobileStoryView = () => {
                                 width: i < activeIndex ? '100%' : i === activeIndex ? '0%' : '0%',
                                 ...(i === activeIndex ? {
                                     animation: `storyProgress ${STORY_DURATION}ms linear forwards`,
-                                    animationPlayState: isPaused ? 'paused' : 'running',
+                                    animationPlayState: isPaused || !revealed ? 'paused' : 'running',
                                 } : {}),
                             }}
                         />
@@ -295,6 +310,7 @@ export const MobileStoryView = () => {
             <div className="relative w-[88vw] mx-4 my-auto">
                 {/* Active Card Body — no animation, instant switch */}
                 <div
+                    ref={cardRef}
                     className="story-nav-area w-full bg-black rounded-3xl border-2 border-white p-8 shadow-2xl flex flex-col font-mono relative z-10 pointer-events-auto cursor-pointer"
                 >
                     <CardContent key={CARDS[activeIndex].id} card={CARDS[activeIndex]} isActive={true} />
@@ -316,7 +332,7 @@ export const MobileStoryView = () => {
                     };
 
                     return (
-                        <Sticker key={stConfig.id} data={mobData} noAnimation />
+                        <Sticker key={stConfig.id} data={mobData} noAnimation cardAreaRef={cardRef} onOpenChange={handleStickerOpenChange} />
                     );
                 })}
             </div>

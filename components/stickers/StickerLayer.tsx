@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { STICKER_CONFIG } from './StickerConfig';
+import { STICKER_CONFIG, CARD_STICKER_SPOTLIGHT } from './StickerConfig';
 import { Sticker } from './Sticker';
 
 
@@ -28,7 +28,7 @@ export const StickerLayer: React.FC<{
   onActiveChange?: (active: boolean) => void;
 }> = ({ activeIndex = 0, isAnyActive = false, onActiveChange }) => {
   const stickers = STICKER_CONFIG.filter((s) => s.id !== 'main-me');
-  const isSecondCard = activeIndex === 1;
+  const spotlight = CARD_STICKER_SPOTLIGHT[activeIndex];
 
   return (
     <div 
@@ -36,11 +36,9 @@ export const StickerLayer: React.FC<{
       style={{ zIndex: isAnyActive ? 250 : 15 }}
     >
       {stickers.map((sticker) => {
-        const isRetained = 
-          !!(sticker.popup?.title && sticker.popup?.linkUrl) || 
-          ['main-me', 'ghl', 'kajabi', 'squarespace', 'wix'].includes(sticker.id);
-        const shouldShrink = isSecondCard && !isRetained;
-        const shouldExpand = isSecondCard && isRetained && sticker.id !== 'main-me' && sticker.id !== 'cat';
+        const isLit = !spotlight || spotlight.includes(sticker.id);
+        const shouldShrink = !!spotlight && !isLit;
+        const shouldExpand = !!spotlight && isLit && sticker.id !== 'cat';
         return (
           <Sticker 
             key={sticker.id} 

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, useSpring, useTransform, MotionValue, useAnimate, stagger } from 'framer-motion';
 import { ChevronUp, ChevronDown, Home } from 'lucide-react';
+import { useRevealed } from './RevealContext';
 
 // Sample data
 export interface CardData {
@@ -86,6 +87,11 @@ export const StickyCardStack = ({ onActiveIndexChange, cardAreaRef }: { onActive
     const scrollAccumulator = useRef(0);
     const touchStart = useRef(0);
 
+    // Ignore scrolls and swipes while the opening screen still covers the cards
+    const revealed = useRevealed();
+    const revealedRef = useRef(revealed);
+    useEffect(() => { revealedRef.current = revealed; }, [revealed]);
+
     useEffect(() => {
         // Sync spring with state
         currentProgress.set(activeIndex);
@@ -94,6 +100,7 @@ export const StickyCardStack = ({ onActiveIndexChange, cardAreaRef }: { onActive
 
     const handleWheel = useCallback((e: WheelEvent) => {
         e.preventDefault();
+        if (!revealedRef.current) return;
 
         // Add delta to our "virtual scroll" bucket
         scrollAccumulator.current += e.deltaY;
@@ -128,6 +135,7 @@ export const StickyCardStack = ({ onActiveIndexChange, cardAreaRef }: { onActive
         };
 
         const handleTouchEnd = (e: TouchEvent) => {
+            if (!revealedRef.current) return;
             const touchEnd = e.changedTouches[0].clientY;
             const diff = touchStart.current - touchEnd;
             const threshold = 50; // swipe distance threshold in px
@@ -158,10 +166,9 @@ export const StickyCardStack = ({ onActiveIndexChange, cardAreaRef }: { onActive
                     ref={cardAreaRef}
                     className="relative w-[21rem] h-[26rem] md:w-[28.75rem] md:h-[20rem]"
                     initial={{ opacity: 0, scale: 1.4 }}
-                    animate={{
-                        opacity: [0, 1, 1],
-                        scale: [1.4, 0.94, 1]
-                    }}
+                    animate={revealed
+                        ? { opacity: [0, 1, 1], scale: [1.4, 0.94, 1] }
+                        : { opacity: 0, scale: 1.4 }}
                     transition={{
                         duration: 0.7,
                         delay: 0,
@@ -244,9 +251,11 @@ interface CardProps {
 export const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) => {
     const [scope, animate] = useAnimate();
     const hasAnimated = useRef<number | null>(null);
+    // Words pop in once the opening screen has handed off, not while hidden under it
+    const revealed = useRevealed();
 
     useEffect(() => {
-        if (isActive) {
+        if (isActive && revealed) {
             if (hasAnimated.current !== card.id) {
                 // First time for this card: play word pop stagger
                 animate(
@@ -266,7 +275,7 @@ export const CardContent = ({ card, isActive }: { card: CardData; isActive: bool
         } else {
             animate(".word-reveal", { opacity: 0, scale: 0.6 }, { duration: 0.01, delay: 0.2 });
         }
-    }, [isActive, card.id, animate]);
+    }, [isActive, revealed, card.id, animate]);
 
     const splitText = (text: string) => {
         return text.split(/(\s+)/).map((word, wordIndex) => {
