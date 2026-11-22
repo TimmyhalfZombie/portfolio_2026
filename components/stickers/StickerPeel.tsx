@@ -3,10 +3,10 @@
 import React, { useEffect, useRef } from 'react';
 import { animate, AnimationPlaybackControls } from 'framer-motion';
 
-type Corner = 'tl' | 'tr' | 'bl' | 'br';
+export type Corner = 'tl' | 'tr' | 'bl' | 'br';
 
 /** Outermost opaque pixel of the sticker along each corner's diagonal (x + y and x − y) */
-interface Extents {
+export interface Extents {
     maxSum: number;
     minSum: number;
     maxDiff: number;
@@ -61,13 +61,12 @@ function measureExtents(img: HTMLImageElement, w: number, h: number): Extents | 
 }
 
 /**
- * Peel geometry for one corner at progress t (0 = flat, 1 = fully peeled).
+ * Peel geometry for one corner, with the fold p px in from the corner's outermost point.
  * The fold is a 45° line across the corner: the front keeps everything on the near side
  * of it, and the flap is the corner mirrored across the fold, so it shows the back of
  * exactly the part that lifted.
  */
-function peelGeometry(corner: Corner, w: number, h: number, ext: Extents, t: number) {
-    const p = t * Math.min(PEEL_DEPTH * Math.min(w, h), MAX_PEEL_PX);
+export function peelGeometry(corner: Corner, w: number, h: number, ext: Extents, p: number) {
     const m = SHADOW_ROOM;
     const poly = (pts: number[][]) => `polygon(${pts.map(([x, y]) => `${x}px ${y}px`).join(', ')})`;
     // Flap depth as a share of the gradient line, so the shading spans just the flap
@@ -108,6 +107,10 @@ function peelGeometry(corner: Corner, w: number, h: number, ext: Extents, t: num
     };
 }
 
+/** Backing paper for the flap: darker at the crease, brightening toward the lifted tip */
+export const backingGradient = ({ angle, fold, depth }: { angle: number; fold: number; depth: number }) =>
+    `linear-gradient(${angle}deg, #a8a8a8 ${fold}%, #e2e2e2 ${fold + depth * 0.45}%, #fbfbfb ${fold + depth}%)`;
+
 /** Hover peel: the corner nearest the cursor lifts and folds back, showing the sticker's backing */
 export const StickerPeel: React.FC<StickerPeelProps> = ({ enabled, dimmed = false, children }) => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -139,12 +142,12 @@ export const StickerPeel: React.FC<StickerPeelProps> = ({ enabled, dimmed = fals
             return;
         }
 
-        const g = peelGeometry(corner.current, size.current.w, size.current.h, extents.current.ext, t);
+        const { w, h } = size.current;
+        const g = peelGeometry(corner.current, w, h, extents.current.ext, t * Math.min(PEEL_DEPTH * Math.min(w, h), MAX_PEEL_PX));
         front.style.clipPath = g.front;
         flap.style.clipPath = g.flap;
         flap.style.transform = g.transform;
-        // Backing paper: darker at the crease, brightening toward the lifted tip
-        flap.style.background = `linear-gradient(${g.angle}deg, #a8a8a8 ${g.fold}%, #e2e2e2 ${g.fold + g.depth * 0.45}%, #fbfbfb ${g.fold + g.depth}%)`;
+        flap.style.background = backingGradient(g);
         flapWrap.style.visibility = 'visible';
     };
 

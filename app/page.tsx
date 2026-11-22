@@ -21,9 +21,10 @@ export default function Home() {
   const [showCommentsModal, setShowCommentsModal] = useState(false);
   const cardAreaRef = useRef<HTMLDivElement>(null);
 
-  // Opening screen covers the portfolio while it's built and its images decode underneath
+  // Opening screen covers the portfolio while it's built and its images decode underneath.
+  // Progress goes in a ref so the hidden portfolio isn't re-rendered on every decoded image.
   const portfolioRef = useRef<HTMLDivElement>(null);
-  const [contentReady, setContentReady] = useState(false);
+  const loadProgressRef = useRef(0);
   const [revealed, setRevealed] = useState(false);
   const handleIntroDone = useCallback(() => setRevealed(true), []);
 
@@ -50,17 +51,18 @@ export default function Home() {
     }
   }, [isMobileLayout]);
 
-  // Ready = fonts loaded and every image in the portfolio downloaded and decoded,
-  // so nothing decodes or pops in while the entrance animations run
+  // Loaded = fonts ready and every image in the portfolio, plus every sticker that isn't on
+  // screen yet, downloaded and decoded, so nothing loads or pops in once it's revealed
   useEffect(() => {
     if (!mounted) return;
     let cancelled = false;
     const imgs = Array.from(portfolioRef.current?.querySelectorAll('img') ?? []);
-    const tasks: Promise<unknown>[] = [document.fonts.ready, ...imgs.map((img) => img.decode())];
-    Promise.all(tasks.map((task) => task.catch(() => { }))).then(() => {
-      if (!cancelled) setContentReady(true);
-    });
-    const fallback = setTimeout(() => setContentReady(true), MAX_LOADING_MS);
+    const tasks = [document.fonts.ready, ...imgs.map((img) => img.decode())].map((task) => task.catch(() => { }));
+    let settled = 0;
+    tasks.forEach((task) => task.then(() => {
+      if (!cancelled) loadProgressRef.current = Math.max(loadProgressRef.current, ++settled / tasks.length);
+    }));
+    const fallback = setTimeout(() => { loadProgressRef.current = 1; }, MAX_LOADING_MS);
     return () => {
       cancelled = true;
       clearTimeout(fallback);
@@ -124,19 +126,20 @@ export default function Home() {
               <MobileStoryView />
             </div>
           ))}
+
+          {/* Every sticker, including ones not on screen yet (later mobile story slides), so the
+              opening screen waits for them too and nothing downloads after the reveal */}
+          {mounted && (
+            <div aria-hidden="true" className="fixed left-0 top-0 w-px h-px overflow-hidden opacity-0 pointer-events-none">
+              {STICKER_CONFIG.map((s) => (
+                <Image key={s.id} src={s.src} alt="" width={s.widthPx} height={s.widthPx} loading="eager" />
+              ))}
+            </div>
+          )}
         </div>
       </RevealContext.Provider>
 
-      {!revealed && <IntroScreen ready={contentReady} onDone={handleIntroDone} />}
-
-      {/* After the reveal, quietly fetch stickers not on screen yet (later mobile story slides) */}
-      {revealed && (
-        <div aria-hidden="true" className="fixed left-0 top-0 w-px h-px overflow-hidden opacity-0 pointer-events-none">
-          {STICKER_CONFIG.map((s) => (
-            <Image key={s.id} src={s.src} alt="" width={s.widthPx} height={s.widthPx} loading="eager" />
-          ))}
-        </div>
-      )}
+      {!revealed && <IntroScreen progressRef={loadProgressRef} onDone={handleIntroDone} />}
     </main>
   );
 }

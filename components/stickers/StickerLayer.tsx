@@ -56,9 +56,8 @@ export const StickerLayer: React.FC<{
 
 /**
  * Main-me sticker — position-based z-index:
- * - Overlapping card area → z-8 (behind cards)
- * - Away from card area → z-250 (above everything including stickers)
- * - During drag → z-250 (always on top while moving)
+ * - Overlapping card area → z-8 (behind cards), even while pressed or dragged
+ * - Dragged fully clear of the card area → z-250 (above everything including stickers)
  */
 export const StickerLayerMainMe: React.FC<{ 
   activeIndex?: number;

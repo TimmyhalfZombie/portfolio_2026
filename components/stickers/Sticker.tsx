@@ -319,6 +319,19 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
         setLocalZIndex(globalMaxZIndex);
     };
 
+    // Whether the sticker touches the card stack (null when there's no card to check against)
+    const overlapsCard = () => {
+        if (!cardAreaRef?.current || !stickerRef.current) return null;
+        const stickerRect = stickerRef.current.getBoundingClientRect();
+        const cardRect = cardAreaRef.current.getBoundingClientRect();
+        return !(
+            stickerRect.right < cardRect.left ||
+            stickerRect.left > cardRect.right ||
+            stickerRect.bottom < cardRect.top ||
+            stickerRect.top > cardRect.bottom
+        );
+    };
+
     const [hasEntered, setHasEntered] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
@@ -666,23 +679,13 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                     onAnimationComplete: () => { if (revealed) setHasEntered(true); },
                     onPointerDown: () => {
                         bringToFront();
-                        onDragStateChange?.(true);
+                        // Stickers behind the cards stay tucked under on a press — they only come out once dragged clear
+                        if (!data.behindCards) onDragStateChange?.(true);
                     },
                     onPointerUp: () => {
                         if (!wasDragged.current) {
-                            if (cardAreaRef?.current && stickerRef.current) {
-                                const stickerRect = stickerRef.current.getBoundingClientRect();
-                                const cardRect = cardAreaRef.current.getBoundingClientRect();
-                                const overlaps = !(
-                                    stickerRect.right < cardRect.left ||
-                                    stickerRect.left > cardRect.right ||
-                                    stickerRect.bottom < cardRect.top ||
-                                    stickerRect.top > cardRect.bottom
-                                );
-                                onDragStateChange?.(overlaps ? false : true);
-                            } else {
-                                onDragStateChange?.(false);
-                            }
+                            const overlaps = overlapsCard();
+                            onDragStateChange?.(overlaps === null ? false : !overlaps);
                         }
                     },
                     onDragStart: () => {
@@ -690,25 +693,18 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                         // A portaled popup can't follow the sticker, so close it
                         if (portalPopup) setShowPopup(false);
                         bringToFront();
-                        onDragStateChange?.(true);
+                        if (!data.behindCards) onDragStateChange?.(true);
                     },
+                    // Pulled fully clear of the card, it comes out on top and stays there for the rest of the drag
+                    onDrag: data.behindCards
+                        ? () => { if (overlapsCard() === false) onDragStateChange?.(true); }
+                        : undefined,
                     onDragEnd: () => {
                         setTimeout(() => {
                             wasDragged.current = false;
                         }, 100);
-                        if (cardAreaRef?.current && stickerRef.current) {
-                            const stickerRect = stickerRef.current.getBoundingClientRect();
-                            const cardRect = cardAreaRef.current.getBoundingClientRect();
-                            const overlaps = !(
-                                stickerRect.right < cardRect.left ||
-                                stickerRect.left > cardRect.right ||
-                                stickerRect.bottom < cardRect.top ||
-                                stickerRect.top > cardRect.bottom
-                            );
-                            onDragStateChange?.(overlaps ? false : true);
-                        } else {
-                            onDragStateChange?.(false);
-                        }
+                        const overlaps = overlapsCard();
+                        onDragStateChange?.(overlaps === null ? false : !overlaps);
                     },
                     whileDrag: isMobile ? undefined : { cursor: 'grabbing' },
                 })}

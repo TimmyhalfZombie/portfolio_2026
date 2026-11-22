@@ -119,15 +119,96 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Offsets the trailing letter-spacing so the word sits visually centred */
-  padding-left: 0.055em;
+  /* Balances the negative trailing letter-spacing so the word sits visually centred */
+  padding-right: 0.045em;
   font-family: var(--font-geist-sans), system-ui, sans-serif;
-  font-weight: 800;
+  font-weight: 900;
   font-size: calc(var(--cell) * 4.4);
   line-height: 1;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
   color: #f2f2f2;
   white-space: nowrap;
+}
+
+/* Die-cut corner marks — they snap outward onto the grid corners around the name */
+.intro-mark {
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  border: 0 solid rgba(255, 255, 255, 0.85);
+  animation: intro-mark-in 0.45s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+.intro-mark.tl {
+  left: 0;
+  top: 0;
+  border-left-width: 2px;
+  border-top-width: 2px;
+  --dx: 0.75rem;
+  --dy: 0.75rem;
+}
+
+.intro-mark.tr {
+  right: -1px;
+  top: 0;
+  border-right-width: 2px;
+  border-top-width: 2px;
+  --dx: -0.75rem;
+  --dy: 0.75rem;
+}
+
+.intro-mark.bl {
+  left: 0;
+  bottom: -1px;
+  border-left-width: 2px;
+  border-bottom-width: 2px;
+  --dx: 0.75rem;
+  --dy: -0.75rem;
+}
+
+.intro-mark.br {
+  right: -1px;
+  bottom: -1px;
+  border-right-width: 2px;
+  border-bottom-width: 2px;
+  --dx: -0.75rem;
+  --dy: -0.75rem;
+}
+
+/* Small print captions just outside the marks, like the labels on a sticker sheet */
+.intro-caption {
+  position: absolute;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: max(0.75rem, 10px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  animation: intro-fade-in 0.5s ease 0.3s both;
+}
+
+.intro-caption.top {
+  bottom: calc(100% + 0.65rem);
+}
+
+.intro-caption.bottom {
+  top: calc(100% + 0.65rem);
+}
+
+.intro-caption.left {
+  left: 0;
+}
+
+.intro-caption.right {
+  right: 0;
+}
+
+.intro-percent {
+  color: rgba(255, 255, 255, 0.9);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Once every square has landed, one seamless solid layer takes over so no seams show */
@@ -142,20 +223,19 @@ body {
   animation: intro-swap-out 0s linear var(--assembled-at) forwards;
 }
 
-/* While the page finishes loading, a soft glow passes through the letters */
-.intro-letter {
-  position: relative;
+/* The peeled corner of the letters: their backing paper, mirrored across the fold (geometry set from JS) */
+.intro-flap-wrap {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  filter: drop-shadow(0 0.35rem 0.5rem rgba(0, 0, 0, 0.55));
 }
 
-.intro-letter::after {
-  content: attr(data-char);
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: #fff;
-  text-shadow: 0 0 0.12em rgba(255, 255, 255, 0.55);
-  opacity: 0;
-  animation: intro-glow 1.6s ease-in-out calc(var(--assembled-at) + 500ms + var(--i) * 160ms) infinite;
+.intro-flap {
+  transform-origin: 0 0;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 /* Each square slaps down like a tiny sticker, alternating which way it's tilted */
@@ -165,7 +245,7 @@ body {
   top: calc(var(--row) * var(--cell));
   width: var(--cell);
   height: var(--cell);
-  animation: intro-tile-slap-l 0.5s cubic-bezier(0.25, 1, 0.5, 1) var(--slap-delay) both;
+  animation: intro-tile-slap-l 0.6s cubic-bezier(0.25, 1, 0.5, 1) var(--slap-delay) both;
   will-change: transform, opacity;
 }
 
@@ -208,6 +288,18 @@ body {
   animation-name: intro-tile-fall-r;
 }
 
+.is-leaving .intro-mark,
+.is-leaving .intro-caption {
+  animation: intro-fade-out 0.25s ease both;
+}
+
+@keyframes intro-mark-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy));
+  }
+}
+
 @keyframes intro-swap-in {
   to {
     opacity: 1;
@@ -223,17 +315,6 @@ body {
 @keyframes intro-crack {
   to {
     transform: scale(0.94);
-  }
-}
-
-@keyframes intro-glow {
-  0%,
-  100% {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 1;
   }
 }
 
@@ -299,7 +380,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .intro-tile,
   .intro-tile.tilt-r,
-  .intro-letter::after {
+  .intro-mark {
     animation: none;
   }
 

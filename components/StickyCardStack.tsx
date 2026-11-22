@@ -17,7 +17,7 @@ export interface CardData {
 export const CARDS: CardData[] = [
     {
         id: 1,
-        title: "Hi, I'm Shem.",
+        title: "Hi, I'm Rei.",
         titleClass: "text-2xl",
         description: "Full-stack developer. Building things that actually work.",
         bullets: [
