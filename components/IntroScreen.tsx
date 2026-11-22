@@ -2,20 +2,20 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
-/** "Rei" in a 5-row pixel font — every '#' becomes a tile that lands in a cell of the background grid */
-const GLYPHS = [
-    ['###.', '#..#', '###.', '#.#.', '#..#'], // R
-    ['.#.', '#.#', '###', '#..', '.##'], //      e
-    ['#', '.', '#', '#', '#'], //                i
-];
+const NAME = 'Rei';
+/** The name's box in background-grid cells — it's cut into one square per cell */
+const COLS = 8;
 const ROWS = 5;
-const LETTER_GAP = 1;
 
-/** Columns land left to right, so the name assembles like it's being written */
-const SLAP_COL_STEP = 85;
-/** Beat before the dot of the i lands, as the finishing touch */
-const DOT_PAUSE = 260;
+/** Squares land in a diagonal sweep, left to right, so the name assembles like it's being stamped */
+const SLAP_COL_STEP = 75;
+const SLAP_ROW_STEP = 35;
+/** Slap-in duration (ms) — matches .intro-tile in globals.css */
+const SLAP_MS = 500;
+/** The name cracks along the grid first, then the squares tumble away */
+const CRACK_MS = 140;
 const FALL_COL_STEP = 35;
+const FALL_ROW_STEP = 15;
 /** Fall-away duration (ms) — matches .is-leaving .intro-tile in globals.css */
 const FALL_MS = 550;
 /** Hold on the finished name once loading is done, so it clearly reads before leaving */
@@ -24,51 +24,30 @@ const SETTLE_MS = 700;
 /** Integer hash → 0..1, so the server and every browser render identical delays */
 const jitter = (n: number) => ((n * 7919) % 97) / 97;
 
-interface Tile {
-    col: number;
-    row: number;
-    slapDelay: number;
-    fallDelay: number;
-}
-
-const TILES: Tile[] = (() => {
-    const tiles: Tile[] = [];
-    let x = 0;
-    GLYPHS.forEach((glyph, g) => {
-        glyph.forEach((line, row) => {
-            [...line].forEach((cell, c) => {
-                if (cell !== '#') return;
-                const col = x + c;
-                const i = tiles.length;
-                tiles.push({
-                    col,
-                    row,
-                    slapDelay: Math.round(col * SLAP_COL_STEP + jitter(i) * 60),
-                    fallDelay: Math.round(col * FALL_COL_STEP + jitter(i + 7) * 80),
-                });
-            });
-        });
-        // Dot the i last
-        if (g === GLYPHS.length - 1) {
-            const dot = tiles.find((t) => t.col === x && t.row === 0);
-            if (dot) dot.slapDelay = Math.max(...tiles.map((t) => t.slapDelay)) + DOT_PAUSE;
-        }
-        x += glyph[0].length + LETTER_GAP;
-    });
-    return tiles;
-})();
-const COLS = Math.max(...TILES.map((t) => t.col)) + 1;
-const EXIT_MS = FALL_MS + Math.max(...TILES.map((t) => t.fallDelay));
+const TILES = Array.from({ length: COLS * ROWS }, (_, i) => {
+    const col = i % COLS;
+    const row = Math.floor(i / COLS);
+    return {
+        col,
+        row,
+        slapDelay: Math.round(col * SLAP_COL_STEP + row * SLAP_ROW_STEP + jitter(i) * 40),
+        fallDelay: Math.round(CRACK_MS + col * FALL_COL_STEP + row * FALL_ROW_STEP + jitter(i + 7) * 70),
+    };
+});
+/** When the last square has landed — the seamless solid name takes over from then */
+const ASSEMBLED_AT = Math.max(...TILES.map((t) => t.slapDelay)) + SLAP_MS;
+const EXIT_MS = Math.max(...TILES.map((t) => t.fallDelay)) + FALL_MS;
 
 interface IntroScreenProps {
     /** True once everything underneath is loaded and decoded */
     ready: boolean;
-    /** Called after the tiles have fallen away */
+    /** Called after the squares have fallen away */
     onDone: () => void;
 }
 
 /**
- * Opening screen: "Rei" is built tile by tile in the page's own background grid.
+ * Opening screen: "Rei" in solid type, assembled from squares that slap into the page's
+ * background grid, and broken back into those squares when the portfolio is ready.
  * Rendered in the server HTML and animated with CSS only, so it shows immediately and
  * stays smooth while the JavaScript loads and the portfolio is built underneath.
  */
@@ -77,8 +56,8 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ ready, onDone }) => {
     const [landed, setLanded] = useState(false);
     const [leaving, setLeaving] = useState(false);
 
-    // Tiles may have landed before JS hydrated; finished resolves right away then.
-    // The looping shimmer never finishes, so only the one-off landings are awaited.
+    // Squares may have landed before JS hydrated; finished resolves right away then.
+    // The looping glow never finishes, so only the one-off animations are awaited.
     useEffect(() => {
         const landings = (nameRef.current?.getAnimations({ subtree: true }) ?? [])
             .filter((a) => a.effect?.getTiming().iterations !== Infinity);
@@ -107,22 +86,36 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ ready, onDone }) => {
                 ref={nameRef}
                 aria-hidden="true"
                 className={`intro-name ${leaving ? 'is-leaving' : ''}`}
-                style={{ '--cols': COLS, '--rows': ROWS } as React.CSSProperties}
+                style={{ '--cols': COLS, '--rows': ROWS, '--assembled-at': `${ASSEMBLED_AT}ms` } as React.CSSProperties}
             >
-                {TILES.map((t, i) => (
-                    <span
-                        key={i}
-                        className={`intro-tile ${i % 2 ? 'tilt-r' : ''}`}
-                        style={{
-                            '--col': t.col,
-                            '--row': t.row,
-                            '--slap-delay': `${t.slapDelay}ms`,
-                            '--fall-delay': `${t.fallDelay}ms`,
-                        } as React.CSSProperties}
-                    >
-                        <span className="intro-tile-face" />
-                    </span>
-                ))}
+                {/* One seamless solid layer, shown while the name is whole */}
+                <div className="intro-text intro-solid">
+                    {[...NAME].map((char, i) => (
+                        <span key={i} className="intro-letter" data-char={char} style={{ '--i': i } as React.CSSProperties}>
+                            {char}
+                        </span>
+                    ))}
+                </div>
+
+                {/* The same name cut into grid squares — each square is a window onto its slice */}
+                <div className="intro-tiles">
+                    {TILES.map((t, i) => (
+                        <span
+                            key={i}
+                            className={`intro-tile ${(t.col + t.row) % 2 ? 'tilt-r' : ''}`}
+                            style={{
+                                '--col': t.col,
+                                '--row': t.row,
+                                '--slap-delay': `${t.slapDelay}ms`,
+                                '--fall-delay': `${t.fallDelay}ms`,
+                            } as React.CSSProperties}
+                        >
+                            <span className="intro-tile-piece">
+                                <span className="intro-text">{NAME}</span>
+                            </span>
+                        </span>
+                    ))}
+                </div>
             </div>
         </div>
     );
