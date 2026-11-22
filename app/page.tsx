@@ -41,16 +41,6 @@ export default function Home() {
     return () => mql.removeEventListener('change', update);
   }, []);
 
-  // Force 3.1vw base font when mobile story view is active (phone + tablet portrait)
-  // This ensures rem-based sizing (card, stickers, text) scales proportionally on ALL devices
-  useEffect(() => {
-    if (isMobileLayout) {
-      document.documentElement.style.setProperty('font-size', '3.1vw', 'important');
-    } else {
-      document.documentElement.style.removeProperty('font-size');
-    }
-  }, [isMobileLayout]);
-
   // Loaded = fonts ready and every image in the portfolio, plus every sticker that isn't on
   // screen yet, downloaded and decoded, so nothing loads or pops in once it's revealed
   useEffect(() => {
@@ -140,6 +130,20 @@ export default function Home() {
       </RevealContext.Provider>
 
       {!revealed && <IntroScreen progressRef={loadProgressRef} onDone={handleIntroDone} />}
+
+      {/* Phones held sideways — shown by CSS only (see .rotate-prompt) */}
+      <div className="rotate-prompt">
+        <div className="rotate-frame">
+          <span className="intro-mark tl" />
+          <span className="intro-mark tr" />
+          <span className="intro-mark bl" />
+          <span className="intro-mark br" />
+          <span className="intro-caption top left">Portfolio</span>
+          <span className="intro-caption top right">Portrait</span>
+          <span className="rotate-phone" aria-hidden="true" />
+          <span className="intro-caption bottom">Turn your phone upright</span>
+        </div>
+      </div>
     </main>
   );
 }

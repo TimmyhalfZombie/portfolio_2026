@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -195,6 +195,23 @@ function animatePopupText(popupElement: HTMLElement) {
     });
 }
 
+/** Slides an open popup sideways so it stays on screen, keeping its caret on the sticker */
+function keepPopupOnScreen(popup: HTMLElement, bubble: HTMLElement | null, caret: HTMLElement | null) {
+    if (!bubble || !caret) return;
+    bubble.style.left = '';
+    caret.style.marginLeft = '';
+    // It pops in scaled down around its caret, so work out its full-size edges from that point
+    const rect = popup.getBoundingClientRect();
+    const width = popup.offsetWidth;
+    const share = (parseFloat(getComputedStyle(popup).transformOrigin) || 0) / width;
+    const left = rect.left + rect.width * share - width * share;
+    const margin = 8;
+    const shift = left < margin ? margin - left : Math.min(0, window.innerWidth - margin - (left + width));
+    if (!shift) return;
+    bubble.style.left = `${shift}px`;
+    caret.style.marginLeft = `${-shift}px`;
+}
+
 let musicToastActive = false;
 
 // Keep toast in sync when songs auto-advance (ended event)
@@ -305,6 +322,10 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
         return () => mql.removeEventListener('change', update);
     }, []);
 
+    // Phones and the mobile story: popups use fixed rem there (rem already follows the screen) and stay on screen
+    const touchLayout = isMobile || noAnimation;
+    const popupSize = (desktop: string, touch: string) => (touchLayout ? touch : desktop);
+
     const effectiveShrunk = isMobile ? false : isShrunk;
     const targetScale = effectiveShrunk 
         ? 0.9 
@@ -354,6 +375,8 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
     const isFlyingGuard = useRef(false);
     const wasDragged = useRef(false);
     const popupRef = useRef<HTMLDivElement>(null);
+    const bubbleRef = useRef<HTMLDivElement>(null);
+    const caretRef = useRef<HTMLDivElement>(null);
 
     // Stickers behind the cards portal their popup to <body> so it isn't hidden under the card stack
     const portalPopup = !!data.behindCards;
@@ -395,9 +418,11 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
             if (isShrunkRef.current) return;
             setShowPopup(true);
             try { localStorage.setItem(INTRO_SEEN_KEY, '1'); } catch { }
-        }, 2400); // after every sticker has landed
+        // After every sticker has landed. In the story it opens over the slide's title (above the
+        // cat would cover his face), so it waits until the title has had time to be read
+        }, noAnimation ? 5000 : 2400);
         return () => clearTimeout(timerId);
-    }, [popup?.autoOpenOnce, revealed]);
+    }, [popup?.autoOpenOnce, revealed, noAnimation]);
 
     const isOpen = showPopup || showContactModal || showCertificatesModal;
     useEffect(() => {
@@ -416,12 +441,13 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
         return () => el.removeEventListener('pointerdown', block);
     });
 
-    // Apply word pop animation when popup opens
-    useEffect(() => {
+    // Apply word pop animation when popup opens — before paint, so the bubble is measured with its final text
+    useLayoutEffect(() => {
         if (showPopup && popupRef.current) {
             animatePopupText(popupRef.current);
+            if (touchLayout) keepPopupOnScreen(popupRef.current, bubbleRef.current, caretRef.current);
         }
-    }, [showPopup, popupIndex]);
+    }, [showPopup, popupIndex, touchLayout]);
 
     // Close popup when clicking outside the sticker or after timeout
     useEffect(() => {
@@ -619,11 +645,11 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
         }
     }
     // If the sticker is in the upper 30% of the screen, show the popup below it to avoid cutoff (unless overridden).
-    const isPopupBelow = (isMobile || noAnimation)
+    const isPopupBelow = touchLayout
         ? (popup?.mobileForceBottom ? true : (popup?.mobileForceTop ? false : (popup?.forceBottom ? true : (popup?.forceTop ? false : rawTop < 30))))
         : (popup?.forceBottom ? true : (popup?.forceTop ? false : rawTop < 30));
 
-    const effectiveOffsetX = popup ? ((isMobile || noAnimation)
+    const effectiveOffsetX = popup ? (touchLayout
         ? (popup.mobileOffsetX !== undefined ? popup.mobileOffsetX : 0)
         : (popup.offsetX || 0)) : 0;
 
@@ -747,13 +773,16 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div
+                                ref={bubbleRef}
                                 className="relative bg-black border-2 border-white rounded-xl text-center font-mono font-semibold text-white select-none leading-relaxed"
                                 style={{
-                                    padding: 'clamp(0.5rem, 0.8vw, 0.75rem) clamp(0.625rem, 1.1vw, 1rem)',
-                                    fontSize: 'clamp(0.72rem, 1.2vw, 0.95rem)',
+                                    padding: popupSize('clamp(0.5rem, 0.8vw, 0.75rem) clamp(0.625rem, 1.1vw, 1rem)', '0.7rem 0.95rem'),
+                                    fontSize: popupSize('clamp(0.72rem, 1.2vw, 0.95rem)', '1.15rem'),
                                     width: 'max-content',
-                                    maxWidth: popup.maxWidth ? `min(${popup.maxWidth / 16}rem, calc(100vw - 2rem))` : 'min(20rem, calc(100vw - 2rem))',
-                                    minWidth: 'clamp(5rem, 8vw, 7.5rem)',
+                                    maxWidth: touchLayout
+                                        ? 'min(25rem, calc(100vw - 2rem))'
+                                        : popup.maxWidth ? `min(${popup.maxWidth / 16}rem, calc(100vw - 2rem))` : 'min(20rem, calc(100vw - 2rem))',
+                                    minWidth: popupSize('clamp(5rem, 8vw, 7.5rem)', '7rem'),
                                 }}
                             >
                                 {(() => {
@@ -762,9 +791,9 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                                     // Card-style layout for project popups (has title)
                                     if (popup.title) {
                                         return (
-                                            <div className="flex flex-col w-full text-left" style={{ gap: 'clamp(0.5rem, 0.8vw, 0.75rem)' }}>
-                                                <p className="font-bold text-white tracking-wide m-0" style={{ fontSize: 'clamp(0.72rem, 1.2vw, 0.95rem)' }}>{popup.title}</p>
-                                                <p className="text-white leading-relaxed m-0 whitespace-pre-wrap" style={{ fontSize: 'clamp(0.65rem, 1.05vw, 0.85rem)' }}>{displayText}</p>
+                                            <div className="flex flex-col w-full text-left" style={{ gap: popupSize('clamp(0.5rem, 0.8vw, 0.75rem)', '0.6rem') }}>
+                                                <p className="font-bold text-white tracking-wide m-0" style={{ fontSize: popupSize('clamp(0.72rem, 1.2vw, 0.95rem)', '1.2rem') }}>{popup.title}</p>
+                                                <p className="text-white leading-relaxed m-0 whitespace-pre-wrap" style={{ fontSize: popupSize('clamp(0.65rem, 1.05vw, 0.85rem)', '1.1rem') }}>{displayText}</p>
 
                                                 {/* Stack pills container */}
                                                 {popup.stack && (
@@ -772,14 +801,14 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                                                         ref={popup.stackAlwaysOpen ? undefined : stackRef}
                                                         className={popup.stackAlwaysOpen ? "mt-4 opacity-100" : "stack-wrap"}
                                                     >
-                                                        <div className="flex flex-wrap pt-1 pb-1" style={{ gap: 'clamp(0.25rem, 0.4vw, 0.375rem)' }}>
+                                                        <div className="flex flex-wrap pt-1 pb-1" style={{ gap: popupSize('clamp(0.25rem, 0.4vw, 0.375rem)', '0.35rem') }}>
                                                             {popup.stack.map((item, idx) => (
                                                                 <span
                                                                     key={idx}
                                                                     className="pill rounded-md bg-white/10 text-neutral-300 font-mono tracking-wider transition-colors hover:bg-white/20 uppercase"
                                                                     style={{
-                                                                        padding: 'clamp(0.125rem, 0.2vw, 0.25rem) clamp(0.375rem, 0.6vw, 0.5rem)',
-                                                                        fontSize: 'clamp(0.55rem, 0.85vw, 0.7rem)'
+                                                                        padding: popupSize('clamp(0.125rem, 0.2vw, 0.25rem) clamp(0.375rem, 0.6vw, 0.5rem)', '0.2rem 0.5rem'),
+                                                                        fontSize: popupSize('clamp(0.55rem, 0.85vw, 0.7rem)', '0.85rem')
                                                                     }}
                                                                 >
                                                                     {item}
@@ -797,7 +826,7 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="underline underline-offset-2 text-white decoration-zinc-500 uppercase tracking-wider font-semibold"
-                                                            style={{ fontSize: 'clamp(0.55rem, 0.9vw, 0.75rem)' }}
+                                                            style={{ fontSize: popupSize('clamp(0.55rem, 0.9vw, 0.75rem)', '0.95rem') }}
                                                         >
                                                             {popup.linkText}
                                                         </a>
@@ -854,7 +883,7 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                                                                 toggle.textContent = open ? 'stack -' : 'stack +';
                                                             }}
                                                             className="text-white uppercase tracking-wider font-semibold cursor-pointer"
-                                                            style={{ fontSize: 'clamp(0.55rem, 0.9vw, 0.75rem)' }}
+                                                            style={{ fontSize: popupSize('clamp(0.55rem, 0.9vw, 0.75rem)', '0.95rem') }}
                                                         >
                                                             stack +
                                                         </button>
@@ -893,7 +922,7 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="underline underline-offset-2 text-zinc-300 decoration-white/50 uppercase tracking-wider font-bold mt-1"
-                                                    style={{ fontSize: 'clamp(0.6rem, 1vw, 0.8rem)' }}
+                                                    style={{ fontSize: popupSize('clamp(0.6rem, 1vw, 0.8rem)', '1rem') }}
                                                 >
                                                     {popup.linkText}
                                                 </a>
@@ -904,10 +933,11 @@ export const Sticker: React.FC<StickerProps> = ({ data, isShrunk = false, isExpa
 
                                 {/* Caret/triangle */}
                                 <div
+                                    ref={caretRef}
                                     className="absolute bg-black"
                                     style={{
-                                        width: 'clamp(0.625rem, 1vw, 0.875rem)',
-                                        height: 'clamp(0.625rem, 1vw, 0.875rem)',
+                                        width: popupSize('clamp(0.625rem, 1vw, 0.875rem)', '0.9rem'),
+                                        height: popupSize('clamp(0.625rem, 1vw, 0.875rem)', '0.9rem'),
                                         left: effectiveOffsetX ? `calc(${caretLeftPos} - ${effectiveOffsetX / 16}rem)` : caretLeftPos,
                                         [isPopupBelow ? 'top' : 'bottom']: '-0.406rem',
                                         transform: 'translateX(-50%) rotate(45deg)',

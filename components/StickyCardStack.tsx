@@ -248,7 +248,9 @@ interface CardProps {
     activeIndex: number;
 }
 
-export const CardContent = ({ card, isActive }: { card: CardData; isActive: boolean }) => {
+/** `story`: the mobile story's type at every width — it scales the whole story with rem, so the desktop card's md: sizes don't apply */
+export const CardContent = ({ card, isActive, story = false }: { card: CardData; isActive: boolean; story?: boolean }) => {
+    const md = (classes: string) => (story ? '' : classes);
     const [scope, animate] = useAnimate();
     const hasAnimated = useRef<number | null>(null);
     // Words pop in once the opening screen has handed off, not while hidden under it
@@ -299,17 +301,17 @@ export const CardContent = ({ card, isActive }: { card: CardData; isActive: bool
     };
 
     return (
-        <div ref={scope} className="space-y-4 md:space-y-3 tracking-[-0.02em] md:tracking-[-0.03em]">
-            <h3 className={`font-black md:font-bold text-white tracking-[-0.02em] md:tracking-[-0.03em] text-[1.75rem] ${card.titleClass ? `md:${card.titleClass}` : 'md:text-xl'}`}>
+        <div ref={scope} className={`space-y-4 ${md('md:space-y-3')} tracking-[-0.02em] ${md('md:tracking-[-0.03em]')}`}>
+            <h3 className={`font-black ${md('md:font-bold')} text-white tracking-[-0.02em] ${md('md:tracking-[-0.03em]')} text-[1.75rem] ${md(card.titleClass ? `md:${card.titleClass}` : 'md:text-xl')}`}>
                 {splitText(card.title)}
             </h3>
-            <p className="text-[1.25rem] md:text-[0.9375rem] text-neutral-200 md:text-white font-medium tracking-[-0.015em] md:tracking-[-0.025em] leading-relaxed md:leading-snug">
+            <p className={`text-[1.25rem] ${md('md:text-[0.9375rem]')} text-neutral-200 ${md('md:text-white')} font-medium tracking-[-0.015em] ${md('md:tracking-[-0.025em]')} leading-relaxed ${md('md:leading-snug')}`}>
                 {splitText(card.description)}
             </p>
-            <div className="space-y-3 md:space-y-2 pt-1 md:pt-2 text-[1.15rem] md:text-[0.9375rem] text-neutral-200 md:text-white font-normal tracking-[-0.015em] md:tracking-[-0.025em] leading-relaxed md:leading-snug">
+            <div className={`space-y-3 ${md('md:space-y-2')} pt-1 ${md('md:pt-2')} text-[1.15rem] ${md('md:text-[0.9375rem]')} text-neutral-200 ${md('md:text-white')} font-normal tracking-[-0.015em] ${md('md:tracking-[-0.025em]')} leading-relaxed ${md('md:leading-snug')}`}>
                 {card.bullets.map((bullet, i) => (
-                    <div key={i} className="flex items-start gap-2.5 md:gap-1.5">
-                        <span className="word-reveal opacity-0 text-white mt-[2px] md:mt-[1px] font-normal" style={{ transform: 'scale(0.6)', transformOrigin: 'center bottom' }}>-</span>
+                    <div key={i} className={`flex items-start gap-2.5 ${md('md:gap-1.5')}`}>
+                        <span className={`word-reveal opacity-0 text-white mt-[2px] ${md('md:mt-[1px]')} font-normal`} style={{ transform: 'scale(0.6)', transformOrigin: 'center bottom' }}>-</span>
                         <div className="flex-1">
                             {splitText(bullet)}
                         </div>

@@ -1,28 +1,23 @@
 @import "tailwindcss";
 
-/* 1.0417vw = 16px at 1536px viewport. All rem-based values scale proportionally. */
+/* 1.0417vw = 16px at a 1536px viewport; all rem-based values scale proportionally. */
 @layer base {
-  /* Phones (portrait, < 768px) */
+  /* Story view (portrait, or ≤ 768px wide — the same switch as page.tsx): rem follows the width,
+     capped by the visible height so the whole story (61rem tall, see the insets and reaches in
+     MobileStoryView) fits on short phones and wide tablets too. The svh line wins where supported. */
   html {
-    font-size: 3.1vw !important;
+    font-size: min(3.1vw, calc((100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 61)) !important;
+    font-size: min(3.1vw, calc((100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 61)) !important;
   }
 
-
-  /* Tablet landscape & small desktops (768px+ in landscape, or > 1024px any orientation) */
-  @media (min-width: 768px) and (orientation: landscape) {
+  /* Tablet landscape & small desktops */
+  @media (min-width: 769px) and (orientation: landscape) {
     html {
       font-size: 1.6vw !important;
     }
   }
 
   @media (min-width: 1024px) and (orientation: landscape) {
-    html {
-      font-size: 1.0417vw !important;
-    }
-  }
-
-  /* Large screens in portrait (> 1024px) — desktop UI */
-  @media (min-width: 1025px) and (orientation: portrait) {
     html {
       font-size: 1.0417vw !important;
     }
@@ -410,6 +405,101 @@ body {
 @keyframes intro-fade-out {
   to {
     opacity: 0;
+  }
+}
+
+/* ── Phones held sideways: the story is made for portrait, so ask for it in the opening's style ──
+   Pure CSS, so it shows straight from the server HTML. Sized in px: rem follows the story layout. */
+.rotate-prompt {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: #0a0a0a;
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .rotate-prompt {
+    display: flex;
+  }
+}
+
+.rotate-frame {
+  position: relative;
+  width: 160px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.rotate-frame .intro-mark {
+  width: 14px;
+  height: 14px;
+}
+
+.rotate-frame .intro-caption {
+  font-size: 10px;
+}
+
+.rotate-frame .intro-caption.top {
+  bottom: calc(100% + 10px);
+}
+
+/* The instruction itself, centred under the frame and brighter than the other captions */
+.rotate-frame .intro-caption.bottom {
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(100% + 16px);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.rotate-phone {
+  position: relative;
+  width: 32px;
+  height: 54px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 7px;
+  animation: rotate-phone 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+/* Speaker slot, so it reads as a phone and its turn reads as upright */
+.rotate-phone::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 8px;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(-50%);
+}
+
+@keyframes rotate-phone {
+  0%, 20% {
+    transform: rotate(-90deg);
+  }
+
+  50%, 85% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(-90deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rotate-phone {
+    animation: none;
   }
 }
 
